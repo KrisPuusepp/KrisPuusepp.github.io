@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <button id="btn" onclick="playsong()" style="height:50; width:100; font-size:25pt">start</button>
+        <audio loop id="playAudio">
+            <source src="https://cdn.discordapp.com/attachments/757196042801250365/785592255725568062/naenigganaenae.mp3" type="audio/mpeg">
+        </audio>
+        <title>KHATFADE</title>
+    </head>
+    <body onload="javascript:Init()" bgcolor="black">
+        <div id="fade" style="text-align:center; color:white; font-size:14pt; font-weight:bold; display:none">
+            <img src="https://media.discordapp.net/attachments/760179814266568795/784408968663007252/khatgonyoom.gif" style="height:300; width:300">
+            <br>
+            <br>
+            You've watched this khat get faded tho for <span id="time">0:00:00</span>.
+        </div>
+        <script>
+	        var time
+	        var output
+
+            var timer = false
+
+	        function Init(){
+	        	time = 0;
+	        }
+
+	        function convertOutput(){
+	        	var hours = 0
+	        	var mins = 0
+	        	var secs = time
+
+	        	while(secs >= 60){
+	        		secs -= 60;
+	        		mins += 1;
+	        	}
+
+	        	if(secs < 10){
+	        		secs = "0" + secs;
+	        	}
+
+	        	while(mins >= 60){
+	        		mins -= 60;
+	        		hours += 1;
+	        	}
+
+	        	if(mins < 10){
+	        		mins = "0" + mins;
+	        	}
+
+	        	output = hours + ":" + mins + ":" + secs;
+	        }
+
+	        function StartTimer(){
+	        	time += 1;
+	        	convertOutput();
+	        	document.getElementById("time").innerHTML = output;
+	        	self.setTimeout("StartTimer()", 1000);
+	        }
+	        function playsong(){
+	            if(!timer) {
+	            	var x = document.getElementById("playAudio");
+	            	x.play()
+	                x.volume = 0.12;
+	                document.getElementById("fade").style.display = "block";
+	                document.getElementById("btn").style.display = "none";
+	                timer = true;
+	                StartTimer();
+	            }
+	        }
+	    </script>
+    </body>
+</html>
