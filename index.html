@@ -1,20 +1,19 @@
 <html>
     <head>
-        <button id="nig" onclick="playsong()" style="height:50; width:100; font-size:25pt">start</button>
+        <button id="btn" onclick="playsong()" style="height:50; width:100; font-size:25pt">start</button>
         <audio loop id="playAudio">
             <source src="https://cdn.discordapp.com/attachments/757196042801250365/785592255725568062/naenigganaenae.mp3" type="audio/mpeg">
         </audio>
-        <title>KHATFADE DOT COM</title>
+        <title>KHATFADE</title>
     </head>
     <body onload="javascript:Init()" bgcolor="black">
         <div id="fade" style="text-align:center; color:white; font-size:14pt; font-weight:bold; display:none">
-            <img src="https://media.discordapp.net/attachments/760179814266568795/784408968663007252/khatgonyoom.gif" style="height:250; width:250">
+            <img src="https://media.discordapp.net/attachments/760179814266568795/784408968663007252/khatgonyoom.gif" style="height:300; width:300">
             <br>
             <br>
             You've watched this khat get faded tho for <span id="time">0:00:00</span>.
         </div>
         <script>
-
 	        var time
 	        var output
 
@@ -62,7 +61,7 @@
 	            	x.play()
 	                x.volume = 0.12;
 	                document.getElementById("fade").style.display = "block";
-	                document.getElementById("nig").style.display = "none";
+	                document.getElementById("btn").style.display = "none";
 	                timer = true;
 	                StartTimer();
 	            }
