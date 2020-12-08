@@ -23,13 +23,15 @@
 		<br>
 
 		<div style="color:white; font-size:14pt">
-			khatfader v0.1.0a <br>
+			khatfader v0.2.1a <br>
 		<br>
 			Changelog:		<br>
-			[December 8 21:38]		<br>
-			- Added faderfaders owo
-
-			[December 8 21:00]		<br>
+			[December 8 21:38] v0.2		<br>
+			- Added faderfaders owo <br>
+			** HOTFIX v0.2.1	<br>
+			- removed your mom	<br>
+			<br>
+			[December 8 21:00] v0.1	<br>
 			- Added khat		<br>
 		</div>
         <script>
@@ -89,7 +91,7 @@
 			var autoFaders = 0
 			var autoFaderFaders = 0
 			function fade() {
-				fades = fades + 500
+				fades++
 				if(fades == 69) {
 					document.getElementById("fades").innerHTML = fades + " nice";
 				} else {
@@ -139,7 +141,7 @@
 				autoFaders++
 				document.getElementById("faders").innerHTML=autoFaders;
 				autoFade()
-				self.setTimeout("autoFaderFade()", 10);
+				self.setTimeout("autoFaderFade()", 10000);
 			}
 	    </script>
     </body>
