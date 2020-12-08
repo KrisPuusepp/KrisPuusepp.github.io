@@ -2,7 +2,7 @@
     <head>
         <title>KHATFADER</title>
     </head>
-    <body onload="javascript:Init()" bgcolor="black">
+    <body bgcolor="black">
 		<div id="main" style="text-align:center; color:white; font-size:14pt; font-weight:bold">
 			<img id="gif" onclick="fade()" src="https://cdn.discordapp.com/attachments/757196042801250365/785908776615804978/khat1.gif" style="height:300; width:300">
             <br>
@@ -37,58 +37,9 @@
 			- Added khat		<br>
 		</div>
         <script>
-	        /*var time
-	        var output
-
-            var timer = false
-
-	        function Init(){
-	        	time = 0;
-	        }
-
-	        function convertOutput(){
-	        	var hours = 0
-	        	var mins = 0
-	        	var secs = time
-
-	        	while(secs >= 60){
-	        		secs -= 60;
-	        		mins += 1;
-	        	}
-
-	        	if(secs < 10){
-	        		secs = "0" + secs;
-	        	}
-
-	        	while(mins >= 60){
-	        		mins -= 60;
-	        		hours += 1;
-	        	}
-
-	        	if(mins < 10){
-	        		mins = "0" + mins;
-	        	}
-
-	        	output = hours + ":" + mins + ":" + secs;
-	        }
-
-	        function StartTimer(){
-	        	time += 1;
-	        	convertOutput();
-	        	document.getElementById("time").innerHTML = output;
-	        	self.setTimeout("StartTimer()", 1000);
-	        }
-	        function playsong(){
-	            if(!timer) {
-	            	var x = document.getElementById("playAudio");
-	            	x.play()
-	                x.volume = 0.12;
-	                document.getElementById("fade").style.display = "block";
-	                document.getElementById("btn").style.display = "none";
-	                timer = true;
-	                StartTimer();
-	            }
-	        }*/
+			//TODO:
+			// - Optimize fading
+			// - Add more content
 			var fades = 0
 			var autoFaders = 0
 			var autoFaderFaders = 0
