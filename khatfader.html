@@ -9,9 +9,13 @@
             <br>
 			You've faded this cat <span id="fades">0</span> times.
 			<br>
-			<button id="btn" onclick="buyAutoFader()">Buy autofader: 50 fades</button>
+			<button id="buy_fader" onclick="buyAutoFader()">Buy autofader: 50 fades</button>
+			<br>
+			<button id="buy_faderfader" onclick="buyAutoFaderFader()">Buy autofaderfader: 500 fades</button>
 			<br>
 			Autofaders: <span id="faders">0</span>
+			<br>
+			Autofaderfaders: <span id="faderfaders">0</span>
 		</div>
 
 		<br>
@@ -22,7 +26,10 @@
 			khatfader v0.1.0a <br>
 		<br>
 			Changelog:		<br>
-			[December 8]		<br>
+			[December 8 21:38]		<br>
+			- Added faderfaders owo
+
+			[December 8 21:00]		<br>
 			- Added khat		<br>
 		</div>
         <script>
@@ -80,8 +87,9 @@
 	        }*/
 			var fades = 0
 			var autoFaders = 0
+			var autoFaderFaders = 0
 			function fade() {
-				fades++
+				fades = fades + 500
 				if(fades == 69) {
 					document.getElementById("fades").innerHTML = fades + " nice";
 				} else {
@@ -95,21 +103,43 @@
 					fades = fades - 50
 					autoFaders++
 					document.getElementById("faders").innerHTML=autoFaders;
-					document.getElementById("btn").innerHTML="fader bought owo";
-					self.setTimeout("clearButton()", 2000);
+					document.getElementById("buy_fader").innerHTML="fader bought owo";
+					self.setTimeout("clearButton('buy_fader', 'Buy autofader: 50 fades')", 2000);
 					autoFade()
 				} else {
-					document.getElementById("btn").innerHTML="not enough fades ;-;";
-					self.setTimeout("clearButton()", 2000);
+					document.getElementById("buy_fader").innerHTML="not enough fades ;-;";
+					self.setTimeout("clearButton('buy_fader')", 2000);
 				}
 			}
-			function clearButton() {
-				document.getElementById("btn").innerHTML="Buy autofader: 50 fades";
+			function buyAutoFaderFader()
+			{
+				if(fades >= 500) {
+					fades = fades - 500
+					autoFaderFaders++
+					document.getElementById("faderfaders").innerHTML=autoFaderFaders;
+					document.getElementById("buy_faderfader").innerHTML="faderfader bought owo";
+					self.setTimeout("clearButton('buy_faderfader', 'Buy autofaderfader: 500 fades')", 2000);
+					autoFaderFade()
+				} else {
+					document.getElementById("buy_faderfader").innerHTML="not enough fades ;-;";
+					self.setTimeout("clearButton('buy_faderfader', 'Buy autofaderfader: 500 fades')", 2000);
+				}
+			}
+
+			function clearButton(id, message) {
+				document.getElementById(id).innerHTML=message;
 			}
 			function autoFade()
 			{
 				fade()
 				self.setTimeout("autoFade()", 1000);
+			}
+			function autoFaderFade()
+			{
+				autoFaders++
+				document.getElementById("faders").innerHTML=autoFaders;
+				autoFade()
+				self.setTimeout("autoFaderFade()", 10);
 			}
 	    </script>
     </body>
