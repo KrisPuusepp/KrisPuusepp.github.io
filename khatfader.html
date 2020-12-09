@@ -4,14 +4,14 @@
     </head>
     <body bgcolor="black">
 		<div id="main" style="text-align:center; color:white; font-size:14pt; font-weight:bold">
-			<img id="gif" onclick="fade()" src="https://cdn.discordapp.com/attachments/757196042801250365/785908776615804978/khat1.gif" style="height:300; width:300">
+			<img id="gif" onclick="fade()" src="./Resources/khat_once.gif" style="height:300; width:300">
             <br>
             <br>
 			You've faded this cat <span id="fades">0</span> times.
 			<br>
-			<button id="buy_fader" onclick="buyAutoFader()">Buy autofader: 50 fades</button>
+			<button id="buy_fader" onclick="buyAutoFader()" style="height:75; width:200">Buy autofader: 50 fades</button>
 			<br>
-			<button id="buy_faderfader" onclick="buyAutoFaderFader()">Buy autofaderfader: 500 fades</button>
+			<button id="buy_faderfader" onclick="buyAutoFaderFader()" style="height:72; width:200">Buy autofaderfader: 500 fades</button>
 			<br>
 			Autofaders: <span id="faders">0</span>
 			<br>
@@ -22,10 +22,17 @@
 		<br>
 		<br>
 
-		<div style="color:white; font-size:14pt">
-			khatfader v0.2.2a <br>
+		<div style="color:white; font-size:10pt; font-weight:bold">
+			khatfader v0.21.0a <br>
 		<br>
 			Changelog:		<br><br>
+			[December 9 21:38] v0.21		<br>
+			- Localized images to be taken from Github to avoid a possible lawsuit from Discord :/ <br>
+			- Increased button thiccness <br>
+			- Thiccened changelog text to be bold af <br>
+			- made changelog smaller <br>
+			- destroyed your mom in a rap battle <br>
+			<br>
 			[December 8 21:38] v0.2		<br>
 			- Added faderfaders owo <br>
 			** HOTFIX v0.2.1	<br>
@@ -50,7 +57,7 @@
 				} else {
 					document.getElementById("fades").innerHTML = fades;
 				}
-				document.getElementById("gif").src="https://cdn.discordapp.com/attachments/757196042801250365/785908776615804978/khat1.gif";
+				document.getElementById("gif").src="./Resources/khat_once.gif";
 			}
 			function buyAutoFader()
 			{
