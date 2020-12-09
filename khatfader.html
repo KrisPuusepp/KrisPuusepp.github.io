@@ -9,7 +9,8 @@
             <br>
 			You've faded this cat <span id="fades">0</span> times.
 			<br>
-			<button id="buy_fader" onclick="buyAutoFader()" style="height:75; width:200">Buy autofader: 50 fades</button>
+			<button id="buy_fader" onclick="buyAutoFader()" style="height:75; width:200; display:inline-block">Buy autofader: 50 fades</button>
+			<button id="buy_fader50" onclick="buyAutoFader50()" style="height:75; width:75; display:inline-block">Buy 50</button>
 			<br>
 			<button id="buy_faderfader" onclick="buyAutoFaderFader()" style="height:72; width:200">Buy autofaderfader: 500 fades</button>
 			<br>
@@ -23,9 +24,12 @@
 		<br>
 
 		<div style="color:white; font-size:10pt; font-weight:bold">
-			khatfader v0.21.0a <br>
+			khatfader v0.22.0a <br>
 		<br>
 			Changelog:		<br><br>
+			[December 9 21:55] v0.22		<br>
+			- Added buy 50 faders button <br>
+			<br>
 			[December 9 21:38] v0.21		<br>
 			- Localized images to be taken from Github to avoid a possible lawsuit from Discord :/ <br>
 			- Increased button thiccness <br>
@@ -71,6 +75,22 @@
 				} else {
 					document.getElementById("buy_fader").innerHTML="not enough fades ;-;";
 					self.setTimeout("clearButton('buy_fader', 'Buy autofader: 50 fades')", 2000);
+				}
+			}
+			function buyAutoFader50()
+			{
+				if(fades >= 2500) {
+					fades = fades - 2500
+					autoFaders += 50
+					document.getElementById("faders").innerHTML=autoFaders;
+					document.getElementById("buy_fader50").innerHTML="big fade";
+					self.setTimeout("clearButton('buy_fader50', 'Buy 50')", 1000);
+					for(i = 0; i < 2500; i++) {
+						autoFade();
+					}
+				} else {
+					document.getElementById("buy_fader50").innerHTML="no fade";
+					self.setTimeout("clearButton('buy_fader50', 'Buy 50')", 1000);
 				}
 			}
 			function buyAutoFaderFader()
