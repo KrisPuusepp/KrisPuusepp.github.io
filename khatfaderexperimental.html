@@ -26,7 +26,7 @@
 			khatfader v0.3.0a <br>
 		<br>
 			Changelog:		<br><br>
-			[December 10 XX:XX] v0.3		<br>
+			[December X XX:XX] v0.3		<br>
 			- Instead of resetting the gif fading now cycles forward in the frames so the cat can still get faded when you have 200 fps (fades per second) <br>
 			- Completely reworked entire website. Now doesnt use 104% of your cpu :)	<br>
 			<br>
@@ -57,23 +57,29 @@
 			<a href="https://krispuusepp.github.io/khatfaderexperimental.html">khat fader experimental</a>
 		</div>
         <script>
+			//Incrementer base object
 			function Incrementer(Name, Amount, Cost, VarToInc, IncSpeed, IncAmount, LastInc){
-				name = Name;
-				amount = Amount;
-				cost = Cost;
-				varToInc = VarToInc;
-				incSpeed = IncSpeed; //ticks to increment
-				incAmount = IncAmount; //amount to increment
-				lastInc = LastInc; //last tick it was incremented
-			}
-			/*var incrementer = {
-				name : "faders",
-				cost : 50,
-				varToInc: "fades",
-				incSpeed: 20, //ticks to increment
-				incAmount: 1, //amount to increment
-				lastInc: 0 //last tick it was incremented
-			}*/
+				this.name = Name;
+				this.amount = Amount;
+				this.cost = Cost;
+				this.varToInc = VarToInc;
+				this.incSpeed = IncSpeed; //ticks to increment
+				this.incAmount = IncAmount; //amount to increment
+				this.lastInc = LastInc; //last tick it was incremented
+			}		
+			//GLOBAL
+			var ticks = 0
+
+			//KHAT
+			//animation
+			clickFades = 0;
+			lastTickFades = 0;
+			//game
+			var fades = {a:0}
+			var Faders = {a:0}
+			var FaderFaders = {a:0}
+
+			//Game incrementers
 			var defIncrementers = []
 			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 60, 1, 0));
 			defIncrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
@@ -81,20 +87,17 @@
 			var incrementers = []
 			incrementers.push(new Incrementer("Faders", 0, 50, fades, 60, 1, 0));
 			incrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
-		
-			//GLOBAL
-			var ticks = 0
 
-			//KHAT
-			//animation
-			clickFades = 0;
-			//game
-			var fades = 0
-			var Faders = 0
-			var FaderFaders = 0
 			function clickFade() {
-				fades++;
+				fades.a++;
 				clickFades++;
+				//Update khat with data from last tick
+				imgnr = (lastTickFades + clickFades)%34;
+				if(imgnr >= 10) {
+					document.getElementById("khat").src="./Resources/frames/frame" + imgnr + ".jpg";
+				} else {
+					document.getElementById("khat").src="./Resources/frames/frame0" + imgnr + ".jpg";
+				}
 			}
 			function tick() {
 				ticks++;
@@ -102,10 +105,11 @@
 				for(i = 0; i < incrementers.length; i++) {
 					inc = incrementers[i];
 					if(inc.amount > 0) { //if there are any
+						console.log(inc);
 						if(inc.lastInc <= ticks - inc.incAmount) { //if it can increment
-							inc.varToInc = inc.varToInc + inc.incAmount; //increase var by amount
+							inc.varToInc.a = inc.varToInc.a + inc.incAmount; //increase var by amount
 							inc.lastInc = ticks; //set last tick to current tick
-							if(varToInc == fades) {
+							if(inc.varToInc.a == fades.a) {
 								tickFades = tickFades + inc.incAmount;
 							}
 						}
@@ -113,16 +117,18 @@
 				}
 
 				//Text on screen
-				document.getElementById("fades").innerHTML=fades;
+				document.getElementById("fades").innerHTML=fades.a;
+				document.getElementById("faders").innerHTML=Faders.a;
+				document.getElementById("faderfaders").innerHTML=FaderFaders.a;
 
 				//Khat animation
-				imgnr = (tickFades + clickFades)%34;
+				imgnr = (lastTickFades + clickFades)%34;
 				if(imgnr >= 10) {
 					document.getElementById("khat").src="./Resources/frames/frame" + imgnr + ".jpg";
 				} else {
 					document.getElementById("khat").src="./Resources/frames/frame0" + imgnr + ".jpg";
 				}
-
+				lastTickFades = lastTickFades + tickFades;
 				self.setTimeout("tick()", 50);
 			}
 			function buyAutoFader()
