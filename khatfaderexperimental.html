@@ -4,9 +4,8 @@
     </head>
     <body bgcolor="black">
 		<div id="main" style="text-align:center; color:white; font-size:14pt; font-weight:bold">
-			<img id="gif" onclick="fade()" src="./Resources/khat_once.gif" style="height:300; width:300">
-            <br>
-            <br>
+			<img id="khat" onclick="clickFade()" src="./Resources/frames/frame00.jpg" style="height:300; width:300">
+			<br>
 			You've faded this cat <span id="fades">0</span> times.
 			<br>
 			<button id="buy_fader" onclick="buyAutoFader()" style="height:75; width:200; display:inline-block">Buy autofader: 50 fades</button>
@@ -24,13 +23,16 @@
 		<br>
 
 		<div style="color:white; font-size:10pt; font-weight:bold">
-			khatfader v0.23.0a <br>
+			khatfader v0.3.0a <br>
 		<br>
 			Changelog:		<br><br>
+			[December 10 XX:XX] v0.3		<br>
+			- Instead of resetting the gif fading now cycles forward in the frames so the cat can still get faded when you have 200 fps (fades per second) <br>
+			- Completely reworked entire website. Now doesnt use 104% of your cpu :)	<br>
+			<br>
 			[December 10 20:23] v0.23		<br>
 			- Added Experimental button <br>
 			<br>
-
 			[December 9 21:55] v0.22		<br>
 			- Added buy 50 faders button <br>
 			<br>
@@ -55,20 +57,73 @@
 			<a href="https://krispuusepp.github.io/khatfaderexperimental.html">khat fader experimental</a>
 		</div>
         <script>
-			//TODO:
-			// - Optimize fading
-			// - Add more content
+			function Incrementer(Name, Amount, Cost, VarToInc, IncSpeed, IncAmount, LastInc){
+				name = Name;
+				amount = Amount;
+				cost = Cost;
+				varToInc = VarToInc;
+				incSpeed = IncSpeed; //ticks to increment
+				incAmount = IncAmount; //amount to increment
+				lastInc = LastInc; //last tick it was incremented
+			}
+			/*var incrementer = {
+				name : "faders",
+				cost : 50,
+				varToInc: "fades",
+				incSpeed: 20, //ticks to increment
+				incAmount: 1, //amount to increment
+				lastInc: 0 //last tick it was incremented
+			}*/
+			var defIncrementers = []
+			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 60, 1, 0));
+			defIncrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
+
+			var incrementers = []
+			incrementers.push(new Incrementer("Faders", 0, 50, fades, 60, 1, 0));
+			incrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
+		
+			//GLOBAL
+			var ticks = 0
+
+			//KHAT
+			//animation
+			clickFades = 0;
+			//game
 			var fades = 0
-			var autoFaders = 0
-			var autoFaderFaders = 0
-			function fade() {
-				fades++
-				if(fades == 69) {
-					document.getElementById("fades").innerHTML = fades + " nice";
-				} else {
-					document.getElementById("fades").innerHTML = fades;
+			var Faders = 0
+			var FaderFaders = 0
+			function clickFade() {
+				fades++;
+				clickFades++;
+			}
+			function tick() {
+				ticks++;
+				var tickFades = 0; //solely for animating le khat
+				for(i = 0; i < incrementers.length; i++) {
+					inc = incrementers[i];
+					if(inc.amount > 0) { //if there are any
+						if(inc.lastInc <= ticks - inc.incAmount) { //if it can increment
+							inc.varToInc = inc.varToInc + inc.incAmount; //increase var by amount
+							inc.lastInc = ticks; //set last tick to current tick
+							if(varToInc == fades) {
+								tickFades = tickFades + inc.incAmount;
+							}
+						}
+					}
 				}
-				document.getElementById("gif").src="./Resources/khat_once.gif";
+
+				//Text on screen
+				document.getElementById("fades").innerHTML=fades;
+
+				//Khat animation
+				imgnr = (tickFades + clickFades)%34;
+				if(imgnr >= 10) {
+					document.getElementById("khat").src="./Resources/frames/frame" + imgnr + ".jpg";
+				} else {
+					document.getElementById("khat").src="./Resources/frames/frame0" + imgnr + ".jpg";
+				}
+
+				self.setTimeout("tick()", 50);
 			}
 			function buyAutoFader()
 			{
@@ -118,18 +173,8 @@
 			function clearButton(id, message) {
 				document.getElementById(id).innerHTML=message;
 			}
-			function autoFade()
-			{
-				fade()
-				self.setTimeout("autoFade()", 1000);
-			}
-			function autoFaderFade()
-			{
-				autoFaders++
-				document.getElementById("faders").innerHTML=autoFaders;
-				autoFade()
-				self.setTimeout("autoFaderFade()", 10000);
-			}
+
+			tick();
 	    </script>
     </body>
 </html>
