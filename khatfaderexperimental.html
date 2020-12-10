@@ -75,21 +75,21 @@
 			clickFades = 0;
 			lastTickFades = 0;
 			//game
-			var fades = {a:0}
-			var Faders = {a:0}
-			var FaderFaders = {a:0}
+			var fades = {val:0}
+			var Faders = {val:0}
+			var FaderFaders = {val:0}
 
 			//Game incrementers
 			var defIncrementers = []
-			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 60, 1, 0));
+			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 30, 1, 0));
 			defIncrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
 
 			var incrementers = []
-			incrementers.push(new Incrementer("Faders", 0, 50, fades, 60, 1, 0));
+			incrementers.push(new Incrementer("Faders", 0, 50, fades, 30, 1, 0));
 			incrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
 
 			function clickFade() {
-				fades.a++;
+				fades.val++;
 				clickFades++;
 				//Update khat with data from last tick
 				imgnr = (lastTickFades + clickFades)%34;
@@ -104,12 +104,19 @@
 				var tickFades = 0; //solely for animating le khat
 				for(i = 0; i < incrementers.length; i++) {
 					inc = incrementers[i];
+					inc.incSpeed = Math.ceil(defIncrementers[i].incSpeed / inc.amount);
 					if(inc.amount > 0) { //if there are any
-						console.log(inc);
-						if(inc.lastInc <= ticks - inc.incAmount) { //if it can increment
-							inc.varToInc.a = inc.varToInc.a + inc.incAmount; //increase var by amount
+						if(inc.lastInc <= ticks - inc.incSpeed) { //if it can increment
+
+
+
+							////MAKE SHIT SPEED UP WHEN THERE IS MORE
+
+
+
+							inc.varToInc.val = inc.varToInc.val + inc.incAmount; //increase var by amount
 							inc.lastInc = ticks; //set last tick to current tick
-							if(inc.varToInc.a == fades.a) {
+							if(inc.varToInc.val == fades.val) {
 								tickFades = tickFades + inc.incAmount;
 							}
 						}
@@ -117,9 +124,9 @@
 				}
 
 				//Text on screen
-				document.getElementById("fades").innerHTML=fades.a;
-				document.getElementById("faders").innerHTML=Faders.a;
-				document.getElementById("faderfaders").innerHTML=FaderFaders.a;
+				document.getElementById("fades").innerHTML=fades.val;
+				document.getElementById("faders").innerHTML=Faders.val;
+				document.getElementById("faderfaders").innerHTML=FaderFaders.val;
 
 				//Khat animation
 				imgnr = (lastTickFades + clickFades)%34;
