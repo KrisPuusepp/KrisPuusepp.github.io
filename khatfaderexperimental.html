@@ -27,8 +27,9 @@
 		<br>
 			Changelog:		<br><br>
 			[December X XX:XX] v0.3		<br>
-			- Instead of resetting the gif fading now cycles forward in the frames so the cat can still get faded when you have 200 fps (fades per second) <br>
+			- Faders now cycle the gif forward in frames rather than just resetting it. <br>
 			- Completely reworked entire website. Now doesnt use 104% of your cpu :)	<br>
+			- In the new rework the website tries to guess how many fades/faders you get in a second and applies that instead of counting every fade one by one. Its not entirely accurate because im bad at math but its accurate enough.	<br>
 			<br>
 			[December 10 20:23] v0.23		<br>
 			- Added Experimental button <br>
@@ -69,6 +70,7 @@
 			}		
 			//GLOBAL
 			var ticks = 0
+			var tickSpeed = 20;
 
 			//KHAT
 			//animation
@@ -78,20 +80,31 @@
 			var fades = {val:0}
 			var Faders = {val:0}
 			var FaderFaders = {val:0}
+			//debug
+			var lastSecFades = 0;
 
 			//Game incrementers
 			var defIncrementers = []
-			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 30, 1, 0));
+			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 20, 1, 0));
 			defIncrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
 
 			var incrementers = []
-			incrementers.push(new Incrementer("Faders", 0, 50, fades, 30, 1, 0));
+			incrementers.push(new Incrementer("Faders", 0, 50, fades, 20, 1, 0));
 			incrementers.push(new Incrementer("FaderFaders", 0, 50, Faders, 60, 1, 0));
 
+			// ---------------- CLICKING ----------------
 			function clickFade() {
 				fades.val++;
+				cycleFrame(33);
+			}
+			function cycleFrame(i) {
 				clickFades++;
-				//Update khat with data from last tick
+				updateKhat();
+				if(i != 0) {
+					self.setTimeout("cycleFrame(" + (i - 1) + ")", 100);
+				}	
+			}
+			function updateKhat() {
 				imgnr = (lastTickFades + clickFades)%34;
 				if(imgnr >= 10) {
 					document.getElementById("khat").src="./Resources/frames/frame" + imgnr + ".jpg";
@@ -99,27 +112,35 @@
 					document.getElementById("khat").src="./Resources/frames/frame0" + imgnr + ".jpg";
 				}
 			}
+
+
+
+			// ---------------- TICK ----------------
 			function tick() {
 				ticks++;
+
+				incrementers[0].amount = Faders.val;
+				incrementers[1].amount = FaderFaders.val;
+
 				var tickFades = 0; //solely for animating le khat
 				for(i = 0; i < incrementers.length; i++) {
 					inc = incrementers[i];
-					inc.incSpeed = Math.ceil(defIncrementers[i].incSpeed / inc.amount);
 					if(inc.amount > 0) { //if there are any
-						if(inc.lastInc <= ticks - inc.incSpeed) { //if it can increment
-
-
-
-							////MAKE SHIT SPEED UP WHEN THERE IS MORE
-
-
-
-							inc.varToInc.val = inc.varToInc.val + inc.incAmount; //increase var by amount
-							inc.lastInc = ticks; //set last tick to current tick
-							if(inc.varToInc.val == fades.val) {
-								tickFades = tickFades + inc.incAmount;
-							}
+						var inced = 0;
+						if(ticks % defIncrementers[i].incSpeed == 0) {
+							inced = Math.floor((inc.incAmount * inc.amount) / inc.incSpeed) + Math.ceil((inc.incAmount * inc.amount) % inc.incSpeed);
+							inc.varToInc.val += inced; //increase var by amount + leftovers
+							console.log("Faders Per Second: " + (Faders.val - lastSecFades));
+							lastSecFades=Faders.val;
+						} else {
+							inced = Math.floor((inc.incAmount * inc.amount) / inc.incSpeed);
+							inc.varToInc.val += inced; //increase var by amount
 						}
+
+						inc.lastInc = ticks; //set last tick to current tick
+						if(inc.varToInc.val == fades.val) { //bug - may activate khat anim if fades value = number incremented
+							tickFades += inced;
+0						}
 					}
 				}
 
@@ -136,7 +157,7 @@
 					document.getElementById("khat").src="./Resources/frames/frame0" + imgnr + ".jpg";
 				}
 				lastTickFades = lastTickFades + tickFades;
-				self.setTimeout("tick()", 50);
+				self.setTimeout("tick()", Math.round(1000 / tickSpeed));
 			}
 			function buyAutoFader()
 			{
