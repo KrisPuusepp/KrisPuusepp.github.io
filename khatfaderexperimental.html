@@ -32,6 +32,17 @@
 				<br>
 				FaderFaders: <span id="faderfaders">0</span>
 				<br>
+				<br>
+				FaderFaderFader: 1000000000 fades <br>
+				wtf <br>
+				<button onclick="buyFaderFaderFader(1)" style="height:50; width:75; display:inline-block">Buy 1</button>
+				<button onclick="buyFaderFaderFader(10)" style="height:50; width:75; display:inline-block">Buy 10</button>
+				<button onclick="buyFaderFaderFader(100)" style="height:50; width:75; display:inline-block">Buy 100</button>
+				<button onclick="buyFaderFaderFader(1000)" style="height:50; width:75; display:inline-block">Buy 1000</button>
+				<button onclick="buyFaderFaderFader(0)" style="height:50; width:75; display:inline-block">Buy MAX</button>
+				<br>
+				FaderFaderFaders: <span id="faderfaderfaders">0</span>
+				<br>
 			</div>
 		</div>
 
@@ -98,6 +109,7 @@
 			var fades = {val:0}
 			var Faders = {val:0}
 			var FaderFaders = {val:0}
+			var FaderFaderFaders = {val:0}
 			//debug
 			var lastSecFades = 0;
 
@@ -105,10 +117,12 @@
 			var defIncrementers = []
 			defIncrementers.push(new Incrementer("Faders", 0, 50, fades, 20, 1, 0));
 			defIncrementers.push(new Incrementer("FaderFaders", 0, 1000, Faders, 60, 1, 0));
+			defIncrementers.push(new Incrementer("FaderFaderFaders", 0, 1000000000, FaderFaders, 100, 1, 0));
 
 			var incrementers = []
 			incrementers.push(new Incrementer("Faders", 0, 50, fades, 20, 1, 0));
 			incrementers.push(new Incrementer("FaderFaders", 0, 1000, Faders, 60, 1, 0));
+			incrementers.push(new Incrementer("FaderFaderFaders", 0, 1000000000, FaderFaders, 100, 1, 0));
 
 			// ---------------- CLICKING ----------------
 			function clickFade() {
@@ -139,6 +153,8 @@
 
 				incrementers[0].amount = Faders.val;
 				incrementers[1].amount = FaderFaders.val;
+				incrementers[2].amount = FaderFaderFaders.val;
+
 
 				var tickFades = 0; //solely for animating le khat
 				for(i = 0; i < incrementers.length; i++) {
@@ -165,6 +181,7 @@
 				document.getElementById("fades").innerHTML=fades.val;
 				document.getElementById("faders").innerHTML=Faders.val;
 				document.getElementById("faderfaders").innerHTML=FaderFaders.val;
+				document.getElementById("faderfaderfaders").innerHTML=FaderFaderFaders.val;
 
 				//Khat animation
 				imgnr = (lastTickFades + clickFades)%34;
@@ -181,17 +198,19 @@
 				if(Amount == 0) {
 					Amount = Math.floor(fades.val / incrementers[0].cost);
 				}
-				if(fades.val >= incrementers[0].cost * Amount) {
-					fades.val = fades.val - incrementers[0].cost * Amount;
-					Faders.val += Amount;
-					document.getElementById("faders").innerHTML=Faders.val;
-					document.getElementById("bottomtext").style.color = "green";
-					document.getElementById("bottomtext").innerHTML="fader bought owo";
-					self.setTimeout("clearBottomText()", 2000);
-				} else {
-					document.getElementById("bottomtext").style.color = "red";
-					document.getElementById("bottomtext").innerHTML="no fade ;-;";
-					self.setTimeout("clearBottomText()", 2000);
+				if(Amount != 0) {
+					if(fades.val >= incrementers[0].cost * Amount) {
+						fades.val = fades.val - incrementers[0].cost * Amount;
+						Faders.val += Amount;
+						document.getElementById("faders").innerHTML=Faders.val;
+						document.getElementById("bottomtext").style.color = "green";
+						document.getElementById("bottomtext").innerHTML="fader bought owo";
+						self.setTimeout("clearBottomText()", 2000);
+					} else {
+						document.getElementById("bottomtext").style.color = "red";
+						document.getElementById("bottomtext").innerHTML="no fade ;-;";
+						self.setTimeout("clearBottomText()", 2000);
+					}	
 				}
 			}
 			function buyFaderFader(Amount)
@@ -199,17 +218,39 @@
 				if(Amount == 0) {
 					Amount = Math.floor(fades.val / incrementers[1].cost);
 				}
-				if(fades.val >= incrementers[1].cost * Amount) {
-					fades.val = fades.val - incrementers[1].cost * Amount;
-					FaderFaders.val += Amount;
-					document.getElementById("faderfaders").innerHTML=FaderFaders.val;
-					document.getElementById("bottomtext").style.color = "green";
-					document.getElementById("bottomtext").innerHTML="faderfader bought owo";
-					self.setTimeout("clearBottomText()", 2000);
-				} else {
-					document.getElementById("bottomtext").style.color = "red";
-					document.getElementById("bottomtext").innerHTML="no fade ;-;";
-					self.setTimeout("clearBottomText()", 2000);
+				if(Amount != 0) {
+					if(fades.val >= incrementers[1].cost * Amount) {
+						fades.val = fades.val - incrementers[1].cost * Amount;
+						FaderFaders.val += Amount;
+						document.getElementById("faderfaders").innerHTML=FaderFaders.val;
+						document.getElementById("bottomtext").style.color = "green";
+						document.getElementById("bottomtext").innerHTML="faderfader bought owo";
+						self.setTimeout("clearBottomText()", 2000);
+					} else {
+						document.getElementById("bottomtext").style.color = "red";
+						document.getElementById("bottomtext").innerHTML="no fade ;-;";
+						self.setTimeout("clearBottomText()", 2000);
+					}
+				}
+			}
+			function buyFaderFaderFader(Amount)
+			{
+				if(Amount == 0) {
+					Amount = Math.floor(fades.val / incrementers[2].cost);
+				}
+				if(Amount != 0) {
+					if(fades.val >= incrementers[2].cost * Amount) {
+						fades.val = fades.val - incrementers[2].cost * Amount;
+						FaderFaderFaders.val += Amount;
+						document.getElementById("faderfaderfaders").innerHTML=FaderFaderFaders.val;
+						document.getElementById("bottomtext").style.color = "green";
+						document.getElementById("bottomtext").innerHTML="faderfaderfader bought owo";
+						self.setTimeout("clearBottomText()", 2000);
+					} else {
+						document.getElementById("bottomtext").style.color = "red";
+						document.getElementById("bottomtext").innerHTML="no fade ;-;";
+						self.setTimeout("clearBottomText()", 2000);
+					}
 				}
 			}
 
