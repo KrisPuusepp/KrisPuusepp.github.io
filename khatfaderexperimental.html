@@ -142,7 +142,6 @@
 						if(ticks % defIncrementers[i].incSpeed == 0) {
 							inced = Math.floor((inc.incAmount * inc.amount) / inc.incSpeed) + Math.ceil((inc.incAmount * inc.amount) % inc.incSpeed);
 							inc.varToInc.val += inced; //increase var by amount + leftovers
-							console.log("Faders Per Second: " + (Faders.val - lastSecFades));
 							lastSecFades=Faders.val;
 						} else {
 							inced = Math.floor((inc.incAmount * inc.amount) / inc.incSpeed);
