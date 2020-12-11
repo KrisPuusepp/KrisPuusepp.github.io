@@ -17,6 +17,7 @@
 				<button onclick="buyFader(10)" style="height:50; width:75; display:inline-block">Buy 10</button>
 				<button onclick="buyFader(100)" style="height:50; width:75; display:inline-block">Buy 100</button>
 				<button onclick="buyFader(1000)" style="height:50; width:75; display:inline-block">Buy 1000</button>
+				<button onclick="buyFader(0)" style="height:50; width:75; display:inline-block">Buy MAX</button>
 				<br>
 				Faders: <span id="faders">0</span>
 				<br>
@@ -27,6 +28,7 @@
 				<button onclick="buyFaderFader(10)" style="height:50; width:75; display:inline-block">Buy 10</button>
 				<button onclick="buyFaderFader(100)" style="height:50; width:75; display:inline-block">Buy 100</button>
 				<button onclick="buyFaderFader(1000)" style="height:50; width:75; display:inline-block">Buy 1000</button>
+				<button onclick="buyFaderFader(0)" style="height:50; width:75; display:inline-block">Buy MAX</button>
 				<br>
 				FaderFaders: <span id="faderfaders">0</span>
 				<br>
@@ -176,6 +178,9 @@
 			}
 			function buyFader(Amount)
 			{
+				if(Amount == 0) {
+					Amount = Math.floor(fades.val / incrementers[0].cost);
+				}
 				if(fades.val >= incrementers[0].cost * Amount) {
 					fades.val = fades.val - incrementers[0].cost * Amount;
 					Faders.val += Amount;
@@ -191,6 +196,9 @@
 			}
 			function buyFaderFader(Amount)
 			{
+				if(Amount == 0) {
+					Amount = Math.floor(fades.val / incrementers[1].cost);
+				}
 				if(fades.val >= incrementers[1].cost * Amount) {
 					fades.val = fades.val - incrementers[1].cost * Amount;
 					FaderFaders.val += Amount;
