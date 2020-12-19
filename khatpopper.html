@@ -1,0 +1,135 @@
+<html>
+    <head>
+        <title>KHATFADER</title>
+    </head>
+    <body bgcolor="black">
+		<div id="main" style="text-align:center; color:white; font-size:14pt; font-weight:bold">
+			<img id="gif" onclick="fade()" src="./Resources/khat_once.gif" style="height:300; width:300">
+            <br>
+            <br>
+			You've faded this cat <span id="fades">0</span> times.
+			<br>
+			<button id="buy_fader" onclick="buyAutoFader()" style="height:75; width:200; display:inline-block">Buy autofader: 50 fades</button>
+			<button id="buy_fader50" onclick="buyAutoFader50()" style="height:75; width:75; display:inline-block">Buy 50</button>
+			<br>
+			<button id="buy_faderfader" onclick="buyAutoFaderFader()" style="height:72; width:200">Buy autofaderfader: 500 fades</button>
+			<br>
+			Autofaders: <span id="faders">0</span>
+			<br>
+			Autofaderfaders: <span id="faderfaders">0</span>
+		</div>
+
+		<br>
+		<br>
+		<br>
+
+		<div style="color:white; font-size:10pt; font-weight:bold">
+			khatfader v0.23.0a <br>
+		<br>
+			Changelog:		<br><br>
+			[December 10 20:23] v0.23		<br>
+			- Added Experimental button <br>
+			<br>
+
+			[December 9 21:55] v0.22		<br>
+			- Added buy 50 faders button <br>
+			<br>
+			[December 9 21:38] v0.21		<br>
+			- Localized images to be taken from Github to avoid a possible lawsuit from Discord :/ <br>
+			- Increased button thiccness <br>
+			- Thiccened changelog text to be bold af <br>
+			- made changelog smaller <br>
+			- destroyed your mom in a rap battle <br>
+			<br>
+			[December 8 21:38] v0.2		<br>
+			- Added faderfaders owo <br>
+			** HOTFIX v0.2.1	<br>
+			- removed your mom	<br>
+			*** HOTFIX v0.2.2	<br>
+			- removed your dad	<br>
+			<br>
+			[December 8 21:00] v0.1	<br>
+			- Added khat		<br>
+		</div>
+		<div style="text-align:right">
+			<a href="https://krispuusepp.github.io/khatfaderexperimental.html">khat fader experimental</a>
+		</div>
+        <script>
+			//TODO:
+			// - Optimize fading
+			// - Add more content
+			var fades = 0
+			var autoFaders = 0
+			var autoFaderFaders = 0
+			function fade() {
+				fades++
+				if(fades == 69) {
+					document.getElementById("fades").innerHTML = fades + " nice";
+				} else {
+					document.getElementById("fades").innerHTML = fades;
+				}
+				document.getElementById("gif").src="./Resources/khat_once.gif";
+			}
+			function buyAutoFader()
+			{
+				if(fades >= 50) {
+					fades = fades - 50
+					autoFaders++
+					document.getElementById("faders").innerHTML=autoFaders;
+					document.getElementById("buy_fader").innerHTML="fader bought owo";
+					self.setTimeout("clearButton('buy_fader', 'Buy autofader: 50 fades')", 2000);
+					autoFade()
+				} else {
+					document.getElementById("buy_fader").innerHTML="not enough fades ;-;";
+					self.setTimeout("clearButton('buy_fader', 'Buy autofader: 50 fades')", 2000);
+				}
+			}
+			function buyAutoFader50()
+			{
+				if(fades >= 2500) {
+					fades = fades - 2500
+					autoFaders += 50
+					document.getElementById("faders").innerHTML=autoFaders;
+					document.getElementById("buy_fader50").innerHTML="big fade";
+					self.setTimeout("clearButton('buy_fader50', 'Buy 50')", 1000);
+					for(i = 0; i < 2500; i++) {
+						autoFade();
+					}
+				} else {
+					document.getElementById("buy_fader50").innerHTML="no fade";
+					self.setTimeout("clearButton('buy_fader50', 'Buy 50')", 1000);
+				}
+			}
+			function buyAutoFaderFader()
+			{
+				if(fades >= 500) {
+					fades = fades - 500
+					autoFaderFaders++
+					document.getElementById("faderfaders").innerHTML=autoFaderFaders;
+					document.getElementById("buy_faderfader").innerHTML="faderfader bought owo";
+					self.setTimeout("clearButton('buy_faderfader', 'Buy autofaderfader: 500 fades')", 2000);
+					autoFaderFade()
+				} else {
+					document.getElementById("buy_faderfader").innerHTML="not enough fades ;-;";
+					self.setTimeout("clearButton('buy_faderfader', 'Buy autofaderfader: 500 fades')", 2000);
+				}
+			}
+
+			function clearButton(id, message) {
+				document.getElementById(id).innerHTML=message;
+			}
+			function autoFade()
+			{
+				fade()
+				self.setTimeout("autoFade()", 1000);
+			}
+			function autoFaderFade()
+			{
+				autoFaders++
+				document.getElementById("faders").innerHTML=autoFaders;
+				autoFade()
+				self.setTimeout("autoFaderFade()", 10000);
+			}
+	    </script>
+    </body>
+</html>
