@@ -18238,22 +18238,18 @@
 
         <script>
             function ship(color) {
-                this.speed = 10;
-                this.HP = 0;
-                this.attackRange = 10;
-                this.attackDamage = 1;
-                this.attackCooldown = 1;
-                this.team = color;
-                this.poly = new Konva.Line({
-                    points: [0, 0, 
-                             30, 10,
-                             0, 20,
-                             5, 10],
+                this.speed = -50;
+                this.x = 0;
+                this.y = 0;
+                this.poly = new Konva.Rect({
+                    x: 0,
+                    y: 0,
+                    width: 12.5,
+                    height: 12.5,
                     fill: color,
-                    stroke: 'black',
-                    strokeWidth: 1,
-                    closed: true,
+                    strokeEnabled: false,
                 });
+                this.poly.cache();
             }
             var width = window.innerWidth - 18;
             var height = window.innerHeight - 18;
@@ -18280,20 +18276,14 @@
 
 
             var circles = [];
-            for(var x = 0; x < 10; x++) {
+            for(var x = 0; x < 50; x++) {
                 circles[x] = [];
-                for(var y = 0; y < 10; y++) {
+                for(var y = 0; y < 25; y++) {
                     circles[x][y] = new ship("red");
-                    circles[x][y].poly.x(25 * x);
-                    circles[x][y].poly.y(25 * y)
+                    circles[x][y].poly.x(25 * x + 100);
+                    circles[x][y].poly.y(25 * y + 50);
                     var pol = circles[x][y].poly;
-                    pol.on("mouseover", function () {
-                        this.fill("black");
-                    });
-                    pol.on("mouseout", function () {
-                        this.fill("red");
-                    });
-                    unitLayer.add(circles[x][y].poly);
+                    unitLayer.add(pol);
                 }
             }
             var border = new Konva.Rect({
@@ -18310,12 +18300,67 @@
             stage.add(unitLayer);
             stage.draw();
 
-            function frameUpdate() {
-                for(var x = 0; x < 10; x++) {
-                    for(var y = 0; y < 10; y++) {
-                        
+            countFPS = (function () {
+                var lastLoop = (new Date()).getMilliseconds();
+                var count = 1;
+                var fps = 0;
+            
+                return function () {
+                    var currentLoop = (new Date()).getMilliseconds();
+                    if (lastLoop > currentLoop) {
+                        fps = count;
+                        count = 1;
+                    } else {
+                        count += 1;
                     }
-                }
+                    lastLoop = currentLoop;
+                    return fps;
+                };
+            }());
+            
+            function frameUpdate() {
+                var pos = stage.getPointerPosition();
+                if(pos != null && pos != NaN) {
+                    /*for(var x = 0; x < circles.length; x++) {
+                        for(var y = 0; y < circles[x].length; y++) {
+                            var rec = circles[x][y];
+                            var pol = rec.poly;
+
+                            var diff = {x: 0, y: 0};
+                            diff.x = pos.x - rec.x;
+                            diff.y = pos.y - rec.y;
+                            var mag = Math.sqrt((diff.x * diff.x) + (diff.y * diff.y));
+                            diff.x = diff.x / mag;
+                            diff.y = diff.y / mag;
+                            var rot = Math.atan2(diff.y, diff.x) * (360 / (Math.PI * 2));
+
+                            var angleRADS = (Math.PI / 180) * rot;
+                            var forx = rec.speed * Math.cos(angleRADS);
+                            var fory = rec.speed * Math.sin(angleRADS);
+
+                            mag /= 100;
+                            mag = Math.min(mag, 2);
+                            pol.scale({x: mag, y: mag});
+                            pol.x(rec.x + forx);
+                            pol.y(rec.y + fory);
+                        }
+                    }*/
+                    for(var x = 0; x < circles.length; x++) {
+                        for(var y = 0; y < circles[x].length; y++) {
+                            var pol = circles[x][y].poly;
+
+                            var diff = {x: 0, y: 0};
+                            diff.x = pos.x - pol.x();
+                            diff.y = pos.y - pol.y();
+                            var mag = Math.sqrt((diff.x * diff.x) + (diff.y * diff.y));
+                            mag /= 100;
+                            mag = Math.min(mag, 2);
+                            pol.scale({x: mag, y: mag});
+                            pol.offset({x: mag / 2 + pol.width() / 2, y: mag / 2 + pol.height() / 2});
+                        }
+                    }
+                }   
+                writeMessage("FPS: " + countFPS());
                 unitLayer.draw();
                 self.setTimeout("frameUpdate()", 1000 / 60);
             }
