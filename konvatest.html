@@ -18237,11 +18237,16 @@
         </script>
 
         <script>
-            var simUPS = 10;
+            var simUPS = 20;
             var simFPS = 60;
 
             function ship(color) {
+                this.x = 0;
+                this.y = 0;
+                this.rot = 0;
                 this.speed = 10 * simFPS / simUPS;
+                this.rotSpeed = 30;
+                this.avoidDist = 500;
                 this.HP = 0;
                 this.attackRange = 10;
                 this.attackDamage = 1;
@@ -18253,8 +18258,9 @@
                              -5, 10,
                              5, 0],
                     fill: color,
-                    stroke: 'black',
-                    strokeWidth: 1,
+                    strokeEnabled: false,
+                    //stroke: 'black',
+                    //strokeWidth: 1,
                     closed: true,
                 });
                 this.poly.cache();
@@ -18267,6 +18273,9 @@
                 height: height,
             });
             var unitLayer = new Konva.Layer();
+            stage.on("mousedown", function() {
+                        simUpdate();
+                    })
 
             //debug text
             var text = new Konva.Text({
@@ -18288,15 +18297,8 @@
                 circles[x] = [];
                 for(var y = 0; y < 1; y++) {
                     circles[x][y] = new ship("red");
-                    circles[x][y].poly.x(35 * x + 35);
-                    circles[x][y].poly.y(35 * y + 35)
-                    var pol = circles[x][y].poly;
-                    pol.on("mouseover", function () {
-                        this.fill("black");
-                    });
-                    pol.on("mouseout", function () {
-                        this.fill("red");
-                    });
+                    circles[x][y].x = 35 * x + 335;
+                    circles[x][y].y = 35 * y + 335
                     unitLayer.add(circles[x][y].poly);
                 }
             }
@@ -18350,35 +18352,37 @@
                 };
             }());
 
-            var lastUpdate = new Date().getMilliseconds();
             var UPS = 0;
-            var ovh = 0;
-            var biggestOvh = 0;
+            var debugRot = 0;
             function simUpdate() {           
-                var overhead = new Date().getMilliseconds() - lastUpdate - (1000 / simUPS);
-                if(overhead < 0) {
-                    overhead = 0;
-                }
-                overhead = overhead / lastUpdate + 1;
-                //ovh = Math.round(overhead * 100) - 100;
-                ovh = overhead;
-
                 lastUpdate = new Date().getMilliseconds();
+
                 for(var x = 0; x < circles.length; x++) {
                     for(var y = 0; y < circles[x].length; y++) {
                         var unit = circles[x][y];
+                        if(unit.rot > 360) {
+                            unit.rot -= 360;
+                        }
+                        if(unit.rot < -360) {
+                            unit.rot -= -360;
+                        }
+                    }
+                }
+                for(var x = 0; x < circles.length; x++) {
+                    for(var y = 0; y < circles[x].length; y++) {
+                        var unit = circles[x][y];
+                        
+                        var angleRADS = (Math.PI / 180) * unit.rot;
+                        var forx = unit.speed * Math.cos(angleRADS);
+                        var fory = unit.speed * Math.sin(angleRADS);
 
-                        var angleRADS = (Math.PI / 180) * unit.poly.rotation();
-                        var forx = unit.speed * Math.cos(angleRADS) * overhead;
-                        var fory = unit.speed * Math.sin(angleRADS) * overhead;
-
-                        var tween = new Konva.Tween({
-                                node: unit.poly,
+                        unit.x += forx;
+                        unit.y += fory;
+                        unit.poly.to({
                                 duration: 1 / simUPS,
-                                x: forx + unit.poly.x(),
-                                y: fory + unit.poly.y(),
+                                x: unit.x,
+                                y: unit.y,
                         });
-                        tween.play();
                     }
                 }
 
@@ -18386,32 +18390,55 @@
                 if(pos != null && pos != NaN) {
                     for(var x = 0; x < circles.length; x++) {
                         for(var y = 0; y < circles[x].length; y++) {
-                            var pol = circles[x][y].poly;
+                            var unit = circles[x][y];
                             var diff = {x: 0, y: 0};
-                            diff.x = pos.x - pol.x();
-                            diff.y = pos.y - pol.y();
+                            diff.x = pos.x - unit.x;
+                            diff.y = pos.y - unit.y;
                             var mag = Math.sqrt((diff.x * diff.x) + (diff.y * diff.y));
+                            console.log("magnitude is " + mag);
                             diff.x = diff.x / mag;
                             diff.y = diff.y / mag;
                             var rot = Math.atan2(diff.y, diff.x) * (360 / (Math.PI * 2));
+                            console.log("direction towards le mous€ is " + rot);
 
-                            var tween = new Konva.Tween({
-                                node: pol,
+                            var addRot = unit.rotSpeed;
+                            var rotDiff = unit.rot - rot;
+                            debugRot = rotDiff;
+                            console.log("unit rot is " + unit.rot);
+                            console.log("rot difference between unit and target is " + rotDiff);
+                            if (mag < unit.avoidDist) {
+	                        	if (rotDiff > 0) {
+                                    console.log("rot is positive, therefore we go left");
+	                        		//Left
+	                        		addRot *= -1;
+	                        	}
+	                        	else {
+                                    //Right
+                                    console.log("rot is negtive, therefore we go right");
+	                        		addRot = addRot;
+	                        	}
+	                        }
+	                        else if (rotDiff < 0) {
+	                        	//Left
+                                addRot *= -1;
+	                        }
+	                        else {
+	                        	//Right
+	                        	addRot = addRot;
+	                        }
+                            unit.rot += addRot;
+                            unit.poly.to({
                                 duration: 1 / simUPS,
-                                rotation: rot,
+                                rotation: unit.rot,
                             });
-                            tween.play();
                         }
                     }
                 }
                 UPS = countUPS();
-                self.setTimeout("simUpdate()", 1000 / simUPS);
+                //self.setTimeout("simUpdate()", 1000 / simUPS);
             }
             function update() {
-                if(ovh > biggestOvh) {
-                    biggestOvh = ovh;
-                }
-                writeMessage("FPS: " + countFPS() + "\n" + "UPS: " + UPS + "\n" + "Overhead: " + ovh + "%" + "\n" + "Biggest overhead: " + biggestOvh + "%");
+                writeMessage("FPS: " + countFPS() + "\n" + "UPS: " + UPS + "\n" + "DebugRotation: " + debugRot);
                 unitLayer.draw();
                 self.setTimeout("update()", 1000 / simFPS);
             }
