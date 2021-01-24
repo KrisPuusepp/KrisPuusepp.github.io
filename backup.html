@@ -18288,12 +18288,9 @@
                 mainLayer.add(this.poly);
             }
 
-            function convertRay(Ray) {
-                //Ray = new ray(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
+            function updateRay(Ray) {
+                Ray = new ray(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
 
-                //convert global to local
-                Ray.dx -= Ray.px;
-                Ray.dy -= Ray.py;
                 //calc magnitude
                 x = Math.pow(Ray.dx, 2);
                 y = Math.pow(Ray.dy, 2);
@@ -18309,8 +18306,8 @@
                 pArray[0] = Ray.px;
                 pArray[1] = Ray.py;
                 //set dir
-                pArray[2] = Ray.px + (Ray.dx * Ray.t);
-                pArray[3] = Ray.py + (Ray.dy * Ray.t);
+                pArray[2] = Ray.px + (Ray.dx * 250);
+                pArray[3] = Ray.py + (Ray.dy * 250);
 
                 Ray.poly.points(pArray);
             }
@@ -18332,14 +18329,9 @@
                 mainLayer.add(this.poly);
             }
 
-            function convertSegment(segment) {
-                //segment = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
-                //mpos = stage.getPointerPosition();
-                //segment = new lineSegment(segment.px, segment.py, mpos.x, mpos.y);
+            function updateSegment(segment) {
+                segment = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
 
-                //convert global to local
-                segment.dx -= segment.px;
-                segment.dy -= segment.py;
                 //calc magnitude
                 x = Math.pow(segment.dx, 2);
                 y = Math.pow(segment.dy, 2);
@@ -18355,124 +18347,30 @@
                 pArray[0] = segment.px;
                 pArray[1] = segment.py;
                 //set dir
-                pArray[2] = segment.px + (segment.dx * segment.t);
-                pArray[3] = segment.py + (segment.dy * segment.t);
+                pArray[2] = segment.px + (segment.dx * 250);
+                pArray[3] = segment.py + (segment.dy * 250);
 
                 segment.poly.points(pArray);
             }
 
-            function updatePoints(Ray) {
-                pArray = [];
-                //set point
-                pArray[0] = Ray.px;
-                pArray[1] = Ray.py;
-                //set dir
-                pArray[2] = Ray.dx;
-                pArray[3] = Ray.dy;
-
-                Ray.poly.points(pArray);
-            }
-
-            // Find intersection of RAY & SEGMENT
-            function getIntersection(Ray,segment) { 
-	            // RAY in parametric: Point + Direction*T1
-	            var r_px = Ray.px;
-	            var r_py = Ray.py;
-	            var r_dx = Ray.dx-Ray.px;
-	            var r_dy = Ray.dy-Ray.py;
-
-	            // SEGMENT in parametric: Point + Direction*T2
-	            var s_px = segment.px;
-	            var s_py = segment.py;
-	            var s_dx = segment.dx-segment.px;
-	            var s_dy = segment.dy-segment.py;
-                
-                // Are they parallel? If so, no intersect
-                var r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
-                var s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
-                if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){ // Directions are the same.
-                    return null;
-                }
-
-	            // SOLVE FOR T1 & T2
-	            // r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
-	            // ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
-	            // ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
-	            // ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
-	            var T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
-	            var T1 = (s_px+s_dx*T2-r_px)/r_dx;
-
-                console.log(T2);
-                console.log(T1);
-
-	            // Must be within parametic whatevers for RAY/SEGMENT
-	            if(T1<0) return null;
-	            if(T2<0 || T2>1) return null;
-                
-
-                // Return the POINT OF INTERSECTION
-                return {
-                    x: r_px+r_dx*T1,
-                    y: r_py+r_dy*T1,
-                    param: T1
-                };
-
-            }
-
             var rays = [];
-            rays[0] = new ray(width / 2, height / 2, 100, 1500);
-            //for(var i = 0; i < 10; i++) {
-            //    rays[i] = new ray(i + 100, i + 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
-            //}
+            for(var i = 0; i < 10; i++) {
+                rays[i] = new ray(i + 100, i + 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
+            }
             var lineSegments = [];
-            lineSegments[0] = new lineSegment(width / 4, height / 4, width / 1.5, height / 3);
+            for(var i = 0; i < 10; i++) {
+                lineSegments[i] = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
+            }
 
-            //for(var i = 0; i < 10; i++) {
-            //    lineSegments[i] = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
-            //}
-
-
-            var circle = new Konva.Circle({
-                x: 0,
-                y: 0,
-                radius: 5,
-                fill: 'green'
-            });
-            mainLayer.add(circle);
-
-            stage.on("mousemove", function () {
-                //for(var i = 0; i < lineSegments.length; i++) {
-                //    updatePoints(lineSegments[i]);
-                //}
-                for(var i = 0; i < rays.length; i++) {
-                    var mpos = stage.getPointerPosition();
-                    rays[i].dx = (mpos.x - rays[i].px) * 1000;
-                    rays[i].dy = (mpos.y - rays[i].py) * 1000;
+            stage.on("mousedown", function () {
+                for(var i = 0; i < 10; i++) {
+                    updateSegment(lineSegments[i]);
                 }
-                var result = getIntersection(rays[0], lineSegments[0]);
-                console.log(result);
-                if(result != null) {
-                    circle.x(result.x);
-                    circle.y(result.y);
-                    rays[0].dx = result.x;
-                    rays[0].dy = result.y;
-                } else {
-                    circle.x(0);
-                    circle.y(0);
+                for(var i = 0; i < 10; i++) {
+                    updateRay(rays[i]);
                 }
-                for(var i = 0; i < rays.length; i++) {
-                    updatePoints(rays[i]);
-                }
-
-                stage.clear();
                 stage.draw();
             });
-
-            //convertSegment(lineSegments[0]);
-            //convertRay(rays[0]);
-        
-            updatePoints(rays[0]);
-            updatePoints(lineSegments[0]);
 
             // add the layer to the stage
             stage.add(mainLayer);
