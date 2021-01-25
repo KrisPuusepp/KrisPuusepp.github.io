@@ -18276,7 +18276,7 @@
                 this.px = px;
                 this.py = py;
                 this.dx = dx;
-                this.dy = dy
+                this.dy = dy;
                 this.poly = new Konva.Line({
                     points: [0, 0, 10, 10],
                     stroke: 'red',
@@ -18284,7 +18284,6 @@
                     lineCap: 'round',
                     lineJoin: 'round',
                 });
-
                 mainLayer.add(this.poly);
             }
 
@@ -18319,8 +18318,7 @@
                 this.px = px;
                 this.py = py;
                 this.dx = dx;
-                this.dy = dy
-
+                this.dy = dy;
                 this.poly = new Konva.Line({
                     points: [0, 0, 10, 10],
                     stroke: 'black',
@@ -18328,7 +18326,6 @@
                     lineCap: 'round',
                     lineJoin: 'round',
                 });
-
                 mainLayer.add(this.poly);
             }
 
@@ -18402,9 +18399,6 @@
 	            var T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
 	            var T1 = (s_px+s_dx*T2-r_px)/r_dx;
 
-                console.log(T2);
-                console.log(T1);
-
 	            // Must be within parametic whatevers for RAY/SEGMENT
 	            if(T1<0) return null;
 	            if(T2<0 || T2>1) return null;
@@ -18419,13 +18413,40 @@
 
             }
 
+            // Reflect vector
+            function reflect(Ray,segment) {
+
+                //tx = segment.dx - segment.px; //tx = temporal x because i cant think of anything else
+                //ty = segment.dy - segment.py;
+                //ty = ty * -1;
+                //console.log(tx);
+                //console.log(segment.dx);
+                //convert global to local
+
+                tx = segment.px - segment.dx; //tx = temporal x because i cant think of anything else
+                ty = segment.py - segment.dy;
+                writeMessage(tx + "\n" + ty + "\n");
+
+
+                //x2 = x cos(t) - y sin(t)
+                //y2 = x sin(t) + y cos(t)
+
+                return {
+                    x: ty * -1,
+                    y: tx
+                };
+            }
+
             var rays = [];
             rays[0] = new ray(width / 2, height / 2, 100, 1500);
             //for(var i = 0; i < 10; i++) {
             //    rays[i] = new ray(i + 100, i + 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
             //}
             var lineSegments = [];
-            lineSegments[0] = new lineSegment(width / 4, height / 4, width / 1.5, height / 3);
+            lineSegments[0] = new lineSegment(width / 4, height / 4, width / 1.5, height / 2);
+
+            var reflected = [];
+            //reflected[0] = new ray(width / 2, height / 2, 100, 1500);
 
             //for(var i = 0; i < 10; i++) {
             //    lineSegments[i] = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
@@ -18450,18 +18471,35 @@
                     rays[i].dy = (mpos.y - rays[i].py) * 1000;
                 }
                 var result = getIntersection(rays[0], lineSegments[0]);
-                console.log(result);
                 if(result != null) {
                     circle.x(result.x);
                     circle.y(result.y);
                     rays[0].dx = result.x;
                     rays[0].dy = result.y;
+
+                    reflec = reflect(rays[0], lineSegments[0]);
+                    if(reflected[0] == undefined) {
+                        reflected[0] = new ray(result.x, result.y, reflec.x + result.x, reflec.y + result.y);
+                    }
+                    else {
+                        reflected[0].px = result.x;
+                        reflected[0].py = result.y;
+                        reflected[0].dx = reflec.x + result.x;
+                        reflected[0].dy = reflec.y + result.y;
+                    }
                 } else {
                     circle.x(0);
                     circle.y(0);
+                    if(reflected[0] != undefined) {
+                        reflected[0].poly.destroy();
+                        reflected.splice(0, 1);
+                    }
                 }
                 for(var i = 0; i < rays.length; i++) {
                     updatePoints(rays[i]);
+                }
+                for(var i = 0; i < reflected.length; i++) {
+                    updatePoints(reflected[i]);
                 }
 
                 stage.clear();
@@ -18473,7 +18511,8 @@
         
             updatePoints(rays[0]);
             updatePoints(lineSegments[0]);
-
+            if(reflected[0] != undefined)
+                updatePoints(reflected[0]);
             // add the layer to the stage
             stage.add(mainLayer);
             stage.draw();
