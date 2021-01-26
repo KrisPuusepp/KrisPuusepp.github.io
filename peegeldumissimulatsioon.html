@@ -18415,25 +18415,41 @@
 
             // Reflect vector
             function reflect(Ray,segment) {
+                ny = segment.px - segment.dx; //n = normal
+                nx = segment.py - segment.dy;
+                nx = nx * -1;
+                // -- normalizing normal --
+                //mag
+                x = Math.pow(nx, 2);
+                y = Math.pow(ny, 2);
+                mag = Math.sqrt(x + y);
+                //Normalize dir
+                nx /= mag;
+                ny /= mag;
 
-                //tx = segment.dx - segment.px; //tx = temporal x because i cant think of anything else
-                //ty = segment.dy - segment.py;
-                //ty = ty * -1;
-                //console.log(tx);
-                //console.log(segment.dx);
-                //convert global to local
+                ix = Ray.px - Ray.dx; // i = incoming ray
+                iy = Ray.py - Ray.dy;
+                // -- normalizing incoming ray --
+                //mag
+                x2 = Math.pow(ix, 2);
+                y2 = Math.pow(iy, 2);
+                mag2 = Math.sqrt(x2 + y2);
+                //Normalize dir
+                ix /= mag2;
+                iy /= mag2;
 
-                tx = segment.px - segment.dx; //tx = temporal x because i cant think of anything else
-                ty = segment.py - segment.dy;
-                writeMessage(tx + "\n" + ty + "\n");
+                writeMessage(ix + "\n" + iy + "\n");
 
 
-                //x2 = x cos(t) - y sin(t)
-                //y2 = x sin(t) + y cos(t)
+
+                //Rr = 2 N (R1 . N) - R1
+                dot = ix * nx + iy * ny;
+                rx = ix - 2 * nx * dot;
+                ry = iy - 2 * ny * dot;
 
                 return {
-                    x: ty * -1,
-                    y: tx
+                    x: rx * 500,
+                    y: ry * 500
                 };
             }
 
