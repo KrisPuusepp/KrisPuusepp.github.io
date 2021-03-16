@@ -18355,28 +18355,28 @@
                 var r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
                 var s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
                 if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){ // Directions are the same.
-                    return null;
+                	return null;
                 }
-
-	            // SOLVE FOR T1 & T2
-	            // r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
-	            // ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
-	            // ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
-	            // ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
-	            var T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
-	            var T1 = (s_px+s_dx*T2-r_px)/r_dx;
-
-	            // Must be within parametic whatevers for RAY/SEGMENT
-	            if(T1<0) return null;
-	            if(T2<0 || T2>1) return null;
+            
+                // SOLVE FOR T1 & T2
+                // r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
+                // ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
+                // ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
+                // ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
+                var T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
+                var T1 = (s_px+s_dx*T2-r_px)/r_dx;
+            
+                // Must be within parametic whatevers for RAY/SEGMENT
+                if(T1<0) return null;
+                if(T2<0 || T2>1) return null;
                 
-
                 // Return the POINT OF INTERSECTION
                 return {
-                    x: r_px+r_dx*T1,
-                    y: r_py+r_dy*T1,
-                    param: T1
+                	x: r_px+r_dx*T1,
+                	y: r_py+r_dy*T1,
+                	param: T1
                 };
+
 
             }
 
@@ -18449,7 +18449,7 @@
             convertRay(lineSegments[1]);
             updatePoints(lineSegments[1]);
 
-            var bounceLength = 1;
+            var bounceLength = 10;
 
             //for(var i = 0; i < 10; i++) {
             //    lineSegments[i] = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
@@ -18484,6 +18484,7 @@
                 }
                 for(var i = 0; i < rays.length; i++) {
                     //creating rays
+                    lastSegmentx = -1;
                     for(var x = 0; x <= bounceLength; x++) {
                         if(rays[i][x])
                         {
@@ -18492,14 +18493,18 @@
                             var resultDist = 100000;
                             var segmentx = 0;
                             for(var s = 0; s < lineSegments.length; s++) {
-                                loopResult = getIntersection(rays[i][x], lineSegments[s]);
-                                if(loopResult != null && loopResult.param < resultDist) {
-                                    result = loopResult;
-                                    resultDist = loopResult.param;
-                                    segmentx = s;
+                                //this if() prevents reflected rays from intersecting with the same segments they are being reflected on
+                                if(s != lastSegmentx) {
+                                    loopResult = getIntersection(rays[i][x], lineSegments[s]);
+                                    if(loopResult != null && loopResult.param < resultDist) {
+                                        result = loopResult;
+                                        resultDist = loopResult.param;
+                                        segmentx = s;
+                                    }
                                 }
                             }
-                            writeMessage(resultDist);
+                            lastSegmentx = segmentx;
+                            writeMessage(segmentx);
                             //if one exists then calc reflections if required
                             if(result != null) {
                                 circle.x(result.x);
