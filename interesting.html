@@ -8,6 +8,7 @@
         </style>
     </head>
     <body>
+        <p id="loadtext">Loading:</p>
         <div id="main" style="align-self:center"></div>
         <!--Long Konva script, dont bother opening-->
         <script>
@@ -18274,18 +18275,25 @@
                 text.text(message);
             }
 
+            var myobj = document.getElementById("loadtext");
+
 
             var circles = [];
             for(var x = 0; x < 50; x++) {
                 circles[x] = [];
                 for(var y = 0; y < 25; y++) {
-                    circles[x][y] = new ship("red");
+                    circles[x][y] = new ship("green");
                     circles[x][y].poly.x(25 * x + 100);
                     circles[x][y].poly.y(25 * y + 50);
                     var pol = circles[x][y].poly;
                     unitLayer.add(pol);
+                    pol.cache({pixelRatio: 0});
+                    myobj.innerHtml = "Loading: " + (x * y);
                 }
             }
+
+            myobj.remove();
+            
             var border = new Konva.Rect({
                 x: 0,
                 y: 0,
@@ -18345,20 +18353,22 @@
                             pol.y(rec.y + fory);
                         }
                     }*/
-                    for(var x = 0; x < circles.length; x++) {
+                    /*for(var x = 0; x < circles.length; x++) {
                         for(var y = 0; y < circles[x].length; y++) {
                             var pol = circles[x][y].poly;
 
                             var diff = {x: 0, y: 0};
                             diff.x = pos.x - pol.x();
                             diff.y = pos.y - pol.y();
-                            var mag = Math.sqrt((diff.x * diff.x) + (diff.y * diff.y));
-                            mag /= 100;
-                            mag = Math.min(mag, 2);
-                            pol.scale({x: mag, y: mag});
-                            pol.offset({x: mag / 2 + pol.width() / 2, y: mag / 2 + pol.height() / 2});
+                            if(Math.abs(diff.x) < 300 && Math.abs(diff.y) < 300) {
+                                var mag = Math.sqrt((diff.x * diff.x) + (diff.y * diff.y));
+                                mag /= 100;
+                                mag = Math.min(mag, 2);
+                                pol.scale({x: mag, y: mag});
+                                pol.offset({x: mag / 2 + pol.width() / 2, y: mag / 2 + pol.height() / 2});
+                            }
                         }
-                    }
+                    }*/
                 }   
                 writeMessage("FPS: " + countFPS());
                 unitLayer.draw();

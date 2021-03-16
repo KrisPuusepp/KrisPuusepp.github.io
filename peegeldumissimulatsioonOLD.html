@@ -18303,26 +18303,7 @@
                 //Normalize dir
                 Ray.dx /= mag;
                 Ray.dy /= mag;
-            }
 
-            // line segment class
-            function lineSegment(px, py, dx, dy) {
-                this.px = px;
-                this.py = py;
-                this.dx = dx;
-                this.dy = dy;
-                this.poly = new Konva.Line({
-                    points: [0, 0, 10, 10],
-                    stroke: 'black',
-                    strokeWidth: 1.5,
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                });
-                mainLayer.add(this.poly);
-            }
-
-            // update konva line class points
-            function updatePoints(Ray) {
                 pArray = [];
                 //set point
                 pArray[0] = Ray.px;
@@ -18334,21 +18315,79 @@
                 Ray.poly.points(pArray);
             }
 
+            // line segment class
+            function lineSegment(px, py, dx, dy) {
+                this.px = px;
+                this.py = py;
+                this.dx = dx;
+                this.dy = dy;
+                this.poly = new Konva.Line({
+                    points: [0, 0, 10, 10],
+                    stroke: 'black',
+                    strokeWidth: 2,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                });
+                mainLayer.add(this.poly);
+            }
+
+            // convert segment from x, y, x2, y2 to px, py, dx, dy, T
+            function convertSegment(segment) {
+                //segment = new lineSegment(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
+                //mpos = stage.getPointerPosition();
+                //segment = new lineSegment(segment.px, segment.py, mpos.x, mpos.y);
+
+                //convert global to local
+                segment.dx -= segment.px;
+                segment.dy -= segment.py;
+                //calc magnitude
+                x = Math.pow(segment.dx, 2);
+                y = Math.pow(segment.dy, 2);
+                mag = Math.sqrt(x + y);
+
+                segment.t = mag; //T IS SET HERE
+                //Normalize dir
+                segment.dx /= mag;
+                segment.dy /= mag;
+
+                pArray = [];
+                //set point
+                pArray[0] = segment.px;
+                pArray[1] = segment.py;
+                //set dir
+                pArray[2] = segment.px + (segment.dx * segment.t);
+                pArray[3] = segment.py + (segment.dy * segment.t);
+
+                segment.poly.points(pArray);
+            }
+
+            // update konva line class points
+            function updatePoints(Ray) {
+                pArray = [];
+                //set point
+                pArray[0] = Ray.px;
+                pArray[1] = Ray.py;
+                //set dir
+                pArray[2] = Ray.dx;
+                pArray[3] = Ray.dy;
+
+                Ray.poly.points(pArray);
+            }
+
             // Find intersection of RAY & SEGMENT
             function getIntersection(Ray,segment) { 
 	            // RAY in parametric: Point + Direction*T1
 	            var r_px = Ray.px;
 	            var r_py = Ray.py;
-	            var r_dx = Ray.dx * Ray.t;
-	            var r_dy = Ray.dy * Ray.t;
+	            var r_dx = Ray.dx-Ray.px;
+	            var r_dy = Ray.dy-Ray.py;
 
 	            // SEGMENT in parametric: Point + Direction*T2
 	            var s_px = segment.px;
 	            var s_py = segment.py;
-	            var s_dx = segment.dx * segment.t;
-	            var s_dy = segment.dy * segment.t;
+	            var s_dx = segment.dx-segment.px;
+	            var s_dy = segment.dy-segment.py;
                 
-                //debug text
                 //writeMessage(r_px + "\n" + r_py + "\n" + r_dx + "\n" + r_dy + "\n" + s_px + "\n" + s_py + "\n" + s_dx + "\n" + s_dy);
 
                 // Are they parallel? If so, no intersect
@@ -18392,14 +18431,14 @@
             }
 
             // find where the point is. used for reversing in reflect();
-            /*function isLeft(ax, ay, bx, by, cx, cy){
+            function isLeft(ax, ay, bx, by, cx, cy){
                  return ((bx - ax)*(cy - ay) - (by - ay)*(cx - ax)) > 0;
-            }*/
+            }
 
             // Reflect vector :)
             function reflect(Ray,segment) {
-                ny = segment.dx; //n = normal
-                nx = segment.dy;
+                ny = segment.px - segment.dx; //n = normal
+                nx = segment.py - segment.dy;
                 ny = ny * -1;
                 // -- normalizing normal (?) --
                 //mag
@@ -18410,8 +18449,8 @@
                 nx /= mag;
                 ny /= mag;
 
-                ix = Ray.dx; // i = incoming ray
-                iy = Ray.dy;
+                ix = Ray.px - Ray.dx; // i = incoming ray
+                iy = Ray.py - Ray.dy;
                 // -- normalizing incoming ray --
                 //mag
                 x2 = Math.pow(ix, 2);
@@ -18422,12 +18461,15 @@
                 iy /= mag2;
 
                 //debug text
-                //writeMessage(ix + "\n" + iy + "\n" + nx + "\n" + ny + "\n");
+                writeMessage(ix + "\n" + iy + "\n" + nx + "\n" + ny + "\n");
+                //writeMessage(isLeft(segment.px, segment.py, segment.px + segment.dx, segment.py + segment.dy, Ray.px + Ray.dx / 2, Ray.py + Ray.dy / 2));
 
                 //r=d−2(d⋅n)n
                 dot = dot_product(ny, nx, iy, ix);
                 rx = ix - 2 * (dot) * nx;
                 ry = iy - 2 * (dot) * ny;
+                rx *= -1;
+                ry *= -1;
 
                 return {
                     x: rx,
@@ -18436,18 +18478,12 @@
             }
 
             var rays = [];
-            for(var i = 0; i < 1; i++) {
-                rays[i] = [new ray(1000, 750, 1000, 1000)];
-                convertRay(rays[i][0]);
-                updatePoints(rays[i][0]);
-            }
+            rays[0] = new ray(500, 500, 1000, 1000);
             var lineSegments = [];
-            lineSegments[0] = new lineSegment(1920 / 1.5, 200, 1920 / 1.5, 900);
-            convertRay(lineSegments[0]);
-            updatePoints(lineSegments[0]);
-            lineSegments[1] = new lineSegment(100, 100, 100, 1000);
-            convertRay(lineSegments[1]);
-            updatePoints(lineSegments[1]);
+            lineSegments[0] = new lineSegment(1920 / 1.5, 100, 1920 / 1.5, 900);
+            //lineSegments[0] = new lineSegment(100, 540, 900, 540);
+
+            var reflected = [];
 
             var bounceLength = 1;
 
@@ -18472,64 +18508,45 @@
                 var mpos = stage.getPointerPosition();
                 for(var i = 0; i < rays.length; i++) {
                     if(mpos == null) {
-                        rays[i][0].dx = 1000;
-                        rays[i][0].dy = 1000;
+                        rays[i].dx = (720 - rays[i].px) * 1000;
+                        rays[i].dy = (480 - rays[i].py) * 1000;
                     }
                     else {
-                        rays[i][0].dx = (mpos.x - rays[i][0].px) * 10000;
-                        rays[i][0].dy = (mpos.y - rays[i][0].py) * 10000;
+                        rays[i].dx = (mpos.x - rays[i].px) * 1000;
+                        rays[i].dy = (mpos.y - rays[i].py) * 1000;
                     }
-                    convertRay(rays[i][0]);
-                    updatePoints(rays[i][0]);
-                }
-                for(var i = 0; i < rays.length; i++) {
-                    //creating rays
-                    for(var x = 0; x <= bounceLength; x++) {
-                        if(rays[i][x])
-                        {
-                            //find closest segment
-                            var result = null;
-                            var resultDist = 100000;
-                            var segmentx = 0;
-                            for(var s = 0; s < lineSegments.length; s++) {
-                                loopResult = getIntersection(rays[i][x], lineSegments[s]);
-                                if(loopResult != null && loopResult.param < resultDist) {
-                                    result = loopResult;
-                                    resultDist = loopResult.param;
-                                    segmentx = s;
-                                }
-                            }
-                            writeMessage(resultDist);
-                            //if one exists then calc reflections if required
-                            if(result != null) {
-                                circle.x(result.x);
-                                circle.y(result.y);
-                                rays[i][x].dx = result.x;
-                                rays[i][x].dy = result.y;
-                                convertRay(rays[i][x]);
-                                updatePoints(rays[i][x]);
 
-                                //if we havent reached the end of the bounces create a new ray
-                                if(x != bounceLength) {
-                                // destroy old rays
-                                    if(rays[i][x + 1])
-                                        rays[i][x + 1].poly.destroy();
+                    var result = getIntersection(rays[i], lineSegments[0]);
+                    if(result != null) {
+                        //circle.x(result.x);
+                        //circle.y(result.y);
+                        rays[i].dx = result.x;
+                        rays[i].dy = result.y;
 
-                                    // make new ray
-                                    reflec = reflect(rays[i][x], lineSegments[segmentx]);
-                                    rays[i][x + 1] = new ray(result.x, result.y, reflec.x * 1000 + result.x, reflec.y * 1000 + result.y);
-                                    convertRay(rays[i][x + 1]);
-                                    updatePoints(rays[i][x + 1]);
-                                }
-                            } else if(rays[i][x + 1]) {
-                                rays[i][x + 1].poly.destroy();
-                                rays[i].splice(x + 1, 1);
+                        reflec = reflect(rays[i], lineSegments[0]);
+                        for(var x = 0; x < bounceLength; x++) {
+                            if(reflected[i]) {
+                                reflected[i][x].poly.destroy();
                             }
                         }
+
+                        reflected[i] = [];
+                        for(var x = 0; x < bounceLength; x++) {
+                            reflected[i][x] = new ray(result.x, result.y, reflec.x * 500 + result.x, reflec.y * 500 + result.y);
+                            updatePoints(reflected[i][x]);
+                        }
+                    } else if(reflected[i] != undefined) {
+                        //circle.x(0);
+                        //circle.y(0);
+                        for(var x = 0; x < bounceLength; x++) {
+                            reflected[i][x].poly.destroy();
+                        }
+                        reflected.splice(i, 1);
                     }
+                    updatePoints(rays[i]);
                 }
-                //writeMessage(rays[0][2].px + "\n" + rays[0][2].py + "\n" + rays[0][2].dx + "\n" + rays[0][2].dy + "\n" + rays[0][2].t + "\n" + Math.sqrt(Math.pow(rays[0][2].dx, 2) + Math.pow(rays[0][2].dy, 2)) + "\n");
                 stage.clear();
+                //writeMessage(rays[0].px + "\n" + rays[0].py + "\n" + rays[0].dx + "\n" + rays[0].dy + "\n" + rays[0].t + "\n" + Math.sqrt(Math.pow(rays[0].dx, 2) + Math.pow(rays[0].dy, 2)) + "\n");
                 stage.draw();
             }
 
@@ -18540,10 +18557,10 @@
             //convertSegment(lineSegments[0]);
             //convertRay(rays[0]);
 
-            updatePoints(rays[0][0]);
+            updatePoints(rays[0]);
             updatePoints(lineSegments[0]);
-            updatePoints(lineSegments[0]);
-
+            if(reflected[0] != undefined)
+                updatePoints(reflected[0]);
             // add the layer to the stage
             stage.add(mainLayer);
             stage.draw();
