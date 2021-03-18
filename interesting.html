@@ -18282,7 +18282,7 @@
             for(var x = 0; x < 50; x++) {
                 circles[x] = [];
                 for(var y = 0; y < 25; y++) {
-                    circles[x][y] = new ship("green");
+                    circles[x][y] = new ship("red");
                     circles[x][y].poly.x(25 * x + 100);
                     circles[x][y].poly.y(25 * y + 50);
                     var pol = circles[x][y].poly;
@@ -18353,7 +18353,7 @@
                             pol.y(rec.y + fory);
                         }
                     }*/
-                    /*for(var x = 0; x < circles.length; x++) {
+                    for(var x = 0; x < circles.length; x++) {
                         for(var y = 0; y < circles[x].length; y++) {
                             var pol = circles[x][y].poly;
 
@@ -18366,9 +18366,12 @@
                                 mag = Math.min(mag, 2);
                                 pol.scale({x: mag, y: mag});
                                 pol.offset({x: mag / 2 + pol.width() / 2, y: mag / 2 + pol.height() / 2});
+                            } else {
+                                pol.scale({x: 2, y: 2});
+                                pol.offset({x: 1 + pol.width() / 2, y: 1 + pol.height() / 2});    
                             }
                         }
-                    }*/
+                    }
                 }   
                 writeMessage("FPS: " + countFPS());
                 unitLayer.draw();
