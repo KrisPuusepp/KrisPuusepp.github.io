@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <style>* {padding: 0; margin: 0}</style>
+        <title>pixitest</title>
+        <meta charset="utf-8">
+        <style>
+            h1 {text-align: center;}
+            p {text-align: center;}
+            div {text-align: center;}
+        </style>
+    </head>
+    <script src="pixi/pixi.min.js"></script>
+    <script src="pixi/pixi-filters.js"></script>
+    <body bgcolor="black">
+        <script>
+            function lerp(value1, value2, amount) {
+                amount = amount < 0 ? 0 : amount;
+                amount = amount > 1 ? 1 : amount;
+                return value1 + (value2 - value1) * amount;
+            }
+        </script>
+
+        <script type="text/javascript">
+            //setup
+            let type = "WebGL"
+            PIXI.utils.sayHello(type)
+
+            //Create a Pixi Application
+            stageWidth = 1536;
+            stageHeight = 754;
+
+            let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x000000});
+
+            //Add the canvas that Pixi automatically created for you to the HTML document
+            document.body.appendChild(app.view);
+
+            //resize to window
+            app.renderer.view.style.position = "absolute";
+            app.renderer.view.style.display = "block";
+            app.renderer.autoResize = true;
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+
+            var frame = 0;
+
+            var rectangles = [];
+            var targets = [];
+            var velocities = [];
+            var offsets = [];
+            var mult = 50;
+
+            //debug text
+            let text = new PIXI.Text('This is a PixiJS text',{fontFamily : 'Arial', fontSize: 128, fill : 0xFFFFFF, align : 'center'});
+            text.scale = {x: 0.25, y: 0.25};
+            app.stage.addChild(text);
+            function writeMessage(str) {
+                text.text = str;
+            }
+
+            function dist(pos1, pos2) {
+                var dist = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+                return dist;
+            }
+
+            function setup() {
+                for(var i = 0; i < mult; i++) {
+                    for(var y = 0; y < mult; y++) {
+                        rectangles[(i * mult) + y] = new PIXI.Graphics();
+                        rectangles[(i * mult) + y].beginFill(0xFFFFFF);
+                        rectangles[(i * mult) + y].drawCircle(-1, -1, 2);
+                        rectangles[(i * mult) + y].endFill();
+                        rectangles[(i * mult) + y] = app.renderer.generateTexture(rectangles[(i * mult) + y]);
+                        rectangles[(i * mult) + y] = PIXI.Sprite.from(rectangles[(i * mult) + y]);
+                        rectangles[(i * mult) + y].position = {x: 8 * (i + 1), y: 8 * (y + 1)};
+                        rectangles[(i * mult) + y].position.x -= 4;
+                        rectangles[(i * mult) + y].position.y -= 4;
+                        rectangles[(i * mult) + y].scale = {x: 0.5, y: 0.5};
+                        //rectangles[(i * mult) + y].filters = [new PIXI.filters.BloomFilter(10, 4)];
+                        app.stage.addChild(rectangles[(i * mult) + y]);
+
+                        offsets[(i * mult) + y] = {x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10}
+                        targets[(i * mult) + y] = {x: 0, y: 0}
+                        velocities[(i * mult) + y] = {x: 0, y: 0}
+                    }
+                }
+
+                //Start the game loop by adding the `gameLoop` function to
+                //Pixi's `ticker` and providing it with a `delta` argument.
+                app.ticker.add(delta => gameLoop(delta));
+            }
+
+            var input = new PIXI.InteractionManager(app.renderer);
+            function gameLoop(delta) {
+                //console.log(input.mouse.global);
+                for(var i = 0; i < mult; i++) {
+                    for(var y = 0; y < mult; y++) {
+                        index = (i * mult) + y;
+                        rec = rectangles[index]
+                        //pos
+                        if(input.mouse.global.x > 0 && input.mouse.global.y > 0) {
+                            targetPos = targets[index];
+                            targetPos = Object.assign(targetPos, input.mouse.global)
+                            targetAdd = {}
+                            var d = new Date();
+                            var n = d.getTime();
+
+                            targetAdd.x = Math.sin((n / 1000) + index - 0.2) * 200;
+                            targetAdd.y = Math.sin((n / 1000) + index + 0.8) * 150;
+                            targetAdd.x += Math.cos((n / 1000) + offsets[index].x) * 25;
+                            targetAdd.y += Math.cos((n / 1000) + offsets[index].y) * 25;
+
+                            targetPos.x += targetAdd.x;
+                            targetPos.y += targetAdd.y;
+
+                            vel = velocities[index];
+
+                            //dampen velocity
+                            //vel.x -= 1 * Math.sign(vel.x);
+                            //vel.y -= 1 * Math.sign(vel.y);   
+
+                            //boost velocity
+                            vel.x = lerp(vel.x, targetPos.x - rec.x, Math.min(1 / dist(rec, targetPos) / 2), 1);
+                            vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / dist(rec, targetPos) / 2), 1);    
+
+                            rec.position.x += vel.x;
+                            rec.position.y += vel.y;
+                            //writeMessage(dist(rec.position, targetPos));
+                        }
+                    }
+                }
+                frame++;
+            }
+
+            setup()
+        </script>
+    </body>
+</html>
