@@ -49,7 +49,7 @@
             var mult = 50;
 
             //debug text
-            let text = new PIXI.Text('This is a PixiJS text',{fontFamily : 'Arial', fontSize: 128, fill : 0xFFFFFF, align : 'center'});
+            let text = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 128, fill : 0xFFFFFF, align : 'center'});
             text.scale = {x: 0.25, y: 0.25};
             app.stage.addChild(text);
             function writeMessage(str) {
@@ -70,7 +70,7 @@
                         rectangles[(i * mult) + y].endFill();
                         rectangles[(i * mult) + y] = app.renderer.generateTexture(rectangles[(i * mult) + y]);
                         rectangles[(i * mult) + y] = PIXI.Sprite.from(rectangles[(i * mult) + y]);
-                        rectangles[(i * mult) + y].position = {x: 8 * (i + 1), y: 8 * (y + 1)};
+                        rectangles[(i * mult) + y].position = {x: 8 * (i + 1) + stageWidth / 2 - 200, y: 8 * (y + 1) + stageHeight / 2 - 200};
                         rectangles[(i * mult) + y].position.x -= 4;
                         rectangles[(i * mult) + y].position.y -= 4;
                         rectangles[(i * mult) + y].scale = {x: 0.5, y: 0.5};
@@ -113,13 +113,18 @@
 
                             vel = velocities[index];
 
-                            //dampen velocity
-                            //vel.x -= 1 * Math.sign(vel.x);
-                            //vel.y -= 1 * Math.sign(vel.y);   
-
                             //boost velocity
-                            vel.x = lerp(vel.x, targetPos.x - rec.x, Math.min(1 / dist(rec, targetPos) / 2), 1);
-                            vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / dist(rec, targetPos) / 2), 1);    
+                            vel.x = lerp(vel.x, targetPos.x - rec.x, Math.min(1 / (dist(rec, targetPos) * 3)), 1);
+                            vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / (dist(rec, targetPos) * 3)), 1);    
+
+                            //dampen velocity
+                            x2 = Math.pow(vel.x, 2);
+                            y2 = Math.pow(vel.y, 2);
+                            mag = Math.sqrt(x2 + y2);
+                            vel.x /= mag;
+                            vel.y /= mag;
+                            vel.x *= mag / 1.01;
+                            vel.y *= mag / 1.01;
 
                             rec.position.x += vel.x;
                             rec.position.y += vel.y;
