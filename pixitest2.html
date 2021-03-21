@@ -23,6 +23,15 @@
         </script>
 
         <script type="text/javascript">
+            //util
+            function componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+            function rgbToHex(r, g, b) {
+                return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+            }
+
             //setup
             let type = "WebGL"
             PIXI.utils.sayHello(type)
@@ -70,8 +79,8 @@
             var mouseButtonHeld = false;
 
             function setup() {
-                //var blom = new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:2, bloomScale:10, blur: 10, quality: 8});
-                //app.stage.filters = [blom];
+                var blom = new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, brightness:2, bloomScale:2, blur: 4, quality: 8});
+                app.stage.filters = [blom];
 
                 input.on("mousedown", mouseinteraction);
 
@@ -142,10 +151,10 @@
                             vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / (dist(rec, targetPos) * 2 * ((mouseButtonHeld * -0.9)+1))));   
 
                             //dampen velocity
+                            x2 = Math.pow(vel.x, 2);
+                            y2 = Math.pow(vel.y, 2);
+                            mag = Math.sqrt(x2 + y2);
                             if(vel.x != 0 && vel.y != 0) {
-                                x2 = Math.pow(vel.x, 2);
-                                y2 = Math.pow(vel.y, 2);
-                                mag = Math.sqrt(x2 + y2);
                                 vel.x /= mag;
                                 vel.y /= mag;
                                 vel.x *= mag / 1.01;
@@ -159,14 +168,19 @@
                             //trails
                             if(trail) {
                                 trails[index].clear();
-                                trails[index].lineStyle(1, 0xffffff)
-                                trails[index].moveTo(rec.x - vel.x, rec.y - vel.y);
+                                r = Math.abs(Math.max(100, Math.min(Math.round(mag * 10), 255)) - 0);
+                                g = 165;
+                                b = 0;
+                                trails[index].lineStyle(2, rgbToHex(r, g, b))
+                                xl = Math.max(Math.abs(rec.x - vel.x), 1) * Math.sign(rec.x - vel.x);
+                                yl = Math.max(Math.abs(rec.y - vel.y), 1) * Math.sign(rec.y - vel.y);
+                                trails[index].moveTo(xl, yl);
                                 trails[index].lineTo(rec.x, rec.y);
                             }
                         }
                     }
                 }
-
+               
                 writeMessage(mouseHeld + ", " + mouseButtonHeld);
 
                 frame++;
