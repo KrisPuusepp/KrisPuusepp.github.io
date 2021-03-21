@@ -10,7 +10,9 @@
         </style>
     </head>
     <script src="pixi/pixi.min.js"></script>
+    <script src="pixi/pixi.min.js.map"></script>
     <script src="pixi/pixi-filters.js"></script>
+    <script src="pixi/pixi-filters.js.map"></script>
     <body bgcolor="black">
         <script>
             function lerp(value1, value2, amount) {
@@ -29,7 +31,7 @@
             stageWidth = 1536;
             stageHeight = 754;
 
-            let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x000000});
+            let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: false, backgroundColor: 0x000000});
 
             //Add the canvas that Pixi automatically created for you to the HTML document
             document.body.appendChild(app.view);
@@ -43,10 +45,12 @@
             var frame = 0;
 
             var rectangles = [];
+            var trail = true;
+            var trails = [];
             var targets = [];
             var velocities = [];
             var offsets = [];
-            var mult = 50;
+            var mult = 40;
 
             //debug text
             let text = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 128, fill : 0xFFFFFF, align : 'center'});
@@ -61,8 +65,17 @@
                 return dist;
             }
 
+            var input = new PIXI.InteractionManager(app.renderer);
+            var mouseHeld = false;
+            var mouseButtonHeld = false;
+
             function setup() {
-                for(var i = 0; i < mult; i++) {
+                //var blom = new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:2, bloomScale:10, blur: 10, quality: 8});
+                //app.stage.filters = [blom];
+
+                input.on("mousedown", mouseinteraction);
+
+                for(var i = 0; i < mult; ++i) {
                     for(var y = 0; y < mult; y++) {
                         rectangles[(i * mult) + y] = new PIXI.Graphics();
                         rectangles[(i * mult) + y].beginFill(0xFFFFFF);
@@ -74,12 +87,15 @@
                         rectangles[(i * mult) + y].position.x -= 4;
                         rectangles[(i * mult) + y].position.y -= 4;
                         rectangles[(i * mult) + y].scale = {x: 0.5, y: 0.5};
-                        //rectangles[(i * mult) + y].filters = [new PIXI.filters.BloomFilter(10, 4)];
-                        app.stage.addChild(rectangles[(i * mult) + y]);
+                        //app.stage.addChild(rectangles[(i * mult) + y]);
 
                         offsets[(i * mult) + y] = {x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10}
                         targets[(i * mult) + y] = {x: 0, y: 0}
                         velocities[(i * mult) + y] = {x: 0, y: 0}
+                        if(trail) {
+                            trails[(i * mult) + y] = new PIXI.Graphics();
+                            app.stage.addChild(trails[(i * mult) + y]);
+                        }
                     }
                 }
 
@@ -88,7 +104,6 @@
                 app.ticker.add(delta => gameLoop(delta));
             }
 
-            var input = new PIXI.InteractionManager(app.renderer);
             function gameLoop(delta) {
                 //console.log(input.mouse.global);
                 for(var i = 0; i < mult; i++) {
@@ -105,34 +120,63 @@
 
                             targetAdd.x = Math.sin((n / 1000) + index - 0.2) * 200;
                             targetAdd.y = Math.sin((n / 1000) + index + 0.8) * 150;
-                            targetAdd.x += Math.cos((n / 1000) + offsets[index].x) * 25;
-                            targetAdd.y += Math.cos((n / 1000) + offsets[index].y) * 25;
+                            targetAdd.x += Math.sin((n / 5000) + offsets[index].x) * 25 * Math.sin((mouseHeld * 2 + 1) * (n / 1000)) * (mouseHeld * 2 + 1);
+                            targetAdd.y += Math.sin((n / 5000) + offsets[index].y) * 25 * Math.sin((mouseHeld * 2 + 1) * (n / 1000)) * (mouseHeld * 2 + 1);
+
+                            targetAdd.x -= Math.sin(index) * 300 * mouseHeld;
+                            targetAdd.y -= Math.sin(index) * 50 * mouseHeld;
 
                             targetPos.x += targetAdd.x;
                             targetPos.y += targetAdd.y;
 
                             vel = velocities[index];
 
+
+                            //TODO:
+                            // - Convert renderer to particle renderer
+                            // - some sort of explosion on click
+
+
                             //boost velocity
-                            vel.x = lerp(vel.x, targetPos.x - rec.x, Math.min(1 / (dist(rec, targetPos) * 3)), 1);
-                            vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / (dist(rec, targetPos) * 3)), 1);    
+                            vel.x = lerp(vel.x, targetPos.x - rec.x, Math.min(1 / (dist(rec, targetPos) * 2 * ((mouseButtonHeld * -0.9)+1))));
+                            vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / (dist(rec, targetPos) * 2 * ((mouseButtonHeld * -0.9)+1))));   
 
                             //dampen velocity
-                            x2 = Math.pow(vel.x, 2);
-                            y2 = Math.pow(vel.y, 2);
-                            mag = Math.sqrt(x2 + y2);
-                            vel.x /= mag;
-                            vel.y /= mag;
-                            vel.x *= mag / 1.01;
-                            vel.y *= mag / 1.01;
+                            if(vel.x != 0 && vel.y != 0) {
+                                x2 = Math.pow(vel.x, 2);
+                                y2 = Math.pow(vel.y, 2);
+                                mag = Math.sqrt(x2 + y2);
+                                vel.x /= mag;
+                                vel.y /= mag;
+                                vel.x *= mag / 1.01;
+                                vel.y *= mag / 1.01;
+                            }
+
 
                             rec.position.x += vel.x;
                             rec.position.y += vel.y;
-                            //writeMessage(dist(rec.position, targetPos));
+
+                            //trails
+                            if(trail) {
+                                trails[index].clear();
+                                trails[index].lineStyle(1, 0xffffff)
+                                trails[index].moveTo(rec.x - vel.x, rec.y - vel.y);
+                                trails[index].lineTo(rec.x, rec.y);
+                            }
                         }
                     }
                 }
+
+                writeMessage(mouseHeld + ", " + mouseButtonHeld);
+
                 frame++;
+            }
+
+            function mouseinteraction() {
+                if(input.mouse.button == 0)
+                    mouseHeld = !mouseHeld;
+                else if(input.mouse.button == 1)
+                    mouseButtonHeld = !mouseButtonHeld;
             }
 
             setup()
