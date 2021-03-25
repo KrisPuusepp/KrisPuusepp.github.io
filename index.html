@@ -1,38 +1,113 @@
 <html>
-  <head>
-    <title>asjad</title>
-  </head>
+    <head>
+        <title>asjad</title>
+    </head>
 
-  <div style="position: fixed; z-index:0">
+    <div id="wavediv1" style="position: fixed; margin-left: 40; z-index:0">
 
-  </div>
+    </div>
 
-  <body>
-    <br> 
-	  <div style="text-align:center; color:black; font-size:28pt; font-weight:bold; font-family:arial; position:static; z-index:1">
-      <p>asjad</p>
-      <a href="https://krispuusepp.github.io/peegeldumissimulatsioon.html">Valguse simulatsioon (kooli loovtöö)</a>
-      <p style="font-size:12">(pole veel valmis)</p>
-      <image style="width: 512;" src="./Resources/valgussim.PNG"></image>
-      <br>      <br>
-      <a href="https://krispuusepp.github.io/pixitest2.html">Värviline simulatsioon</a>
-      <p style="font-size:12">Töötab ainult arvutis</p>
-      <image style="width: 512;" src="./Resources/varvsim.PNG"></image>
-      <br>
-      <br>
-      <br>
-      <div style="font-size:22">
-        <a>väiksemad, ebahuvitavamad asjad</a>
-        <p style="font-size:12">Enamus isegi ei tööta :|</p>
-        <a href="https://krispuusepp.github.io/konvatest.html">lennuk</a>
-        <br>
-        <a href="https://krispuusepp.github.io/interesting.html">ruudud</a>
-        <br>
-        <a href="https://krispuusepp.github.io/pixitest.html">täpid</a>  
-      </div>
-      <br>    <br>
-	</div>
+    <div id="wavediv2" style="position: fixed; margin-left: 100; z-index:1">
 
+    </div>
 
-  </body>
+    <body>
+        <br> 
+    	<div style="text-align:center; color:black; font-size:28pt; font-weight:bold; font-family:arial; position:static; z-index:2">
+            <p>asjad</p>
+            <a href="https://krispuusepp.github.io/peegeldumissimulatsioon.html">Valguse simulatsioon (kooli loovtöö)</a>
+            <p style="font-size:12">(pole veel valmis)</p>
+            <image style="width: 512;" src="./Resources/valgussim.PNG"></image>
+            <br>      <br>
+            <a href="https://krispuusepp.github.io/colortest.html">Värviline simulatsioon</a>
+            <p style="font-size:12">Töötab ainult arvutis</p>
+            <image style="width: 512;" src="./Resources/varvsim.PNG"></image>
+            <br>
+            <br>
+            <br>
+            <div style="font-size:22">
+                <a>väiksemad, ebahuvitavamad asjad</a>
+                <p style="font-size:12">Enamus isegi ei tööta :|</p>
+                <a href="https://krispuusepp.github.io/konvatest.html">lennuk</a>
+                <br>
+                <a href="https://krispuusepp.github.io/interesting.html">ruudud</a>
+                <br>
+                <a href="https://krispuusepp.github.io/pixitest.html">täpid</a>  
+            </div>
+            <br>    <br>
+    	</div>
+
+        <script>
+            //credit: https://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
+            // :)
+            function getWidth() {
+                return Math.max(
+                  document.body.scrollWidth,
+                  document.documentElement.scrollWidth,
+                  document.body.offsetWidth,
+                  document.documentElement.offsetWidth,
+                  document.documentElement.clientWidth
+                );
+            }
+
+            function getHeight() {
+                return Math.max(
+                  document.body.scrollHeight,
+                  document.documentElement.scrollHeight,
+                  document.body.offsetHeight,
+                  document.documentElement.offsetHeight,
+                  document.documentElement.clientHeight
+                );
+            }
+
+            var wavediv1 = document.getElementById("wavediv1");
+            var wavediv2 = document.getElementById("wavediv2");
+
+            var body = document.body;
+
+            var waves = []
+            var frame = 0;
+
+            var len = 41;
+
+            wavediv2.style.marginLeft = getWidth() - 200;
+
+            for(var i = 0; i < len; i++) {
+                var para = document.createElement("p");
+                var node = document.createTextNode("Jänes");
+                para.appendChild(node);
+                para.style.fontFamily = "arial";
+                para.style.margin = 0;
+                para.style.marginLeft = 0;
+                wavediv1.appendChild(para);
+
+                waves[i] = para;
+            }
+
+            for(var i = 0; i < len; i++) {
+                var para = document.createElement("p");
+                var node = document.createTextNode("Jänes");
+                para.appendChild(node);
+                para.style.fontFamily = "arial";
+                para.style.margin = 0;
+                para.style.marginLeft = 0;
+                wavediv2.appendChild(para);
+
+                waves[len + i] = para;
+            }
+
+            function Wave() {
+                for(var i = 0; i < waves.length; i++) {
+                    waves[i].style.marginLeft = Math.round((Math.sin(frame / 30 + i / 3 + body.scrollTop / 180) + 1) * 30);
+                }
+
+                frame++;
+
+                self.setTimeout("Wave()", 1000 / 30);
+            }
+
+            Wave();
+        </script>
+
+    </body>
 </html>
