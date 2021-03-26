@@ -18287,18 +18287,24 @@
                     shadowOffsetX: 3,
                     shadowOffsetY: 3,
                 });
+                buttons[i].on("mouseenter", function () {
+                    buttonHover(true, this);
+                });
+                buttons[i].on("mouseleave", function () {
+                    buttonHover(false, this);
+                });
                 UILayer.add(buttons[i]);
                 buttonX += 70;
             }
             var toolbarClose = new Konva.Rect({
                 x: 10,
                 y: height - 70 - 40,
-                width: 50,
+                width: 60,
                 height: 30,
                 stroke: "black",
                 strokeWidth: 3,
                 fill: "white",
-                cornerRadius: [2, 2, 2, 2],
+                cornerRadius: [0, 3, 3, 3],
             });
             UILayer.add(toolbarClose);
 
@@ -18531,7 +18537,6 @@
                                 }
                             }
                             lastSegmentx = segmentx;
-                            writeMessage(segmentx);
                             //if one exists then calc reflections if required
                             if(result != null) {
                                 circle.x(result.x);
@@ -18567,6 +18572,37 @@
                 //writeMessage(rays[0][2].px + "\n" + rays[0][2].py + "\n" + rays[0][2].dx + "\n" + rays[0][2].dy + "\n" + rays[0][2].t + "\n" + Math.sqrt(Math.pow(rays[0][2].dx, 2) + Math.pow(rays[0][2].dy, 2)) + "\n");
                 stage.clear();
                 stage.draw();
+            }
+
+            //update button graphics on hover
+            function buttonHover(over, button) {
+                //over is a bool - did mouse hover over of off of button, true or false
+                if(over) {
+                    var tween = new Konva.Tween({
+                        // list of tween specific properties
+                        node: button,
+                        duration: 0.1,
+                        easing: Konva.Easings.EaseInOut,
+                        onFinish: () => console.log('finished'),
+                        // set new values for any attributes of a passed node
+                        fill: "#d9d9d9",
+                        y: height - 80,
+                    });
+                    tween.play();
+                } else {
+                    var tween = new Konva.Tween({
+                        // list of tween specific properties
+                        node: button,
+                        duration: 0.1,
+                        easing: Konva.Easings.EaseInOut,
+                        onFinish: () => console.log('finished'),
+                        // set new values for any attributes of a passed node
+                        fill: "white",
+                        y: height - 70
+                    });
+                    tween.play();
+                }
+                writeMessage(button.x());
             }
 
             stage.on("mousemove", function () {
