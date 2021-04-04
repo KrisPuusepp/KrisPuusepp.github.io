@@ -18298,13 +18298,19 @@
             }
             var toolbarClose = new Konva.Rect({
                 x: 10,
-                y: height - 70 - 40,
+                y: height - 70 - 50,
                 width: 60,
                 height: 30,
                 stroke: "black",
                 strokeWidth: 3,
                 fill: "white",
                 cornerRadius: [0, 3, 3, 3],
+            });
+            toolbarClose.on("mouseenter", function () {
+                closebuttonHover(true, this);
+            });
+            toolbarClose.on("mouseleave", function () {
+                closebuttonHover(false, this);
             });
             UILayer.add(toolbarClose);
 
@@ -18599,6 +18605,35 @@
                         // set new values for any attributes of a passed node
                         fill: "white",
                         y: height - 70
+                    });
+                    tween.play();
+                }
+                writeMessage(button.x());
+            }
+            function closebuttonHover(over, button) {
+                //over is a bool - did mouse hover over of off of button, true or false
+                if(over) {
+                    var tween = new Konva.Tween({
+                        // list of tween specific properties
+                        node: button,
+                        duration: 0.1,
+                        easing: Konva.Easings.EaseInOut,
+                        onFinish: () => console.log('finished'),
+                        // set new values for any attributes of a passed node
+                        fill: "#d9d9d9",
+                        width: 70,
+                    });
+                    tween.play();
+                } else {
+                    var tween = new Konva.Tween({
+                        // list of tween specific properties
+                        node: button,
+                        duration: 0.1,
+                        easing: Konva.Easings.EaseInOut,
+                        onFinish: () => console.log('finished'),
+                        // set new values for any attributes of a passed node
+                        fill: "white",
+                        width: 60
                     });
                     tween.play();
                 }
