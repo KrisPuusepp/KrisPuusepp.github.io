@@ -74,7 +74,7 @@
                             lineJoin: 'round',
                         });
                         btnText = new Konva.Text({
-                            x: buttonX + 8,
+                            x: buttonX + 5,
                             y: height - 32,
                             fontFamily: 'Calibri',
                             fontSize: 20,
@@ -85,7 +85,7 @@
                         group.add(btnText);
                         break;
                     case 1:
-                    line = new Konva.Line({
+                        line = new Konva.Line({
                             points: [buttonX + 10, height - 60, buttonX + 50, height - 40],
                             stroke: 'black',
                             strokeWidth: 2,
@@ -93,7 +93,7 @@
                             lineJoin: 'round',
                         });
                         btnText = new Konva.Text({
-                            x: buttonX + 8,
+                            x: buttonX + 5,
                             y: height - 32,
                             fontFamily: 'Calibri',
                             fontSize: 20,
@@ -103,8 +103,51 @@
                         group.add(line);
                         group.add(btnText);
                         break;
+                    case 2:
+                        for(var it = 0; it < 16; it++) {
+                            xoffset = Math.sin(it/1.6) * 12;
+                            yoffset = Math.cos(it/1.6) * 12;
+                            console.log(xoffset);
+                            line = new Konva.Line({
+                                points: [buttonX + 30, height - 45, buttonX + 30 + xoffset, height - 45 + yoffset],
+                                stroke: 'red',
+                                strokeWidth: 1,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            });
+                            group.add(line);
+                        }
+                        btnText = new Konva.Text({
+                            x: buttonX + 5,
+                            y: height - 32,
+                            fontFamily: 'Calibri',
+                            fontSize: 20,
+                            text: 'Allikas',
+                            fill: 'black',
+                        });
+                        group.add(btnText);
                         break;
                     case 3:
+                        for(var it = 0; it < 5; it++) {
+                            console.log(xoffset);
+                            line = new Konva.Line({
+                                points: [buttonX + 10 + (it*2), height - 50 + (it*3), buttonX + 40 + (it*2), height - 60 + (it*3)],
+                                stroke: 'red',
+                                strokeWidth: 1,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            });
+                            group.add(line);
+                        }
+                        btnText = new Konva.Text({
+                            x: buttonX + 5,
+                            y: height - 32,
+                            fontFamily: 'Calibri',
+                            fontSize: 20,
+                            text: 'Vihk',
+                            fill: 'black',
+                        });
+                        group.add(btnText);
                         break;
                 }                
                 button.on("mouseenter", function () {
@@ -116,7 +159,8 @@
                 UILayer.add(buttons[i]);
                 buttonX += 70;
             }
-            var toolbarClose = new Konva.Rect({
+            toolbarButton = new Konva.Group();
+            var toolbarRect = new Konva.Rect({
                 x: 10,
                 y: height - 70 - 50,
                 width: 60,
@@ -126,13 +170,26 @@
                 fill: "white",
                 cornerRadius: [0, 3, 3, 3],
             });
-            toolbarClose.on("mouseenter", function () {
+            var toolbarLine = new Konva.Line({
+                x: 40,
+                y: height - 70 - 35,
+                points: [-10,+5, 0,-5, 10,5],
+                closed: true,
+                fill: 'black',
+                strokeWidth: 1,
+                lineCap: 'round',
+                lineJoin: 'round',
+                rotation: 180
+            });
+            toolbarButton.add(toolbarRect);
+            toolbarButton.add(toolbarLine);
+            toolbarButton.on("mouseenter", function () {
                 buttonEvent(this, "toolbarHoverOver");
             });
-            toolbarClose.on("mouseleave", function () {
+            toolbarButton.on("mouseleave", function () {
                 buttonEvent(this, "toolbarHoverOff");
             });
-            UILayer.add(toolbarClose);
+            UILayer.add(toolbarButton);
 
             
             // ray class
@@ -441,7 +498,7 @@
                         break;
                     case "toolbarHoverOff": //Button to close the toolbar
                         var tween = new Konva.Tween({
-                            node: button,
+                            node: button.getChildren()[0],
                             duration: 0.1,
                             easing: Konva.Easings.EaseInOut,
                             fill: "white",
