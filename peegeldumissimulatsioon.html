@@ -51,7 +51,8 @@
             var buttonX = 10;
             var buttons = [];
             for(var i = 0; i < 10; i++) {
-                buttons[i] = new Konva.Rect({
+                buttons[i] = group = new Konva.Group();
+                button = group.add(new Konva.Rect({
                     x: buttonX,
                     y: height - 70,
                     width: 60,
@@ -62,11 +63,54 @@
                     cornerRadius: [0, 5, 5, 5],
                     shadowOffsetX: 3,
                     shadowOffsetY: 3,
-                });
-                buttons[i].on("mouseenter", function () {
+                }));
+                switch(i) {
+                    case 0:
+                        line = new Konva.Line({
+                            points: [buttonX + 10, height - 60, buttonX + 50, height - 40],
+                            stroke: 'red',
+                            strokeWidth: 2,
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                        });
+                        btnText = new Konva.Text({
+                            x: buttonX + 8,
+                            y: height - 32,
+                            fontFamily: 'Calibri',
+                            fontSize: 20,
+                            text: 'Kiir',
+                            fill: 'black',
+                        });
+                        group.add(line);
+                        group.add(btnText);
+                        break;
+                    case 1:
+                    line = new Konva.Line({
+                            points: [buttonX + 10, height - 60, buttonX + 50, height - 40],
+                            stroke: 'black',
+                            strokeWidth: 2,
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                        });
+                        btnText = new Konva.Text({
+                            x: buttonX + 8,
+                            y: height - 32,
+                            fontFamily: 'Calibri',
+                            fontSize: 20,
+                            text: 'Pind',
+                            fill: 'black',
+                        });
+                        group.add(line);
+                        group.add(btnText);
+                        break;
+                        break;
+                    case 3:
+                        break;
+                }                
+                button.on("mouseenter", function () {
                     buttonEvent(this, "createHoverOver");
                 });
-                buttons[i].on("mouseleave", function () {
+                button.on("mouseleave", function () {
                     buttonEvent(this, "createHoverOff");
                 });
                 UILayer.add(buttons[i]);
@@ -356,50 +400,50 @@
                 switch(event) {
                     case "createHoverOver":
                         var tween = new Konva.Tween({
-                            // list of tween specific properties
+                            node: button.getChildren()[0],
+                            duration: 0.1,
+                            easing: Konva.Easings.EaseInOut,
+                            fill: "#d9d9d9",
+                        });
+                        tween.play();
+                        var tween2 = new Konva.Tween({
                             node: button,
                             duration: 0.1,
                             easing: Konva.Easings.EaseInOut,
-                            onFinish: () => console.log('finished'),
-                            // set new values for any attributes of a passed node
-                            fill: "#d9d9d9",
-                            y: height - 80,
+                            y: -10,
                         });
-                        tween.play();
+                        tween2.play();
                         break;
                     case "createHoverOff":
                         var tween = new Konva.Tween({
-                            // list of tween specific properties
+                            node: button.getChildren()[0],
+                            duration: 0.1,
+                            easing: Konva.Easings.EaseInOut,
+                            fill: "white",
+                        });
+                        tween.play();
+                        var tween2 = new Konva.Tween({
                             node: button,
                             duration: 0.1,
                             easing: Konva.Easings.EaseInOut,
-                            onFinish: () => console.log('finished'),
-                            // set new values for any attributes of a passed node
-                            fill: "white",
-                            y: height - 70
+                            y: 0,
                         });
-                        tween.play();
+                        tween2.play();
                         break;
                     case "toolbarHoverOver": //Button to close the toolbar
                         var tween = new Konva.Tween({
-                            // list of tween specific properties
-                            node: button,
+                            node: button.getChildren()[0],
                             duration: 0.1,
                             easing: Konva.Easings.EaseInOut,
-                            onFinish: () => console.log('finished'),
-                            // set new values for any attributes of a passed node
                             fill: "#d9d9d9",
                         });
                         tween.play();
                         break;
                     case "toolbarHoverOff": //Button to close the toolbar
                         var tween = new Konva.Tween({
-                            // list of tween specific properties
                             node: button,
                             duration: 0.1,
                             easing: Konva.Easings.EaseInOut,
-                            onFinish: () => console.log('finished'),
-                            // set new values for any attributes of a passed node
                             fill: "white",
                         });
                         tween.play();
