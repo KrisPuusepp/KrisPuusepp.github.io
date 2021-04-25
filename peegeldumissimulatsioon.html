@@ -47,11 +47,19 @@
             });
             mainLayer.add(border);
 
-            //UI
-            var buttonX = 10;
+            //UI and input
+            toolbarOpen = true;
+            toolbarButtonDir = 180;
+            keepButton = -1;
+
+            selectedAction = "";
+            selectedParam = 0;
+            selectedFinishable = false; // stage.on("click") always went last, meaning I couldnt use it to finish placing things
+
+            var buttonX = 60;
             var buttons = [];
             for(var i = 0; i < 10; i++) {
-                buttons[i] = group = new Konva.Group();
+                buttons[i] = group = new Konva.Group({ buttonIndex: i }); //attr is custom, Konva does nothing with it.
                 button = group.add(new Konva.Rect({
                     x: buttonX,
                     y: height - 70,
@@ -107,7 +115,6 @@
                         for(var it = 0; it < 16; it++) {
                             xoffset = Math.sin(it/1.6) * 12;
                             yoffset = Math.cos(it/1.6) * 12;
-                            console.log(xoffset);
                             line = new Konva.Line({
                                 points: [buttonX + 30, height - 45, buttonX + 30 + xoffset, height - 45 + yoffset],
                                 stroke: 'red',
@@ -129,7 +136,6 @@
                         break;
                     case 3:
                         for(var it = 0; it < 5; it++) {
-                            console.log(xoffset);
                             line = new Konva.Line({
                                 points: [buttonX + 10 + (it*2), height - 50 + (it*3), buttonX + 40 + (it*2), height - 60 + (it*3)],
                                 stroke: 'red',
@@ -156,23 +162,28 @@
                 button.on("mouseleave", function () {
                     buttonEvent(this, "createHoverOff");
                 });
+                button.on("click", function () {
+                    buttonEvent(this, "createClick");
+                });
                 UILayer.add(buttons[i]);
                 buttonX += 70;
             }
             toolbarButton = new Konva.Group();
             var toolbarRect = new Konva.Rect({
                 x: 10,
-                y: height - 70 - 50,
-                width: 60,
-                height: 30,
+                y: height - 70,
+                width: 40,
+                height: 60,
                 stroke: "black",
                 strokeWidth: 3,
                 fill: "white",
-                cornerRadius: [0, 3, 3, 3],
+                cornerRadius: [0, 5, 5, 5],
+                shadowOffsetX: 2,
+                shadowOffsetY: 2,
             });
-            var toolbarLine = new Konva.Line({
-                x: 40,
-                y: height - 70 - 35,
+            var toolbarArrow = new Konva.Line({
+                x: 30,
+                y: height - 40,
                 points: [-10,+5, 0,-5, 10,5],
                 closed: true,
                 fill: 'black',
@@ -182,15 +193,32 @@
                 rotation: 180
             });
             toolbarButton.add(toolbarRect);
-            toolbarButton.add(toolbarLine);
+            toolbarButton.add(toolbarArrow);
             toolbarButton.on("mouseenter", function () {
                 buttonEvent(this, "toolbarHoverOver");
             });
             toolbarButton.on("mouseleave", function () {
                 buttonEvent(this, "toolbarHoverOff");
             });
+            toolbarButton.on("click", function () {
+                buttonEvent(this, "toolbarClick");
+            });
             UILayer.add(toolbarButton);
 
+            // Input handler
+            document.addEventListener('keydown', function(event) {
+                if(event.keyCode == 32) {
+                    //Same code as in buttonEvent()
+                    //If you change it here, change it in the other function too
+                    toolbarOpen = !toolbarOpen;
+                    if(toolbarOpen) {
+                        toolbarButtonDir = 180;
+                    } else {
+                        toolbarButtonDir = 0;
+                    }
+                    updateToolbar();
+                }
+            });
             
             // ray class
             function ray(px, py, dx, dy) {
@@ -210,8 +238,6 @@
 
             // convert ray from x, y, x2, y2 to px, py, dx, dy, T
             function convertRay(Ray) {
-                //Ray = new ray(100, 100, Math.round(Math.random() * 500), Math.round(Math.random() * 500));
-
                 //convert global to local
                 Ray.dx -= Ray.px;
                 Ray.dy -= Ray.py;
@@ -351,20 +377,42 @@
                 };
             }
 
-        
+
+
+
+            //Actual objects, later copied to arrays that the sim handles
             var rays = [];
-            for(var i = 0; i < 1; i++) {
-                rays[i] = [new ray(1000, 750, 1000, 1000)];
-                convertRay(rays[i][0]);
-                updatePoints(rays[i][0]);
+            var segments = [];
+            var rayPoints = [];
+            var rayArrays = [];
+
+            var simRays = []; //Rays that the sim handles
+            var simSegments = []; //Segments that the sim handles
+            simSegments[0] = new lineSegment(1920 / 1.5, 200, 1920 / 1.5, 900);
+            convertRay(simSegments[0]);
+            updatePoints(simSegments[0]);
+            simSegments[1] = new lineSegment(100, 100, 100, 1000);
+            convertRay(simSegments[1]);
+            updatePoints(simSegments[1]);
+
+            //classes for placing
+            function placedRay() {
+                this.px = 0;
+                this.py = 0;
+                this.dx = 0;
+                this.dy = 0;
+                this.index = simRays.push([new ray(0, 0, 25, 25)]) - 1;
+                this.ray = simRays[this.index][0];
+                console.log(this.ray);
+                this.updateRay = function() {
+                    this.ray.px = this.px;
+                    this.ray.py = this.py;
+                    this.ray.dx = this.dx;
+                    this.ray.dy = this.dy;
+                    convertRay(this.ray);
+                    updatePoints(this.ray);
+                }
             }
-            var lineSegments = [];
-            lineSegments[0] = new lineSegment(1920 / 1.5, 200, 1920 / 1.5, 900);
-            convertRay(lineSegments[0]);
-            updatePoints(lineSegments[0]);
-            lineSegments[1] = new lineSegment(100, 100, 100, 1000);
-            convertRay(lineSegments[1]);
-            updatePoints(lineSegments[1]);
 
             var bounceLength = 10;
 
@@ -380,32 +428,33 @@
             //update simulation
             function updateSim() {
                 var mpos = stage.getPointerPosition();
-                for(var i = 0; i < rays.length; i++) {
-                    if(mpos == null) {
-                        rays[i][0].dx = 1000;
-                        rays[i][0].dy = 1000;
-                    }
-                    else {
-                        rays[i][0].dx = (mpos.x - rays[i][0].px) * 10000;
-                        rays[i][0].dy = (mpos.y - rays[i][0].py) * 10000;
-                    }
-                    convertRay(rays[i][0]);
-                    updatePoints(rays[i][0]);
+                //Rays
+                if(mpos!=null && selectedAction == "placeRay") {
+                    rays[selectedParam].px = mpos.x;
+                    rays[selectedParam].py = mpos.y;
+                    rays[selectedParam].dx = mpos.x - 10;
+                    rays[selectedParam].dy = mpos.y - 10;
+                    rays[selectedParam].updateRay()
                 }
-                for(var i = 0; i < rays.length; i++) {
+                else if(mpos!=null && selectedAction == "placeRayDirection") {
+                    rays[selectedParam].dx = (mpos.x - rays[selectedParam].px) * 10000;
+                    rays[selectedParam].dy = (mpos.y - rays[selectedParam].py) * 10000;
+                    rays[selectedParam].updateRay();
+                }
+                for(var i = 0; i < simRays.length; i++) {
                     //creating rays
                     lastSegmentx = -1;
                     for(var x = 0; x <= bounceLength; x++) {
-                        if(rays[i][x])
+                        if(simRays[i][x])
                         {
                             //find closest segment
                             var result = null;
                             var resultDist = 100000;
                             var segmentx = 0;
-                            for(var s = 0; s < lineSegments.length; s++) {
+                            for(var s = 0; s < simSegments.length; s++) {
                                 //this if() prevents reflected rays from intersecting with the same segments they are being reflected on
                                 if(s != lastSegmentx) {
-                                    loopResult = getIntersection(rays[i][x], lineSegments[s]);
+                                    loopResult = getIntersection(simRays[i][x], simSegments[s]);
                                     if(loopResult != null && loopResult.param < resultDist) {
                                         result = loopResult;
                                         resultDist = loopResult.param;
@@ -418,28 +467,28 @@
                             if(result != null) {
                                 circle.x(result.x);
                                 circle.y(result.y);
-                                rays[i][x].dx = result.x;
-                                rays[i][x].dy = result.y;
-                                convertRay(rays[i][x]);
-                                updatePoints(rays[i][x]);
+                                simRays[i][x].dx = result.x;
+                                simRays[i][x].dy = result.y;
+                                convertRay(simRays[i][x]);
+                                updatePoints(simRays[i][x]);
 
                                 //if we havent reached the end of the bounces create a new ray
                                 if(x != bounceLength) {
                                 // destroy old rays
-                                    if(rays[i][x + 1])
-                                        rays[i][x + 1].poly.destroy();
+                                    if(simRays[i][x + 1])
+                                        simRays[i][x + 1].poly.destroy();
 
                                     // make new ray
-                                    reflec = reflect(rays[i][x], lineSegments[segmentx]);
-                                    rays[i][x + 1] = new ray(result.x, result.y, reflec.x * 1000 + result.x, reflec.y * 1000 + result.y);
-                                    convertRay(rays[i][x + 1]);
-                                    updatePoints(rays[i][x + 1]);
+                                    reflec = reflect(simRays[i][x], simSegments[segmentx]);
+                                    simRays[i][x + 1] = new ray(result.x, result.y, reflec.x * 1000 + result.x, reflec.y * 1000 + result.y);
+                                    convertRay(simRays[i][x + 1]);
+                                    updatePoints(simRays[i][x + 1]);
                                 }
                             } else {
-                                for(var del = x + 1; del < rays[i].length; del++) {
-                                    if(rays[i][del]) {
-                                        rays[i][del].poly.destroy();
-                                        rays[i].splice(del, 1);
+                                for(var del = x + 1; del < simRays[i].length; del++) {
+                                    if(simRays[i][del]) {
+                                        simRays[i][del].poly.destroy();
+                                        simRays[i].splice(del, 1);
                                     }
                                 }
                             }
@@ -451,41 +500,44 @@
                 stage.draw();
             }
 
-            //update button graphics on hover
+            // Function that handles all button events (hovering, clicking)
             function buttonEvent(button, event) {
-                //over is a bool - did mouse hover over of off of button, true or false
                 switch(event) {
                     case "createHoverOver":
-                        var tween = new Konva.Tween({
-                            node: button.getChildren()[0],
-                            duration: 0.1,
-                            easing: Konva.Easings.EaseInOut,
-                            fill: "#d9d9d9",
-                        });
-                        tween.play();
-                        var tween2 = new Konva.Tween({
-                            node: button,
-                            duration: 0.1,
-                            easing: Konva.Easings.EaseInOut,
-                            y: -10,
-                        });
-                        tween2.play();
+                        if(toolbarOpen) {
+                            var tween = new Konva.Tween({
+                                node: button.getChildren()[0],
+                                duration: 0.1,
+                                easing: Konva.Easings.EaseInOut,
+                                fill: "#d9d9d9",
+                            });
+                            tween.play();
+                            var tween2 = new Konva.Tween({
+                                node: button,
+                                duration: 0.1,
+                                easing: Konva.Easings.EaseInOut,
+                                y: -10,
+                            });
+                            tween2.play();
+                        }
                         break;
                     case "createHoverOff":
-                        var tween = new Konva.Tween({
-                            node: button.getChildren()[0],
-                            duration: 0.1,
-                            easing: Konva.Easings.EaseInOut,
-                            fill: "white",
-                        });
-                        tween.play();
-                        var tween2 = new Konva.Tween({
-                            node: button,
-                            duration: 0.1,
-                            easing: Konva.Easings.EaseInOut,
-                            y: 0,
-                        });
-                        tween2.play();
+                        if(toolbarOpen) {
+                            var tween = new Konva.Tween({
+                                node: button.getChildren()[0],
+                                duration: 0.1,
+                                easing: Konva.Easings.EaseInOut,
+                                fill: "white",
+                            });
+                            tween.play();
+                            var tween2 = new Konva.Tween({
+                                node: button,
+                                duration: 0.1,
+                                easing: Konva.Easings.EaseInOut,
+                                y: 0,
+                            });
+                            tween2.play();                            
+                        }
                         break;
                     case "toolbarHoverOver": //Button to close the toolbar
                         var tween = new Konva.Tween({
@@ -505,21 +557,115 @@
                         });
                         tween.play();
                         break;
+                    case "toolbarClick":
+                        //Same code as in Input handler
+                        //If you change it here, change it in the other function too
+                        toolbarOpen = !toolbarOpen;
+                        if(toolbarOpen) {
+                            toolbarButtonDir = 180;
+                        } else {
+                            toolbarButtonDir = 0;
+                        }
+                        updateToolbar();
+                        break;
+                    case "createClick":
+                        btnIndex = button.getAttr("buttonIndex");
+                        keepButton = btnIndex;
+                        toolbarOpen = false;
+                        updateToolbar();
+                        switch(btnIndex) {
+                            case 0:
+                                selectedAction = "placeRay"
+                                selectedParam = rays.push(new placedRay()) - 1;
+                                break;
+                            case 1:
+                                selectedAction = "placeSegment"
+                                break;
+                            case 2:
+                                selectedAction = "place"
+                                break;
+                            case 3:
+                                selectedAction = "place"
+                                break;
+                            default:
+                                console.log("buttonEvent() createClick Error :|");
+                        }
+                        break;
                     default:
-                        console.log("buttonEvent() error. :|");
+                        console.log("buttonEvent() Error :|");
                 }
             }
 
-            stage.on("mousemove", function () {
-                updateSim();
+            stage.on("click", function () {
+                if(selectedAction != "" && selectedFinishable) {
+                    if(selectedAction == "placeRay") { //if placing has two steps we put exceptions here
+                        selectedAction = "placeRayDirection"
+                    } else if(selectedAction == "placeSegment") {
+                        selectedAction = "placeSegmentDirection"
+                    } else {
+                        selectedFinishable = false;
+                        selectedAction = "";
+                        selecterParam = -1;
+                        toolbarOpen = true;
+                        updateToolbar();
+                    }
+                }
             });
 
-            //convertSegment(lineSegments[0]);
-            //convertRay(rays[0]);
+            function updateToolbar() {
+                // toolbar button
+                // we use toolbarButtonDir to specify direction, useful if we dont need to reverse the arrow
+                var tween = new Konva.Tween({
+                    node: toolbarArrow,
+                    duration: 0.3,
+                    easing: Konva.Easings.EaseInOut,
+                    rotation: toolbarButtonDir,
+                });
+                tween.play();
 
-            updatePoints(rays[0][0]);
-            updatePoints(lineSegments[0]);
-            updatePoints(lineSegments[0]);
+                if(toolbarOpen) {
+                    //Bring up buttons
+                    for(var i = 0; i < buttons.length; i++) {
+                        var tween = new Konva.Tween({
+                            node: buttons[i],
+                            duration: 0.1,
+                            easing: Konva.Easings.EaseInOut,
+                            y: 0,
+                        });
+                        tween.play();
+                        //fix colors if needed
+                        var tween2 = new Konva.Tween({
+                            node: buttons[i].getChildren()[0],
+                            duration: 0.1,
+                            easing: Konva.Easings.EaseInOut,
+                            fill: "white",
+                        });
+                        tween2.play();
+                    }
+                } else {
+                    //Send buttons away
+                    for(var i = 0; i < buttons.length; i++) {
+                        if(i != keepButton) {
+                            var tween = new Konva.Tween({
+                            node: buttons[i],
+                            duration: 0.1,
+                            easing: Konva.Easings.EaseInOut,
+                            y: 70,
+                            });
+                            tween.play();
+                        }
+                    }
+                }
+
+                keepButton = -1;
+            }
+
+            stage.on("mousemove", function () {
+                if(selectedAction != "") {
+                    selectedFinishable = true;
+                }
+                updateSim();
+            });
 
             // add the layer to the stage
             stage.add(mainLayer);
