@@ -403,14 +403,29 @@
                 this.dy = 0;
                 this.index = simRays.push([new ray(0, 0, 25, 25)]) - 1;
                 this.ray = simRays[this.index][0];
-                console.log(this.ray);
-                this.updateRay = function() {
+                this.updateObject = function() {
                     this.ray.px = this.px;
                     this.ray.py = this.py;
                     this.ray.dx = this.dx;
                     this.ray.dy = this.dy;
                     convertRay(this.ray);
                     updatePoints(this.ray);
+                }
+            }
+            function placedSegment() {
+                this.px = 0;
+                this.py = 0;
+                this.dx = 0;
+                this.dy = 0;
+                this.index = simSegments.push(new lineSegment(0, 0, 25, 25)) - 1;
+                this.segment = simSegments[this.index];
+                this.updateObject = function() {
+                    this.segment.px = this.px;
+                    this.segment.py = this.py;
+                    this.segment.dx = this.dx;
+                    this.segment.dy = this.dy;
+                    convertRay(this.segment);
+                    updatePoints(this.segment);
                 }
             }
 
@@ -429,21 +444,40 @@
             function updateSim() {
                 var mpos = stage.getPointerPosition();
                 //Rays
-                if(mpos!=null && selectedAction == "placeRay") {
-                    rays[selectedParam].px = mpos.x;
-                    rays[selectedParam].py = mpos.y;
-                    rays[selectedParam].dx = mpos.x - 10;
-                    rays[selectedParam].dy = mpos.y - 10;
-                    rays[selectedParam].updateRay()
+                if(mpos!=null && selectedAction != "") {
+                    switch(selectedAction) {
+                        case "placeRay":
+                            rays[selectedParam].px = mpos.x;
+                            rays[selectedParam].py = mpos.y;
+                            rays[selectedParam].dx = mpos.x - 10;
+                            rays[selectedParam].dy = mpos.y - 10;
+                            rays[selectedParam].updateObject()
+                            break;
+                        case "placeRayDirection":
+                            rays[selectedParam].dx = mpos.x;
+                            rays[selectedParam].dy = mpos.y;
+                            rays[selectedParam].updateObject();
+                            break;
+                        case "placeSegment":
+                            segments[selectedParam].px = mpos.x;
+                            segments[selectedParam].py = mpos.y;
+                            segments[selectedParam].dx = mpos.x - 10;
+                            segments[selectedParam].dy = mpos.y - 10;
+                            segments[selectedParam].updateObject()
+                            break;
+                        case "placeSegmentDirection":
+                            segments[selectedParam].dx = mpos.x;
+                            segments[selectedParam].dy = mpos.y;
+                            segments[selectedParam].updateObject();
+                            break;
+                        default:
+                            console.log("updateSim() selectedAction Error :|");
+                    }
                 }
-                else if(mpos!=null && selectedAction == "placeRayDirection") {
-                    rays[selectedParam].dx = (mpos.x - rays[selectedParam].px) * 10000;
-                    rays[selectedParam].dy = (mpos.y - rays[selectedParam].py) * 10000;
-                    rays[selectedParam].updateRay();
-                }
+
                 for(var i = 0; i < simRays.length; i++) {
-                    //creating rays
-                    lastSegmentx = -1;
+                    lastSegmentx = -1; //used so a reflected ray cant reflect twice on the same surface in the same cycle
+                    //Ray bouncing and simulating
                     for(var x = 0; x <= bounceLength; x++) {
                         if(simRays[i][x])
                         {
@@ -580,6 +614,7 @@
                                 break;
                             case 1:
                                 selectedAction = "placeSegment"
+                                selectedParam = segments.push(new placedSegment()) - 1;
                                 break;
                             case 2:
                                 selectedAction = "place"
