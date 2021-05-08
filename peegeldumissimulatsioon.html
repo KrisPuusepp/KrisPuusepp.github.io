@@ -2,19 +2,17 @@
     <head>
         <title>Simulatsioon</title>
         <style>
-            h1 {text-align: center;}
-            p {text-align: center;}
-            div {text-align: center;}
+            body {margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; }
         </style>
     </head>
     <body>
         <div id="main" style="align-self:center"></div>
         <!--KonvaJS v7.0.3 -->
-        <script src="https://unpkg.com/konva@7.0.3/konva.min.js"></script>
+        <script src="konva.js"></script>
 
         <script>
-            var width = window.innerWidth - 18;
-            var height = window.innerHeight - 18;
+            var width = window.innerWidth;
+            var height = window.innerHeight;
             var stage = new Konva.Stage({
                 container: 'main',
                 width: width,
@@ -32,20 +30,10 @@
                 text: '',
                 fill: 'black',
             });
-            mainLayer.add(text);
+            UILayer.add(text);
             function writeMessage(message) {
                 text.text(message);
             }
-            var border = new Konva.Rect({
-                x: 0,
-                y: 0,
-                width: stage.width(),
-                height: stage.height(),
-                fillEnabled: false,
-                stroke: 'black',
-                strokeWidth: 4,
-            });
-            mainLayer.add(border);
 
             //UI and input
             toolbarOpen = true;
@@ -205,7 +193,10 @@
             });
             UILayer.add(toolbarButton);
 
-            // Input handler
+            // Input handlers
+            var cameraX = 0;
+            var cameraY = 0;
+            var cameraZoom = 1;
             document.addEventListener('keydown', function(event) {
                 if(event.keyCode == 32) {
                     //Same code as in buttonEvent()
@@ -218,7 +209,87 @@
                     }
                     updateToolbar();
                 }
+                else {
+                    /*switch(event.keyCode) {
+                        case 87: //W
+                            cameraY += 50;
+                            updateView();
+                            break;
+                        case 65: //A
+                            cameraX += 50;
+                            updateView();
+                            break;
+                        case 83: //S
+                            cameraY -= 50;
+                            updateView();
+                            break;
+                        case 68: //D
+                            cameraX -= 50;
+                            updateView();
+                            break;
+                    }*/
+                    if(selectedAction == "") {
+                        switch(event.keyCode)
+                        {
+                            case 49:
+                                selectedAction = "placeRay"
+                                buttonEvent(buttons[0], "createHoverOver");
+                                keepButton = 0;
+                                toolbarOpen = false;
+                                updateToolbar();
+                                selectedParam = rays.push(new placedRay()) - 1;
+                                break;
+                            case 50:
+                                selectedAction = "placeSegment"
+                                buttonEvent(buttons[1], "createHoverOver");
+                                keepButton = 1;
+                                toolbarOpen = false;
+                                updateToolbar();
+                                selectedParam = segments.push(new placedSegment()) - 1;
+                                break;
+                            case 51:
+                                selectedAction = "place"
+                                break;
+                            case 52:
+                                selectedAction = "place"
+                                break;
+                        }
+                    }
+                }
             });
+            window.addEventListener('wheel', function(event) {
+                var oldScale = cameraZoom;
+                if (event.deltaY < 0 && cameraZoom < 5) //scrolling up/in
+                {
+                    cameraZoom *= 1.2;
+                }
+                else if (event.deltaY > 0 && cameraZoom > 0.1) //scrolling down/out
+                {
+                    cameraZoom /= 1.2;
+                }
+                var pointer = stage.getPointerPosition();
+                var mousePointTo = {
+                  x: (pointer.x - cameraX) / oldScale,
+                  y: (pointer.y - cameraY) / oldScale,
+                };
+                cameraX = pointer.x - mousePointTo.x * cameraZoom;
+                cameraY = pointer.y - mousePointTo.y * cameraZoom;
+                updateView();
+                stage.draw();
+            });
+            function updateView() {
+                var tween = new Konva.Tween({
+                    node: mainLayer,
+                    duration: 0.1,
+                    easing: Konva.Easings.EaseOut,
+                    onFinish: updateSim(),
+                    scaleX: cameraZoom,
+                    scaleY: cameraZoom,
+                    x: cameraX,
+                    y: cameraY,
+                });
+                tween.play();
+            }
             
             // ray class
             function ray(px, py, dx, dy) {
@@ -295,9 +366,6 @@
 	            var s_dx = segment.dx * segment.t;
 	            var s_dy = segment.dy * segment.t;
                 
-                //debug text
-                //writeMessage(r_px + "\n" + r_py + "\n" + r_dx + "\n" + r_dy + "\n" + s_px + "\n" + s_py + "\n" + s_dx + "\n" + s_dy);
-
                 // Are they parallel? If so, no intersect
                 var r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
                 var s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
@@ -363,9 +431,6 @@
                 ix /= mag2;
                 iy /= mag2;
 
-                //debug text
-                //writeMessage(ix + "\n" + iy + "\n" + nx + "\n" + ny + "\n");
-
                 //r=d−2(d⋅n)n
                 dot = dot_product(ny, nx, iy, ix);
                 rx = ix - 2 * (dot) * nx;
@@ -388,12 +453,9 @@
 
             var simRays = []; //Rays that the sim handles
             var simSegments = []; //Segments that the sim handles
-            simSegments[0] = new lineSegment(1920 / 1.5, 200, 1920 / 1.5, 900);
-            convertRay(simSegments[0]);
-            updatePoints(simSegments[0]);
-            simSegments[1] = new lineSegment(100, 100, 100, 1000);
-            convertRay(simSegments[1]);
-            updatePoints(simSegments[1]);
+
+            var bounceLength = 10;
+            //Camera settings are declared before input handler
 
             //classes for placing
             function placedRay() {
@@ -403,6 +465,9 @@
                 this.dy = 0;
                 this.index = simRays.push([new ray(0, 0, 25, 25)]) - 1;
                 this.ray = simRays[this.index][0];
+                this.setVisible = function(visible) {
+                    this.ray.poly.visible(visible);
+                }
                 this.updateObject = function() {
                     this.ray.px = this.px;
                     this.ray.py = this.py;
@@ -419,6 +484,9 @@
                 this.dy = 0;
                 this.index = simSegments.push(new lineSegment(0, 0, 25, 25)) - 1;
                 this.segment = simSegments[this.index];
+                this.setVisible = function(visible) {
+                    this.segment.poly.visible(visible);
+                }
                 this.updateObject = function() {
                     this.segment.px = this.px;
                     this.segment.py = this.py;
@@ -429,8 +497,6 @@
                 }
             }
 
-            var bounceLength = 10;
-
             //debug circle
             var circle = new Konva.Circle({
                 x: 0,
@@ -440,13 +506,27 @@
             });
             mainLayer.add(circle);
 
+            //update all points
+            function updateAllPoints() {
+                for(var i = 0; i < simRays.length; i++) {
+                    for(var x = 0; x < bounceLength+1; x++) {
+                        if(simRays[i][x] && simRays[i][x].poly.visible())
+                            updatePoints(simRays[i][x]);
+                    }
+                }
+                for(var i = 0; i < simSegments.length; i++) {
+                    updatePoints(simSegments[i]);
+                }
+            }
             //update simulation
             function updateSim() {
                 var mpos = stage.getPointerPosition();
                 //Rays
                 if(mpos!=null && selectedAction != "") {
+                    mpos.x = (mpos.x - cameraX) / cameraZoom;
+                    mpos.y = (mpos.y - cameraY) / cameraZoom;
                     switch(selectedAction) {
-                        case "placeRay":
+                       case "placeRay":
                             rays[selectedParam].px = mpos.x;
                             rays[selectedParam].py = mpos.y;
                             rays[selectedParam].dx = mpos.x - 10;
@@ -479,7 +559,7 @@
                     lastSegmentx = -1; //used so a reflected ray cant reflect twice on the same surface in the same cycle
                     //Ray bouncing and simulating
                     for(var x = 0; x <= bounceLength; x++) {
-                        if(simRays[i][x])
+                        if(simRays[i][x] && simRays[i][x].poly.visible())
                         {
                             //find closest segment
                             var result = null;
@@ -499,26 +579,25 @@
                             lastSegmentx = segmentx;
                             //if one exists then calc reflections if required
                             if(result != null) {
-                                circle.x(result.x);
-                                circle.y(result.y);
+                                //circle.x(result.x);
+                                //circle.y(result.y);
                                 simRays[i][x].dx = result.x;
                                 simRays[i][x].dy = result.y;
                                 convertRay(simRays[i][x]);
-                                updatePoints(simRays[i][x]);
 
                                 //if we havent reached the end of the bounces create a new ray
                                 if(x != bounceLength) {
-                                // destroy old rays
+                                    // destroy old rays
                                     if(simRays[i][x + 1])
                                         simRays[i][x + 1].poly.destroy();
 
                                     // make new ray
                                     reflec = reflect(simRays[i][x], simSegments[segmentx]);
-                                    simRays[i][x + 1] = new ray(result.x, result.y, reflec.x * 1000 + result.x, reflec.y * 1000 + result.y);
+                                    simRays[i][x + 1] = new ray(result.x, result.y, reflec.x * 10000 + result.x, reflec.y * 10000 + result.y);
                                     convertRay(simRays[i][x + 1]);
-                                    updatePoints(simRays[i][x + 1]);
                                 }
                             } else {
+                                simRays[i][x].t = 10000;
                                 for(var del = x + 1; del < simRays[i].length; del++) {
                                     if(simRays[i][del]) {
                                         simRays[i][del].poly.destroy();
@@ -529,8 +608,7 @@
                         }
                     }
                 }
-                //writeMessage(rays[0][2].px + "\n" + rays[0][2].py + "\n" + rays[0][2].dx + "\n" + rays[0][2].dy + "\n" + rays[0][2].t + "\n" + Math.sqrt(Math.pow(rays[0][2].dx, 2) + Math.pow(rays[0][2].dy, 2)) + "\n");
-                stage.clear();
+                updateAllPoints();
                 stage.draw();
             }
 
@@ -538,7 +616,7 @@
             function buttonEvent(button, event) {
                 switch(event) {
                     case "createHoverOver":
-                        if(toolbarOpen) {
+                        if(toolbarOpen || selectedAction != "") {
                             var tween = new Konva.Tween({
                                 node: button.getChildren()[0],
                                 duration: 0.1,
@@ -685,7 +763,7 @@
                             node: buttons[i],
                             duration: 0.1,
                             easing: Konva.Easings.EaseInOut,
-                            y: 70,
+                            y: 75,
                             });
                             tween.play();
                         }
