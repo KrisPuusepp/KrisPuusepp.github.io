@@ -158,7 +158,7 @@
                     case 3:
                         for(var it = 0; it < 5; it++) {
                             line = new Konva.Line({
-                                points: [buttonX + 10 + (it*2), height - 50 + (it*3), buttonX + 40 + (it*2), height - 60 + (it*3)],
+                                points: [buttonX + 10, height - 60 + (it*5), buttonX + 50, height - 60 + (it*5)],
                                 stroke: 'red',
                                 strokeWidth: 1,
                                 lineCap: 'round',
@@ -176,6 +176,49 @@
                         });
                         group.add(btnText);
                         break;
+                    case 4:
+                        for(var it = 0; it < 5; it++) {
+                            line = new Konva.Line({
+                                points: [buttonX + 10, height - 58 + (it*3), buttonX + 50, height - 63 + (it*5)],
+                                stroke: 'red',
+                                strokeWidth: 1,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            });
+                            group.add(line);
+                        }
+                        btnText = new Konva.Text({
+                            x: buttonX + 5,
+                            y: height - 40,
+                            fontFamily: 'Calibri',
+                            fontSize: 14,
+                            text: 'Hajuv\nvihk',
+                            fill: 'black',
+                        });
+                        group.add(btnText);
+                        break;
+                    case 5:
+                        for(var it = 0; it < 5; it++) {
+                            line = new Konva.Line({
+                                points: [buttonX + 10, height - 63 + (it*5), buttonX + 50, height - 58 + (it*3)],
+                                stroke: 'red',
+                                strokeWidth: 1,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            });
+                            group.add(line);
+                        }
+                        btnText = new Konva.Text({
+                            x: buttonX + 5,
+                            y: height - 40,
+                            fontFamily: 'Calibri',
+                            fontSize: 14,
+                            text: 'Koonduv\nvihk',
+                            fill: 'black',
+                        });
+                        group.add(btnText);
+                        break;
+
                 }                
                 button.on("mouseenter", function () {
                     buttonEvent(this, "createHoverOver");
@@ -254,6 +297,9 @@
                         case "segmentEnd":
                             segments[selectedObjectIndex] = null;
                             break;
+                        case "rayPoint":
+                            rayPoints[selectedObjectIndex] = null;
+                            break;
                         default:
                             console.log("input handler delete keycode switchcase Error :|");
                     }
@@ -304,10 +350,36 @@
                                 selectedParam = segments.push(new placedSegment()) - 1;
                                 break;
                             case 51:
-                                selectedAction = "place"
+                                selectedAction = "placePoint"
+                                buttonEvent(buttons[1], "createHoverOver");
+                                keepButton = 2;
+                                toolbarOpen = false;
+                                updateToolbar();
+                                selectedParam = rayPoints.push(new placedSegment()) - 1;
                                 break;
-                            case 52:
-                                selectedAction = "place"
+                            case 53:
+                                selectedAction = "placeArray"
+                                buttonEvent(buttons[1], "createHoverOver");
+                                keepButton = 3;
+                                toolbarOpen = false;
+                                updateToolbar();
+                                selectedParam = rayArrays.push(new placedArray()) - 1;
+                                break;
+                            case 53:
+                                selectedAction = "placeArrayDiffusing"
+                                buttonEvent(buttons[1], "createHoverOver");
+                                keepButton = 3;
+                                toolbarOpen = false;
+                                updateToolbar();
+                                selectedParam = rayArraysDiffusing.push(new placedArrayDiffusing()) - 1;
+                                break;
+                            case 54:
+                                selectedAction = "placeArrayConverging"
+                                buttonEvent(buttons[1], "createHoverOver");
+                                keepButton = 4;
+                                toolbarOpen = false;
+                                updateToolbar();
+                                selectedParam = rayArraysConverging.push(new placedArrayConverging()) - 1;
                                 break;
                         }
                     }
@@ -506,6 +578,8 @@
             var segments = [];
             var rayPoints = [];
             var rayArrays = [];
+            var rayArraysDiffusing = [];
+            var rayArraysConverging = [];
 
             var simRays = []; //Rays that the sim handles
             var simSegments = []; //Segments that the sim handles
@@ -563,6 +637,170 @@
                     simSegments[this.index] = null;
                 }
             }
+            function placedPoint() {
+                this.px = 0;
+                this.py = 0;
+                this.dx = 0;
+                this.dy = 0;
+                this.indexes = [];
+                for(var iy = 0; iy < 16; iy++) {
+                    this.indexes.push(simRays.push([new ray(0, 0, Math.cos(iy), Math.sin(iy))]) - 1);
+                }
+
+                this.setVisible = function(visible) {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        simRays[this.indexes[iy]].poly.visible(visible);
+                    }
+                }
+                this.updateObject = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        simRays[this.indexes[iy]][0].px = this.px;
+                        simRays[this.indexes[iy]][0].py = this.py;
+                        simRays[this.indexes[iy]][0].dx = this.px + Math.cos((iy/this.indexes.length) * Math.PI*2);
+                        simRays[this.indexes[iy]][0].dy = this.py + Math.sin((iy/this.indexes.length) * Math.PI*2);
+                        convertRay(simRays[this.indexes[iy]][0]);
+                        updatePoints(simRays[this.indexes[iy]][0]);
+                    }
+                }
+                this.delete = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        for(var h = 0; h < bounceLength; h++) {
+                            if(simRays[this.indexes[iy]] && simRays[this.indexes[iy]][h])
+                                simRays[this.indexes[iy]][h].poly.destroy();
+                        }
+                        simRays[this.indexes[iy]] = null;
+                    }
+                }
+            }
+            function placedArray() {
+                this.px = 0;
+                this.py = 0;
+                this.dx = 0;
+                this.dy = 0;
+                this.indexes = [];
+                for(var iy = 0; iy < 15; iy++) {
+                    this.indexes.push(simRays.push([new ray(0, 0, 0, 0)]) - 1);
+                }
+
+                this.setVisible = function(visible) {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        simRays[this.indexes[iy]].poly.visible(visible);
+                    }
+                }
+                this.updateObject = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        if(Math.abs(this.px - this.dx) < Math.abs(this.py - this.dy)) {
+                            simRays[this.indexes[iy]][0].px = this.px + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].py = this.py;
+                            simRays[this.indexes[iy]][0].dx = this.dx + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].dy = this.dy;
+                        } else {
+                            simRays[this.indexes[iy]][0].px = this.px;
+                            simRays[this.indexes[iy]][0].py = this.py + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].dx = this.dx;
+                            simRays[this.indexes[iy]][0].dy = this.dy + (iy*10) - (this.indexes.length*5);
+                        }
+                        convertRay(simRays[this.indexes[iy]][0]);
+                        updatePoints(simRays[this.indexes[iy]][0]);
+                    }
+                }
+                this.delete = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        for(var h = 0; h < bounceLength; h++) {
+                            if(simRays[this.indexes[iy]] && simRays[this.indexes[iy]][h])
+                                simRays[this.indexes[iy]][h].poly.destroy();
+                        }
+                        simRays[this.indexes[iy]] = null;
+                    }
+                }
+            }
+            function placedArrayDiffusing() {
+                this.px = 0;
+                this.py = 0;
+                this.dx = 0;
+                this.dy = 0;
+                this.indexes = [];
+                for(var iy = 0; iy < 15; iy++) {
+                    this.indexes.push(simRays.push([new ray(0, 0, 0, 0)]) - 1);
+                }
+
+                this.setVisible = function(visible) {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        simRays[this.indexes[iy]].poly.visible(visible);
+                    }
+                }
+                this.updateObject = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        if(Math.abs(this.px - this.dx) < Math.abs(this.py - this.dy)) {
+                            tpx = 
+                            tdx = 
+
+                            simRays[this.indexes[iy]][0].px = this.px + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].py = this.py;
+                            simRays[this.indexes[iy]][0].dx = ((this.dx - this.px)*-1) + this.px;
+                            simRays[this.indexes[iy]][0].dy = ((this.dy - this.py)*-1) + this.py;
+                        } else {
+                            simRays[this.indexes[iy]][0].px = this.px;
+                            simRays[this.indexes[iy]][0].py = this.py + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].dx = ((this.dx - this.px)*-1) + this.px;
+                            simRays[this.indexes[iy]][0].dy = ((this.dy - this.py)*-1) + this.py;
+                        }
+                        convertRay(simRays[this.indexes[iy]][0]);
+                        updatePoints(simRays[this.indexes[iy]][0]);
+                    }
+                }
+                this.delete = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        for(var h = 0; h < bounceLength; h++) {
+                            if(simRays[this.indexes[iy]] && simRays[this.indexes[iy]][h])
+                                simRays[this.indexes[iy]][h].poly.destroy();
+                        }
+                        simRays[this.indexes[iy]] = null;
+                    }
+                }
+            }
+            function placedArrayConverging() {
+                this.px = 0;
+                this.py = 0;
+                this.dx = 0;
+                this.dy = 0;
+                this.indexes = [];
+                for(var iy = 0; iy < 15; iy++) {
+                    this.indexes.push(simRays.push([new ray(0, 0, 0, 0)]) - 1);
+                }
+
+                this.setVisible = function(visible) {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        simRays[this.indexes[iy]].poly.visible(visible);
+                    }
+                }
+                this.updateObject = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        if(Math.abs(this.px - this.dx) < Math.abs(this.py - this.dy)) {
+                            simRays[this.indexes[iy]][0].px = this.px + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].py = this.py;
+                            simRays[this.indexes[iy]][0].dx = this.dx;
+                            simRays[this.indexes[iy]][0].dy = this.dy;
+                        } else {
+                            simRays[this.indexes[iy]][0].px = this.px;
+                            simRays[this.indexes[iy]][0].py = this.py + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].dx = this.dx;
+                            simRays[this.indexes[iy]][0].dy = this.dy;
+                        }
+                        convertRay(simRays[this.indexes[iy]][0]);
+                        updatePoints(simRays[this.indexes[iy]][0]);
+                    }
+                }
+                this.delete = function() {
+                    for(var iy = 0; iy < this.indexes.length; iy++) {
+                        for(var h = 0; h < bounceLength; h++) {
+                            if(simRays[this.indexes[iy]] && simRays[this.indexes[iy]][h])
+                                simRays[this.indexes[iy]][h].poly.destroy();
+                        }
+                        simRays[this.indexes[iy]] = null;
+                    }
+                }
+            }
 
             //update all points
             function updateAllPoints() {
@@ -597,6 +835,10 @@
                                 selectedObject.dx = mposGlobal.x;
                                 selectedObject.dy = mposGlobal.y;
                                 selectedObject.updateObject();
+                            } else if(selectedObjectType == "rayPoint") {
+                                selectedObject.px = mposGlobal.x;
+                                selectedObject.py = mposGlobal.y;
+                                selectedObject.updateObject();
                             }
                             break;
                         case "edit2":
@@ -629,6 +871,47 @@
                             segments[selectedParam].dx = mposGlobal.x;
                             segments[selectedParam].dy = mposGlobal.y;
                             segments[selectedParam].updateObject();
+                            break;
+                        case "placePoint":
+                            rayPoints[selectedParam].px = mposGlobal.x;
+                            rayPoints[selectedParam].py = mposGlobal.y;
+                            rayPoints[selectedParam].updateObject();
+                            break;
+                        case "placeArray":
+                            rayArrays[selectedParam].px = mposGlobal.x;
+                            rayArrays[selectedParam].py = mposGlobal.y;
+                            rayArrays[selectedParam].dx = mposGlobal.x;
+                            rayArrays[selectedParam].dy = mposGlobal.y;
+                            rayArrays[selectedParam].updateObject();
+                            break;
+                        case "placeArrayDirection":
+                            rayArrays[selectedParam].dx = mposGlobal.x;
+                            rayArrays[selectedParam].dy = mposGlobal.y;
+                            rayArrays[selectedParam].updateObject();
+                            break;
+                        case "placeArrayDiffusing":
+                            rayArraysDiffusing[selectedParam].px = mposGlobal.x;
+                            rayArraysDiffusing[selectedParam].py = mposGlobal.y;
+                            rayArraysDiffusing[selectedParam].dx = mposGlobal.x;
+                            rayArraysDiffusing[selectedParam].dy = mposGlobal.y;
+                            rayArraysDiffusing[selectedParam].updateObject();
+                            break;
+                        case "placeArrayDiffusingDirection":
+                            rayArraysDiffusing[selectedParam].dx = mposGlobal.x;
+                            rayArraysDiffusing[selectedParam].dy = mposGlobal.y;
+                            rayArraysDiffusing[selectedParam].updateObject();
+                            break;
+                        case "placeArrayConverging":
+                            rayArraysConverging[selectedParam].px = mposGlobal.x;
+                            rayArraysConverging[selectedParam].py = mposGlobal.y;
+                            rayArraysConverging[selectedParam].dx = mposGlobal.x;
+                            rayArraysConverging[selectedParam].dy = mposGlobal.y;
+                            rayArraysConverging[selectedParam].updateObject();
+                            break;
+                        case "placeArrayConvergingDirection":
+                            rayArraysConverging[selectedParam].dx = mposGlobal.x;
+                            rayArraysConverging[selectedParam].dy = mposGlobal.y;
+                            rayArraysConverging[selectedParam].updateObject();
                             break;
                         default:
                             console.log("updateSim() selectedAction Error :|");
@@ -668,6 +951,50 @@
                                 currentDist = dist;
                                 currentSel = segments[r];
                                 selectedObjectType = "segmentEnd";
+                                currentIndex = r;
+                            }
+                        }
+                    }
+                    for(var r = 0; r < rayPoints.length; r++) {
+                        if(rayPoints[r]!=null) {
+                            dist = Math.sqrt(Math.pow(mposGlobal.x - rayPoints[r].px, 2) + Math.pow(mposGlobal.y - rayPoints[r].py, 2));
+                            if(dist < currentDist) {
+                                currentDist = dist;
+                                currentSel = rayPoints[r];
+                                selectedObjectType = "rayPoint";
+                                currentIndex = r;
+                            }
+                        }
+                    }
+                    for(var r = 0; r < rayArrays.length; r++) {
+                        if(rayPoints[r]!=null) {
+                            dist = Math.sqrt(Math.pow(mposGlobal.x - rayArrays[r].px, 2) + Math.pow(mposGlobal.y - rayArrays[r].py, 2));
+                            if(dist < currentDist) {
+                                currentDist = dist;
+                                currentSel = rayArrays[r];
+                                selectedObjectType = "rayArray";
+                                currentIndex = r;
+                            }
+                        }
+                    }
+                    for(var r = 0; r < rayArraysDiffusing.length; r++) {
+                        if(rayPoints[r]!=null) {
+                            dist = Math.sqrt(Math.pow(mposGlobal.x - rayArraysDiffusing[r].px, 2) + Math.pow(mposGlobal.y - rayArraysDiffusing[r].py, 2));
+                            if(dist < currentDist) {
+                                currentDist = dist;
+                                currentSel = rayArraysDiffusing[r];
+                                selectedObjectType = "rayArray";
+                                currentIndex = r;
+                            }
+                        }
+                    }
+                    for(var r = 0; r < rayArraysConverging.length; r++) {
+                        if(rayPoints[r]!=null) {
+                            dist = Math.sqrt(Math.pow(mposGlobal.x - rayArraysConverging[r].px, 2) + Math.pow(mposGlobal.y - rayArraysConverging[r].py, 2));
+                            if(dist < currentDist) {
+                                currentDist = dist;
+                                currentSel = rayArraysConverging[r];
+                                selectedObjectType = "rayArray";
                                 currentIndex = r;
                             }
                         }
@@ -742,6 +1069,7 @@
                         }
                     }
                 }
+                writeMessage(selectedAction);
                 updateAllPoints();
                 stage.draw();
             }
@@ -829,10 +1157,20 @@
                                 selectedParam = segments.push(new placedSegment()) - 1;
                                 break;
                             case 2:
-                                selectedAction = "place"
+                                selectedAction = "placePoint"
+                                selectedParam = rayPoints.push(new placedPoint()) - 1;
                                 break;
                             case 3:
-                                selectedAction = "place"
+                                selectedAction = "placeArray"
+                                selectedParam = rayArrays.push(new placedArray()) - 1;
+                                break;
+                            case 4:
+                                selectedAction = "placeArrayDiffusing"
+                                selectedParam = rayArraysDiffusing.push(new placedArrayDiffusing()) - 1;
+                                break;
+                            case 5:
+                                selectedAction = "placeArrayConverging"
+                                selectedParam = rayArraysConverging.push(new placedArrayConverging()) - 1;
                                 break;
                             default:
                                 console.log("buttonEvent() createClick Error :|");
@@ -849,10 +1187,19 @@
                         selectedAction = "placeRayDirection"
                     } else if(selectedAction == "placeSegment") {
                         selectedAction = "placeSegmentDirection"
+                    } else if(selectedAction == "placeArray") {
+                        selectedAction = "placeArrayDirection"
+                    } else if(selectedAction == "placeArrayDiffusing") {
+                        selectedAction = "placeArrayDiffusingDirection"
+                    } else if(selectedAction == "placeArrayConverging") {
+                        selectedAction = "placeArrayConvergingDirection"
                     } else if(selectedAction == "edit") {
                         if(selectedObjectType == "ray") {
                             selectedAction = "edit2"
-                        } else {
+                        } else if(selectedObject == "rayArray") {
+                            selectedAction = "edit2"
+                        }
+                        else {
                             selectedFinishable = false;
                             selectedAction = "";
                             selectedParam = -1;
