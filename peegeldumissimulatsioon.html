@@ -35,6 +35,34 @@
                 text.text(message);
             }
 
+            //Grid
+            grid = new Konva.Group();
+            for(var i = 0; i < 400; i++) {
+                line = new Konva.Line({
+                    points: [i*100-50, 0, i*100-50, 200000],
+                    stroke: 'gray',
+                    strokeWidth: 5,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    opacity: 0.15,
+                    listening: false,
+                });
+                grid.add(line);
+            }
+            for(var i = 0; i < 200; i++) {
+                line = new Konva.Line({
+                    points: [0, i*100-50, 200000, i*100-50],
+                    stroke: 'gray',
+                    strokeWidth: 5,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    opacity: 0.15,
+                    listening: false,
+                });
+                grid.add(line);
+            }
+            mainLayer.add(grid);
+
             //UI and input
             toolbarOpen = true;
             toolbarButtonDir = 180;
@@ -232,6 +260,42 @@
                 UILayer.add(buttons[i]);
                 buttonX += 70;
             }
+
+            var instructionText = new Konva.Group();
+            instructionText.add(new Konva.Text({
+                x: buttonX + 10,
+                y: height - 80,
+                fontFamily: 'Calibri',
+                fontSize: 18,
+                text: 'Tühik - Viib kõik eest ära ja peidab rohelise ruudu',
+                fill: 'black',
+            }));
+            instructionText.add(new Konva.Text({
+                x: buttonX + 10,
+                y: height - 60,
+                fontFamily: 'Calibri',
+                fontSize: 18,
+                text: 'V - Näitab/Peidab ruudustikku',
+                fill: 'black',
+            }));
+            instructionText.add(new Konva.Text({
+                x: buttonX + 10,
+                y: height - 40,
+                fontFamily: 'Calibri',
+                fontSize: 18,
+                text: 'B - Hiir on alati ruudustikul',
+                fill: 'black',
+            }));
+            instructionText.add(new Konva.Text({
+                x: buttonX + 10,
+                y: height - 20,
+                fontFamily: 'Calibri',
+                fontSize: 18,
+                text: 'N - Näitan/Peidab normaale',
+                fill: 'black',
+            }));
+            UILayer.add(instructionText);
+
             toolbarButton = new Konva.Group();
             var toolbarRect = new Konva.Rect({
                 x: 10,
@@ -273,6 +337,8 @@
             var cameraX = 0;
             var cameraY = 0;
             var cameraZoom = 1;
+            var snapToGrid = false;
+            var showGrid = true;
             document.addEventListener('keydown', function(event) {
                 if(event.keyCode == 32) {
                     //Same code as in buttonEvent()
@@ -284,6 +350,14 @@
                         toolbarButtonDir = 0;
                     }
                     updateToolbar();
+                } else if(event.keyCode == 86) { //V
+                    showGrid = !showGrid;
+                    grid.visible(showGrid);
+                    stage.draw();
+                } else if(event.keyCode == 66) { //B
+                    snapToGrid = !snapToGrid;
+                } else if(event.keyCode == 78) { //N
+                    snapToGrid = !snapToGrid;
                 }
                 else if(event.keyCode == 46) { //delete key on keyboard
                     selectedObject.delete();
@@ -299,6 +373,15 @@
                             break;
                         case "rayPoint":
                             rayPoints[selectedObjectIndex] = null;
+                            break;
+                        case "rayArray":
+                            rayArrays[selectedObjectIndex] = null;
+                            break;
+                        case "rayArrayDiffusing":
+                            rayArraysDiffusing[selectedObjectIndex] = null;
+                            break;
+                        case "rayArrayConverging":
+                            rayArraysConverging[selectedObjectIndex] = null;
                             break;
                         default:
                             console.log("input handler delete keycode switchcase Error :|");
@@ -406,6 +489,9 @@
                 stage.draw();
             });
             function updateView() {
+                grid.x((Math.floor((-cameraX/cameraZoom) / 100) * 100) - 10000);
+                grid.y((Math.floor((-cameraY/cameraZoom) / 100) * 100) - 10000);
+                stage.draw();
                 var tween = new Konva.Tween({
                     node: mainLayer,
                     duration: 0.1,
@@ -732,20 +818,20 @@
                 this.updateObject = function() {
                     for(var iy = 0; iy < this.indexes.length; iy++) {
                         if(Math.abs(this.px - this.dx) < Math.abs(this.py - this.dy)) {
-                            tpx = 
-                            tdx = 
-
-                            simRays[this.indexes[iy]][0].px = this.px + (iy*10) - (this.indexes.length*5);
+                            simRays[this.indexes[iy]][0].px = this.px + (iy*10) - (this.indexes.length*5)
                             simRays[this.indexes[iy]][0].py = this.py;
-                            simRays[this.indexes[iy]][0].dx = ((this.dx - this.px)*-1) + this.px;
+                            simRays[this.indexes[iy]][0].dx = -((this.dx - this.px)*-1) + this.px;
                             simRays[this.indexes[iy]][0].dy = ((this.dy - this.py)*-1) + this.py;
+                            convertRay(simRays[this.indexes[iy]][0]);
+                            simRays[this.indexes[iy]][0].dx *= -1;
                         } else {
                             simRays[this.indexes[iy]][0].px = this.px;
                             simRays[this.indexes[iy]][0].py = this.py + (iy*10) - (this.indexes.length*5);
                             simRays[this.indexes[iy]][0].dx = ((this.dx - this.px)*-1) + this.px;
-                            simRays[this.indexes[iy]][0].dy = ((this.dy - this.py)*-1) + this.py;
+                            simRays[this.indexes[iy]][0].dy = -((this.dy - this.py)*-1) + this.py;
+                            convertRay(simRays[this.indexes[iy]][0]);
+                            simRays[this.indexes[iy]][0].dy *= -1;
                         }
-                        convertRay(simRays[this.indexes[iy]][0]);
                         updatePoints(simRays[this.indexes[iy]][0]);
                     }
                 }
@@ -821,6 +907,10 @@
                 var mposGlobal = {x: 0, y: 0};
                 mposGlobal.x = (mpos.x - cameraX) / cameraZoom;
                 mposGlobal.y = (mpos.y - cameraY) / cameraZoom;
+                if(snapToGrid) {
+                    mposGlobal.x = (Math.ceil(mposGlobal.x / 100) * 100) - 50;
+                    mposGlobal.y = (Math.ceil(mposGlobal.y / 100) * 100) - 50;
+                }
                 //Rays
                 if(mpos!=null && selectedAction != "") {
                     switch(selectedAction) {
@@ -839,10 +929,18 @@
                                 selectedObject.px = mposGlobal.x;
                                 selectedObject.py = mposGlobal.y;
                                 selectedObject.updateObject();
+                            } else if(selectedObjectType == "rayArray" || selectedObjectType == "rayArrayDiffusing" || selectedObjectType == "rayArrayConverging") {
+                                selectedObject.px = mposGlobal.x;
+                                selectedObject.py = mposGlobal.y;
+                                selectedObject.updateObject();
                             }
                             break;
                         case "edit2":
                             if(selectedObjectType == "ray") {
+                                selectedObject.dx = mposGlobal.x;
+                                selectedObject.dy = mposGlobal.y;
+                                selectedObject.updateObject();
+                            } else if(selectedObjectType == "rayArray" || selectedObjectType == "rayArrayDiffusing" || selectedObjectType == "rayArrayConverging") {
                                 selectedObject.dx = mposGlobal.x;
                                 selectedObject.dy = mposGlobal.y;
                                 selectedObject.updateObject();
@@ -920,7 +1018,7 @@
                     //Selecting
                     currentSel = null;
                     currentSelType = "";
-                    currentDist = 10000;
+                    currentDist = 100;
                     currentIndex = 0;
                     for(var r = 0; r < rays.length; r++) {
                         if(rays[r]!=null) {
@@ -967,7 +1065,7 @@
                         }
                     }
                     for(var r = 0; r < rayArrays.length; r++) {
-                        if(rayPoints[r]!=null) {
+                        if(rayArrays[r]!=null) {
                             dist = Math.sqrt(Math.pow(mposGlobal.x - rayArrays[r].px, 2) + Math.pow(mposGlobal.y - rayArrays[r].py, 2));
                             if(dist < currentDist) {
                                 currentDist = dist;
@@ -978,29 +1076,29 @@
                         }
                     }
                     for(var r = 0; r < rayArraysDiffusing.length; r++) {
-                        if(rayPoints[r]!=null) {
+                        if(rayArraysDiffusing[r]!=null) {
                             dist = Math.sqrt(Math.pow(mposGlobal.x - rayArraysDiffusing[r].px, 2) + Math.pow(mposGlobal.y - rayArraysDiffusing[r].py, 2));
                             if(dist < currentDist) {
                                 currentDist = dist;
                                 currentSel = rayArraysDiffusing[r];
-                                selectedObjectType = "rayArray";
+                                selectedObjectType = "rayArrayDiffusing";
                                 currentIndex = r;
                             }
                         }
                     }
                     for(var r = 0; r < rayArraysConverging.length; r++) {
-                        if(rayPoints[r]!=null) {
+                        if(rayArraysConverging[r]!=null) {
                             dist = Math.sqrt(Math.pow(mposGlobal.x - rayArraysConverging[r].px, 2) + Math.pow(mposGlobal.y - rayArraysConverging[r].py, 2));
                             if(dist < currentDist) {
                                 currentDist = dist;
                                 currentSel = rayArraysConverging[r];
-                                selectedObjectType = "rayArray";
+                                selectedObjectType = "rayArrayConverging";
                                 currentIndex = r;
                             }
                         }
                     }
 
-                    if(currentSel != null && currentDist < 100) {
+                    if(currentSel != null) {
                         selectIcon.visible(true);
                         if(selectedObjectType == "segmentEnd") {
                             selectIcon.x(currentSel.dx);
@@ -1069,7 +1167,6 @@
                         }
                     }
                 }
-                writeMessage(selectedAction);
                 updateAllPoints();
                 stage.draw();
             }
@@ -1196,7 +1293,7 @@
                     } else if(selectedAction == "edit") {
                         if(selectedObjectType == "ray") {
                             selectedAction = "edit2"
-                        } else if(selectedObject == "rayArray") {
+                        } else if(selectedObjectType == "rayArray" || selectedObjectType == "rayArrayDiffusing" || selectedObjectType == "rayArrayConverging") {
                             selectedAction = "edit2"
                         }
                         else {
@@ -1230,6 +1327,14 @@
                 });
                 tween.play();
                 
+                var tween2 = new Konva.Tween({
+                    node: instructionText,
+                    duration: 0.2,
+                    easing: Konva.Easings.EaseInOut,
+                    y: 200 * !toolbarOpen,
+                });
+                tween2.play();
+
                 selectIcon.visible(toolbarOpen);
 
                 if(toolbarOpen) {

@@ -1061,7 +1061,10 @@
           if (!Konva.showWarnings) {
               return;
           }
-          console.warn(KONVA_WARNING + str);
+
+          //Made this small modification so it wouldnt error
+          //shhhhhhhhhhhhh
+          //console.warn(KONVA_WARNING + str);
       },
       extend: function (child, parent) {
           function Ctor() {
