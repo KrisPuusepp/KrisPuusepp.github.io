@@ -11,6 +11,12 @@
         <script src="konva.js"></script>
 
         <script>
+            lerp = function (value1, value2, amount) {
+            	amount = amount < 0 ? 0 : amount;
+            	amount = amount > 1 ? 1 : amount;
+            	return value1 + (value2 - value1) * amount;
+            };
+
             var width = window.innerWidth;
             var height = window.innerHeight;
             var stage = new Konva.Stage({
@@ -36,15 +42,14 @@
             }
 
             //Grid
-            grid = new Konva.Group();
-            for(var i = 0; i < 400; i++) {
+            grid = new Konva.Group({opacity: 0.15});
+            for(var i = 0; i < 275; i++) {
                 line = new Konva.Line({
                     points: [i*100-50, 0, i*100-50, 200000],
                     stroke: 'gray',
                     strokeWidth: 5,
                     lineCap: 'round',
                     lineJoin: 'round',
-                    opacity: 0.15,
                     listening: false,
                 });
                 grid.add(line);
@@ -56,7 +61,6 @@
                     strokeWidth: 5,
                     lineCap: 'round',
                     lineJoin: 'round',
-                    opacity: 0.15,
                     listening: false,
                 });
                 grid.add(line);
@@ -264,7 +268,7 @@
             var instructionText = new Konva.Group();
             instructionText.add(new Konva.Text({
                 x: buttonX + 10,
-                y: height - 80,
+                y: height - 100,
                 fontFamily: 'Calibri',
                 fontSize: 18,
                 text: 'Tühik - Viib kõik eest ära ja peidab rohelise ruudu',
@@ -272,7 +276,7 @@
             }));
             instructionText.add(new Konva.Text({
                 x: buttonX + 10,
-                y: height - 60,
+                y: height - 80,
                 fontFamily: 'Calibri',
                 fontSize: 18,
                 text: 'V - Näitab/Peidab ruudustikku',
@@ -280,7 +284,7 @@
             }));
             instructionText.add(new Konva.Text({
                 x: buttonX + 10,
-                y: height - 40,
+                y: height - 60,
                 fontFamily: 'Calibri',
                 fontSize: 18,
                 text: 'B - Hiir on alati ruudustikul',
@@ -288,10 +292,18 @@
             }));
             instructionText.add(new Konva.Text({
                 x: buttonX + 10,
-                y: height - 20,
+                y: height - 40,
                 fontFamily: 'Calibri',
                 fontSize: 18,
                 text: 'N - Näitan/Peidab normaale',
+                fill: 'black',
+            }));
+            instructionText.add(new Konva.Text({
+                x: buttonX + 10,
+                y: height - 20,
+                fontFamily: 'Calibri',
+                fontSize: 18,
+                text: 'M - Näitan/Peidab nurka, kui kiir peegeldub',
                 fill: 'black',
             }));
             UILayer.add(instructionText);
@@ -337,8 +349,10 @@
             var cameraX = 0;
             var cameraY = 0;
             var cameraZoom = 1;
-            var snapToGrid = false;
+            var snapToGrid = true;
             var showGrid = true;
+            var showNormals = true;
+            var showAngles = true;
             document.addEventListener('keydown', function(event) {
                 if(event.keyCode == 32) {
                     //Same code as in buttonEvent()
@@ -356,8 +370,13 @@
                     stage.draw();
                 } else if(event.keyCode == 66) { //B
                     snapToGrid = !snapToGrid;
+                    updateSim();
                 } else if(event.keyCode == 78) { //N
-                    snapToGrid = !snapToGrid;
+                    showNormals = !showNormals;
+                    updateSim();
+                } else if(event.keyCode == 77) { //M
+                    showAngles = !showAngles;
+                    updateSim();
                 }
                 else if(event.keyCode == 46) { //delete key on keyboard
                     selectedObject.delete();
@@ -546,7 +565,7 @@
                 this.poly = new Konva.Line({
                     points: [0, 0, 10, 10],
                     stroke: 'black',
-                    strokeWidth: 1.5,
+                    strokeWidth: 4,
                     lineCap: 'round',
                     lineJoin: 'round',
                 });
@@ -599,14 +618,37 @@
                 if(T1<0) return null;
                 if(T2<0 || T2>1) return null;
                 
-                // Return the POINT OF INTERSECTION
-                return {
-                	x: r_px+r_dx*T1,
-                	y: r_py+r_dy*T1,
-                	param: T1
-                };
-
-
+                if(isNaN(T1)) { //I dont have much time to finish this loovtöö, so this is a quick, unefficient fix :)
+	                var r_px = Ray.px;
+	                var r_py = Ray.py;
+	                var r_dx = Ray.dx * Ray.t + 0.1;
+	                var r_dy = Ray.dy * Ray.t - 0.1;
+	                var s_px = segment.px;
+	                var s_py = segment.py;
+	                var s_dx = segment.dx * segment.t;
+	                var s_dy = segment.dy * segment.t;
+                    var r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
+                    var s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
+                    if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){
+                    	return null;
+                    }
+                    var T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
+                    var T1 = (s_px+s_dx*T2-r_px)/r_dx;
+                    if(T1<0) return null;
+                    if(T2<0 || T2>1) return null;
+                    return {
+                    	x: r_px+r_dx*T1,
+                    	y: r_py+r_dy*T1,
+                    	param: T1
+                    };
+                } else {
+                    // Return the POINT OF INTERSECTION
+                    return {
+                    	x: r_px+r_dx*T1,
+                    	y: r_py+r_dy*T1,
+                    	param: T1
+                    };
+                }
             }
 
             // dot product. Required in reflect();
@@ -656,7 +698,10 @@
                 };
             }
 
-
+            function getAngle(Ray,Reflected) {
+                angle = (Math.PI - Math.acos((Ray.dx * Reflected.x + Ray.dy * Reflected.y) / (Math.sign(Math.pow(Ray.dx,2) + Math.pow(Ray.dy,2)) * Math.sign(Math.pow(Reflected.x,2) + Math.pow(Reflected.y,2)))) )* (180/Math.PI)
+                return angle;
+            }
 
 
             //Actual objects, later copied to arrays that the sim handles
@@ -669,6 +714,8 @@
 
             var simRays = []; //Rays that the sim handles
             var simSegments = []; //Segments that the sim handles
+            var simNormals = []; //very last-minute array that holds normals, cleared every sim update and recalculated so its very inefficient.
+            var simAngles = []; //very last-minute array that holds angles, cleared every sim update and recalculated so its very inefficient.
 
             var bounceLength = 10;
             //Camera settings are declared before input handler
@@ -903,6 +950,20 @@
             }
             //update simulation
             function updateSim() {
+                //clear normals
+                for(var i = 0; i < simNormals.length; i++) {
+                    if(simNormals[i] != null) {
+                        simNormals[i].destroy();
+                        simNormals[i] = null;
+                    }
+                }
+                for(var i = 0; i < simAngles.length; i++) {
+                    if(simAngles[i] != null) {
+                        simAngles[i].destroy();
+                        simAngles[i] = null;
+                    }
+                }
+
                 var mpos = stage.getPointerPosition();
                 var mposGlobal = {x: 0, y: 0};
                 mposGlobal.x = (mpos.x - cameraX) / cameraZoom;
@@ -1153,6 +1214,38 @@
                                     // make new ray
                                     reflec = reflect(simRays[i][x], simSegments[segmentx]);
                                     simRays[i][x + 1] = new ray(result.x, result.y, reflec.x * 10000 + result.x, reflec.y * 10000 + result.y);
+                                    if(showNormals) {
+                                        rx = lerp(reflec.x, simRays[i][x].dx * -1, 0.5);
+                                        ry = lerp(reflec.y, simRays[i][x].dy * -1, 0.5);
+
+                                        x1 = (rx * 100) + result.x;
+                                        y1 = (ry * 100) + result.y;
+                                        x2 = (rx * -100) + result.x;
+                                        y2 = (ry * -100) + result.y;
+                                        nr = simNormals.push(new Konva.Line({
+                                            points: [x1,
+                                                     y1,
+                                                     x2,
+                                                     y2,],
+                                            stroke: 'brown',
+                                            strokeWidth: 2,
+                                            dash: [10, 10]
+                                        })) - 1;
+                                        mainLayer.add(simNormals[nr]);
+                                    }
+                                    if(showAngles) {
+                                        angle = getAngle(simRays[i][x], reflec);
+                                        angle = Math.round(angle);
+                                        nr = simAngles.push(new Konva.Text({
+                                            x: result.x + 10,
+                                            y: result.y + 10,
+                                            fontFamily: 'Calibri',
+                                            fontSize: 20,
+                                            text: angle + "°",
+                                            fill: 'black',
+                                        })) - 1;
+                                        mainLayer.add(simAngles[nr]);
+                                    }
                                     convertRay(simRays[i][x + 1]);
                                 }
                             } else {
