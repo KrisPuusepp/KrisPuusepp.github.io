@@ -1217,7 +1217,6 @@
                                     if(showNormals) {
                                         rx = lerp(reflec.x, simRays[i][x].dx * -1, 0.5);
                                         ry = lerp(reflec.y, simRays[i][x].dy * -1, 0.5);
-
                                         x1 = (rx * 100) + result.x;
                                         y1 = (ry * 100) + result.y;
                                         x2 = (rx * -100) + result.x;
@@ -1234,13 +1233,17 @@
                                         mainLayer.add(simNormals[nr]);
                                     }
                                     if(showAngles) {
+                                        rx = lerp(reflec.x, simRays[i][x].dx * -1, 0.5);
+                                        ry = lerp(reflec.y, simRays[i][x].dy * -1, 0.5);
+                                        x1 = (rx * 150) + result.x;
+                                        y1 = (ry * 150) + result.y;
                                         angle = getAngle(simRays[i][x], reflec);
-                                        angle = Math.round(angle);
+                                        angle = Math.round((angle/2) * 10) / 10;
                                         nr = simAngles.push(new Konva.Text({
-                                            x: result.x + 10,
-                                            y: result.y + 10,
+                                            x: x1,
+                                            y: y1,
                                             fontFamily: 'Calibri',
-                                            fontSize: 20,
+                                            fontSize: 30,
                                             text: angle + "°",
                                             fill: 'black',
                                         })) - 1;
