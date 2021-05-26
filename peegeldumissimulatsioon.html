@@ -265,6 +265,26 @@
                 buttonX += 70;
             }
 
+            UILayer.add(new Konva.Text({
+                x: 16,
+                y: 16,
+                text: "Valguse peegeldumise simulatsioon",
+                align: "right",
+                fontSize: 32,
+                fill: 'black',
+                textDecoration: "underline"
+            }));
+            UILayer.add(new Konva.Text({
+                x: 16,
+                y: 60,
+                text: "Autor: Kris Puusepp",
+                align: "center",
+                fontSize: 24,
+                fill: 'black',
+            }));
+
+
+
             var instructionText = new Konva.Group();
             instructionText.add(new Konva.Text({
                 x: buttonX + 10,
@@ -668,22 +688,22 @@
                 nx = segment.dy;
                 ny = ny * -1;
                 // -- normalizing normal (?) --
-                //mag
+                //magnitude
                 x = Math.pow(nx, 2);
                 y = Math.pow(ny, 2);
                 mag = Math.sqrt(x + y);
-                //Normalize dir
+                //Normalize direction
                 nx /= mag;
                 ny /= mag;
 
                 ix = Ray.dx; // i = incoming ray
                 iy = Ray.dy;
                 // -- normalizing incoming ray --
-                //mag
+                //magnitude
                 x2 = Math.pow(ix, 2);
                 y2 = Math.pow(iy, 2);
                 mag2 = Math.sqrt(x2 + y2);
-                //Normalize dir
+                //Normalize direction
                 ix /= mag2;
                 iy /= mag2;
 
