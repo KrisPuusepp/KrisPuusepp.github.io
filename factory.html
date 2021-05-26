@@ -1,7 +1,7 @@
 <html>
     <head>
         <style>* {padding: 0; margin: 0}</style>
-        <title>pixitest</title>
+        <title>Factory</title>
         <meta charset="utf-8">
         <style>
             h1 {text-align: center;}
@@ -10,7 +10,15 @@
         </style>
     </head>
     <script src="pixi/pixi.min.js"></script>
-    <body>
+    <body style="background-color: black;">
+        <script>
+            function lerp(value1, value2, amount) {
+                amount = amount < 0 ? 0 : amount;
+                amount = amount > 1 ? 1 : amount;
+                return value1 + (value2 - value1) * amount;
+            }
+        </script>
+
         <script type="text/javascript">
             //setup
             let type = "WebGL"
@@ -20,10 +28,10 @@
             PIXI.utils.sayHello(type)
 
             //Create a Pixi Application
-            stageWidth = 1536;
-            stageHeight = 754;
+            stageWidth = innerWidth;
+            stageHeight = innerHeight;
 
-            let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: false, backgroundColor: 0xFFFFFF});
+            let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x1E1E1E});
 
             //Add the canvas that Pixi automatically created for you to the HTML document
             document.body.appendChild(app.view);
@@ -34,38 +42,108 @@
             app.renderer.autoResize = true;
             app.renderer.resize(window.innerWidth, window.innerHeight);
 
-            function tile() {
-                this.prim = null;
-                
+            tileSize = stageWidth/64/1.3;
+            tileGroup = new PIXI.Container();
+            app.stage.addChild(tileGroup);
+
+            var docBody = document.getElementsByTagName("body")[0];
+            function changeCursor(input) {
+                switch(input) {
+                    case 0:
+                        docBody.style.cursor = "initial";
+                        break;
+                    case 1: 
+                        docBody.style.cursor = "pointer";
+                        break;
+                }
             }
-            function chunk(ix, iy) {
+
+            function tile(ix, iy) {
+                this.front = undefined;
+
+                this.back = new PIXI.Graphics();
+
+                this.back.beginFill(0x2E2E2E);
+                this.back.drawRect(-tileSize/2 + 1, -tileSize/2 + 1, tileSize - 1, tileSize - 1);
+                this.back.endFill();
+                this.back.position = {x: tileSize * ix, y: tileSize * iy};
+                tileGroup.addChild(this.back);
+            }
+
+            resources = [];
+            for(var i = 0; i < 3; i++) {
+                resources.push(["Red", 0]);
+            }
+
+            function resource_red(ix, iy) {
+                this.poly = new PIXI.Graphics();
+                this.poly.beginFill(0xFF0000);
+                this.poly.drawRect(-tileSize/2 + 1, -tileSize/2 + 1, tileSize - 1, tileSize - 1);
+                this.poly.endFill();
+                this.poly.position = {x: tileSize * ix, y: tileSize * iy};
+                tileGroup.addChild(this.poly);
+
                 this.x = ix;
                 this.y = iy;
+                this.targetScale = 1;
+
+                this.hp = 4;
+
+                this.poly.lineStyle(1, 0x2E2E2E);
+
+                this.update = function() {
+                    this.poly.scale = {x: lerp(this.poly.scale.x, this.targetScale, 0.5), y: lerp(this.poly.scale.y, this.targetScale, 0.5)};
+                };
+                this.damage = function(amount) {
+                    this.hp -= amount;
+                    if(this.hp <= 0) {
+                        this.collect();
+                        delete tiles[this.x][this.y].front;
+                    } else {
+                        this.poly.moveTo(Math.random() * (-tileSize/2 + 1), (-tileSize/2 + 1));
+                        this.poly.lineTo(Math.random() * (tileSize - 1), (tileSize - 1));
+                        this.targetScale = 1.5;
+                        setTimeout(() => {
+                            if(this)
+                                this.targetScale = 1;
+                        }, 50);
+                    }
+                };
+                this.collect = function() {
+                    this.poly.destroy();
+                    changeCursor(0);
+                }
+
+                this.poly.interactive = true;
+                this.poly.on("mouseover", (event) => {
+                    changeCursor(1);
+                });
+                this.poly.on("mouseout", (event) => {
+                    changeCursor(0);
+                });
+                this.poly.on("click", (event) => {
+                    this.damage(1);
+                });
             }
 
-            var rectangles = [];
-            var lastPos = [];
-            var mult = 5;
+            var tiles = [];
+            for(var i = 0; i < 64; i++) {
+                empt = []
+                for(var y = 0; y < 36; y++) {
+                    empt.push(new tile(i, y));
+                }
+                tiles.push(empt);
+            }
 
             function setup() {
-                for(var i = 0; i < mult; i++) {
-                    for(var y = 0; y < mult; y++) {
-                        lastPos[(i * mult) + y] = {};
+                for(var i = 0; i < tiles.length; i++) {
+                    for(var y = 0; y < tiles[i].length; y++) {
+                        if(Math.random() > 0.5)
+                            tiles[i][y].front = new resource_red(i, y);
                     }
                 }
-
-                for(var i = 0; i < mult; i++) {
-                    for(var y = 0; y < mult; y++) {
-                        rectangles[(i * mult) + y] = new PIXI.Graphics();
-                        rectangles[(i * mult) + y].beginFill(0xFF0000);
-                        rectangles[(i * mult) + y].drawRect(-4, -4, 8, 8);
-                        rectangles[(i * mult) + y].endFill();
-                        rectangles[(i * mult) + y].position = {x: 16 * (i + 1), y: 16 * (y + 1)};
-                        rectangles[(i * mult) + y].position.x -= 4;
-                        rectangles[(i * mult) + y].position.y -= 4;
-                        app.stage.addChild(rectangles[(i * mult) + y]);
-                    }
-                }
+                
+                tileGroup.position = {x: stageWidth - 65*tileSize, y: (stageHeight - 36*tileSize) / 2};
 
                 //Start the game loop by adding the `gameLoop` function to
                 //Pixi's `ticker` and providing it with a `delta` argument.
@@ -74,7 +152,12 @@
 
             var input = new PIXI.InteractionManager(app.renderer);
             function gameLoop(delta) {
-                //console.log(input.mouse.global);
+                for(var i = 0; i < tiles.length; i++) {
+                    for(var y = 0; y < tiles[i].length; y++) {
+                        if(tiles[i][y].front != undefined)
+                            tiles[i][y].front.update();
+                    }
+                }
             }
 
             setup()

@@ -27,7 +27,7 @@
 
     </div>
 
-    <div id="wavediv2" style="position: fixed; margin-left: 100px; z-index:1">
+    <div id="wavediv2" style="position: fixed; margin-left: 40px; z-index:0">
 
     </div>
 
@@ -58,31 +58,23 @@
             <br>            <br>            <br>            <br>            <br>            <br>
             <br>            <br>            <br>            <br>            <br>            <br>
             <p style="font-size: 4px;">mjes</p>
+
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+            <!-- top secret -->
+            <p style="font-size: 4px;">you have found top secret corner :O</p>
+            <a style="font-size: 4px;" href="https://krispuusepp.github.io/factory.html">factory</a>
+
     	</div>
 
         <script>
-            //credit: https://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
-            // :)
-            function getWidth() {
-                return Math.max(
-                  document.body.scrollWidth,
-                  document.documentElement.scrollWidth,
-                  document.body.offsetWidth,
-                  document.documentElement.offsetWidth,
-                  document.documentElement.clientWidth
-                );
-            }
-
-            function getHeight() {
-                return Math.max(
-                  document.body.scrollHeight,
-                  document.documentElement.scrollHeight,
-                  document.body.offsetHeight,
-                  document.documentElement.offsetHeight,
-                  document.documentElement.clientHeight
-                );
-            }
-
             var wavediv1 = document.getElementById("wavediv1");
             var wavediv2 = document.getElementById("wavediv2");
 
@@ -91,9 +83,9 @@
             var waves = []
             var frame = 0;
 
-            var len = Math.floor(getHeight() / 18);
+            var len = innerHeight / 18 - 1;
 
-            wavediv2.style.marginLeft = (getWidth() - 200) + "px";
+            wavediv2.style.marginLeft = (innerWidth - 200) + "px";
 
             for(var i = 0; i < len; i++) {
                 var para = document.createElement("p");
@@ -104,9 +96,11 @@
                 para.style.marginLeft = "0px";
                 wavediv1.appendChild(para);
 
-                waves[i] = para;
+                waves.push(para);
             }
-
+            console.log(len);
+            console.log(waves.length);
+            
             for(var i = 0; i < len; i++) {
                 var para = document.createElement("p");
                 var node = document.createTextNode("Jänes");
@@ -116,15 +110,16 @@
                 para.style.marginLeft = "0px";
                 wavediv2.appendChild(para);
 
-                waves[len + i] = para;
+                waves.push(para);
             }
+            console.log(len);
+            console.log(waves.length);
 
             function Wave() {
                 for(var i = 0; i < waves.length; i++) {
                    waves[i].style.marginLeft = (Math.round((Math.sin(frame / 30 + i / 3 + body.scrollTop / 180) + 1) * 30)) + "px";
                 }
                 frame++;
-
                 self.setTimeout("Wave()", 1000 / 30);
             }
             Wave();
