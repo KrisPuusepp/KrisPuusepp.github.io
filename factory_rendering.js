@@ -29,3 +29,12 @@ function changeCursor(input) {
             break;
     }
 }
+
+tex = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 32, fill : 0xFFFFFF, align : 'center'});
+tex.x = 10;
+tex.y = 10;
+app.stage.addChild(tex);
+
+function debugText(text) {
+    tex.text = text;
+}
