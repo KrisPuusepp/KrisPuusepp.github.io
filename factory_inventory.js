@@ -1,5 +1,6 @@
 colorTable = [0xFF0000, 0x00FF00, 0xfff200, 0x0000FF, 0x8800ff];
 invIconSize = 4;
+invIconLimit = 299;
 
 class invResource {
     pol;
@@ -55,12 +56,31 @@ class inventory {
         this.invGroup.x = this.x;
         this.invGroup.y = this.y;
         app.stage.addChild(this.invGroup);
+
+        for(var i = 0; i < 5; i++) {
+            this.tex = new PIXI.Text('ERROR',{fontFamily : 'Arial', fontSize: 32, fill : 0xFFFFFF, align : 'center'});
+            this.tex.x = 4;
+            this.tex.y = -42 + i*(invIconSize*4*4);
+            this.invGroup.addChild(this.tex);
+        }
     }
 
     addResource(type, posX, posY) {
-        this.posX = posX;
-        this.posY = posY;
         this.Resources[type]++;
+
+        this.newInvResource = new invResource(
+            type, posX - this.invGroup.x, posY - this.invGroup.y,
+            (Math.max(this.Resources[type]%75, 1)*invIconSize),
+            (invIconSize*Math.min(Math.floor(this.Resources[type]/75), 4)) + type*(invIconSize*4*4),
+        )
+        this.ResourceGraphics[type].push(this.newInvResource);
+        this.invGroup.addChild(this.newInvResource.pol);
+        if(this.Resources[type] > invIconLimit) {
+            this.newInvResource.delOnReach = true;
+            this.newInvResource.targetX = (Math.max( Math.floor(Math.random()*75) , 1)*invIconSize);
+            this.newInvResource.targetY = (invIconSize*Math.min(Math.floor(Math.random()*4), 4)) + type*(invIconSize*4*4);
+        }
+
         this.updateResource(type);
     }
 
@@ -73,22 +93,6 @@ class inventory {
                     //first clear the pixi object then destroy array instance
                     this.ResourceGraphics[type][this.typeLength-i-1].del();
                     this.ResourceGraphics[type].pop();
-                }
-            } else {
-                this.toAdd = this.Resources[type] - this.typeLength;
-                for(var i = 0; i < this.toAdd; i++) {
-                    this.newInvResource = new invResource(
-                        type, this.posX, this.posY,
-                        (Math.max(this.Resources[type]%75, 1)*invIconSize),
-                        (invIconSize*Math.floor(this.Resources[type]/75)),
-                    )
-                    this.ResourceGraphics[type].push(this.newInvResource);
-                    this.invGroup.addChild(this.newInvResource.pol);
-                    if(this.Resources[type]+i > 1499) {
-                        this.newInvResource.delOnReach = true;
-                        this.newInvResource.targetX = (invIconSize);
-                        this.newInvResource.targetY = 0;
-                    }
                 }
             }
         }
@@ -106,7 +110,7 @@ class inventory {
                     //console.log(this.ResourceTargets[i]);
                     
                     this.dist = Math.sqrt(Math.pow(this.obj.posX - this.obj.targetX, 2) + Math.pow(this.obj.posY - this.obj.targetY, 2));
-                    if(this.dist < 1) {
+                    if(this.dist < 0.25) {
                         this.obj.del = true;
                     }
                 }
@@ -126,7 +130,13 @@ class inventory {
             }
         }
 
-        debugText(this.Resources[0]);
+        for(var i = 0; i < 5; i++) {
+            this.invGroup.children[i].text = this.Resources[i];
+        }
+        //debugText(this.Resources[0]);
+        //if(this.ResourceGraphics[0][1500])
+        //    debugText(this.ResourceGraphics[0][1500].delOnReach);
+        //debugText(this.ResourceGraphics[0].length);
     }
 }
 

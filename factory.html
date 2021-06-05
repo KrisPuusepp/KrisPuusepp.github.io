@@ -63,8 +63,8 @@
                         this.collect();
                         delete tiles[this.x][this.y].front;
                     } else {
-                        this.poly.moveTo(Math.random() * (-tileSize/2 + 1), (-tileSize/2 + 1));
-                        this.poly.lineTo(Math.random() * (tileSize - 1), (tileSize - 1));
+                        this.poly.moveTo(((Math.random()*tileSize))-tileSize/2, -tileSize/2);
+                        this.poly.lineTo(((Math.random()*tileSize))-tileSize/2, tileSize/2);
                         this.targetScale = 1.5;
                         setTimeout(() => {
                             if(this)
@@ -73,7 +73,7 @@
                     }
                 };
                 this.collect = function() {
-                    inv.addResource(0, this.poly.x + tileGroup.x, this.poly.y + tileGroup.y);
+                    inv.addResource(Math.round(Math.random()*4), this.poly.x + tileGroup.x, this.poly.y + tileGroup.y);
                     this.poly.destroy();
                     changeCursor(0);
                 }
@@ -118,10 +118,16 @@
             function gameLoop(delta) {
                 for(var i = 0; i < tiles.length; i++) {
                     for(var y = 0; y < tiles[i].length; y++) {
+                        //if(tiles[i][y].front == undefined) {
+                        //    tiles[i][y].front = new resource_red(i, y);
+                        //}
                         if(tiles[i][y].front != undefined) {
                             tiles[i][y].front.update();
-                            if(Math.random() < 0.01)
+                            if(Math.random() < 0.025)
                                 tiles[i][y].front.damage(1);
+                        } else {
+                            if(Math.random() < 0.01)
+                                tiles[i][y].front = new resource_red(i, y);
                         }
                     }
                 }
