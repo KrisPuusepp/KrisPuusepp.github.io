@@ -13,6 +13,8 @@ class invResource {
     targetX = 0;
     targetY = 0;
 
+    spawnFrame = 0;
+
     constructor(type, x, y, ItargetX, ItargetY) {
         this.type = type;
         this.posX = x;
@@ -20,15 +22,22 @@ class invResource {
         this.targetX = ItargetX;
         this.targetY = ItargetY;
 
+        this.spawnFrame = frame;
+
         this.pol = new PIXI.Graphics();
         this.pol.beginFill(colorTable[this.type]);
         this.pol.drawRect(-invIconSize/2, -invIconSize/2, invIconSize, invIconSize);
         this.pol.endFill();
+
+        this.pol.scale.x = 4;
+        this.pol.scale.y = 4;
     }
 
     update() {
-        this.posX = lerp(this.posX, this.targetX, 0.05);
-        this.posY = lerp(this.posY, this.targetY, 0.05);
+        this.posX = lerp(this.posX, this.targetX, Math.pow(frame - this.spawnFrame, 1.75) / 50000);
+        this.posY = lerp(this.posY, this.targetY, Math.pow(frame - this.spawnFrame, 1.75) / 50000);
+        this.pol.scale.x = lerp(this.pol.scale.x, 1, (frame - this.spawnFrame, 2) / 10);
+        this.pol.scale.y = lerp(this.pol.scale.y, 1, (frame - this.spawnFrame, 2) / 10);
         this.pol.x = this.posX;
         this.pol.y = this.posY;
     };
