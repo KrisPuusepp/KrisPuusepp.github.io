@@ -69,9 +69,10 @@ class inventory {
         app.stage.addChild(this.invGroup);
 
         for(var i = 0; i < 5; i++) {
-            this.tex = new PIXI.Text('ERROR',{fontFamily : 'Arial', fontSize: 32, fill : 0xFFFFFF, align : 'center'});
-            this.tex.x = 4;
+            this.tex = new PIXI.Text('ERROR',{fontFamily : 'mainFont', fontSize: 32, fill : 0xFFFFFF, align : 'center'});
+            this.tex.x = 512;
             this.tex.y = -42 + i*(invIconSize*4*4);
+            this.tex.alpha = 0;
             this.invGroup.addChild(this.tex);
         }
     }
@@ -144,10 +145,8 @@ class inventory {
         for(var i = 0; i < 5; i++) {
             this.invGroup.children[i].text = this.Resources[i];
         }
-        //debugText(this.Resources[0]);
-        //if(this.ResourceGraphics[0][1500])
-        //    debugText(this.ResourceGraphics[0][1500].delOnReach);
-        //debugText(this.ResourceGraphics[0].length);
+        
+        invProgressCheck(this);
     }
 }
 

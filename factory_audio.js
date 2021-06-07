@@ -13,7 +13,6 @@ function randomKlik() {
         currentKliks++;
         setTimeout(() => {
             currentKliks--;
-            current.stop();
             current.remove();
         }, 150);
     }
@@ -31,7 +30,6 @@ function randomEnd() {
         currentEnds++;
         setTimeout(() => {
             currentEnds--;
-            current.stop();
             current.remove();
         }, 150);
     }
