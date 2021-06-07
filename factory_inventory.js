@@ -1,6 +1,6 @@
-colorTable = [0xFF0000, 0x00FF00, 0xfff200, 0x0000FF, 0x8800ff];
+colorTable = [0xFF0000, 0x00FF00, 0xfff200, 0x00E5FF, 0x8800ff];
 invIconSize = 4;
-invIconLimit = 299;
+invIconLimit = 399;
 
 class invResource {
     pol;
@@ -29,17 +29,19 @@ class invResource {
         this.pol.drawRect(-invIconSize/2, -invIconSize/2, invIconSize, invIconSize);
         this.pol.endFill();
 
-        this.pol.scale.x = 4;
-        this.pol.scale.y = 4;
+        this.pol.scale.x = 6;
+        this.pol.scale.y = 6;
     }
 
     update() {
-        this.posX = lerp(this.posX, this.targetX, Math.pow(frame - this.spawnFrame, 1.75) / 50000);
-        this.posY = lerp(this.posY, this.targetY, Math.pow(frame - this.spawnFrame, 1.75) / 50000);
-        this.pol.scale.x = lerp(this.pol.scale.x, 1, (frame - this.spawnFrame, 2) / 10);
-        this.pol.scale.y = lerp(this.pol.scale.y, 1, (frame - this.spawnFrame, 2) / 10);
-        this.pol.x = this.posX;
-        this.pol.y = this.posY;
+        if(frame - this.spawnFrame < 64) {
+            this.posX = lerp(this.posX, this.targetX, Math.pow(frame - this.spawnFrame, 3) / 500000);
+            this.posY = lerp(this.posY, this.targetY, Math.pow(frame - this.spawnFrame, 3) / 500000);
+            this.pol.scale.x = lerp(this.pol.scale.x, 1, (frame - this.spawnFrame, 2) / 20);
+            this.pol.scale.y = lerp(this.pol.scale.y, 1, (frame - this.spawnFrame, 2) / 20);
+            this.pol.x = this.posX;
+            this.pol.y = this.posY;
+        }
     };
 
     delete() {
@@ -49,7 +51,7 @@ class invResource {
 
 class inventory {
 
-    x = 16;
+    x = 3;
     y = 64;
 
     Resources = [0, 0, 0, 0, 0];
@@ -79,14 +81,14 @@ class inventory {
 
         this.newInvResource = new invResource(
             type, posX - this.invGroup.x, posY - this.invGroup.y,
-            (Math.max(this.Resources[type]%75, 1)*invIconSize),
-            (invIconSize*Math.min(Math.floor(this.Resources[type]/75), 4)) + type*(invIconSize*4*4),
+            (Math.max(this.Resources[type]%100, 1)*invIconSize),
+            (invIconSize*Math.min(Math.floor(this.Resources[type]/100), 4)) + type*(invIconSize*4*4),
         )
         this.ResourceGraphics[type].push(this.newInvResource);
         this.invGroup.addChild(this.newInvResource.pol);
         if(this.Resources[type] > invIconLimit) {
             this.newInvResource.delOnReach = true;
-            this.newInvResource.targetX = (Math.max( Math.floor(Math.random()*75) , 1)*invIconSize);
+            this.newInvResource.targetX = (Math.max( Math.floor(Math.random()*100) , 1)*invIconSize);
             this.newInvResource.targetY = (invIconSize*Math.min(Math.floor(Math.random()*4), 4)) + type*(invIconSize*4*4);
         }
 

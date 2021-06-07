@@ -5,8 +5,8 @@ if(!PIXI.utils.isWebGLSupported()){
 }
 PIXI.utils.sayHello(type)
 //Create a Pixi Application
-stageWidth = 1536;
-stageHeight = 753;
+stageWidth = 1920;
+stageHeight = 1080;
 console.log("Detected Width: " + innerWidth + ", Detected Height: " + innerHeight);
 let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x1E1E1E});
 //Add the canvas that Pixi automatically created for you to the HTML document
