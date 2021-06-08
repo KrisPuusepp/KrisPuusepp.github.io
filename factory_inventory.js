@@ -151,3 +151,80 @@ class inventory {
 }
 
 inv = new inventory();
+
+
+//Honestly, i dont know why i made inventory a class. Thats why inv is a class and why the rest of this .js isnt... oh well
+
+maxEnergy = 15;
+energyUsed = 0;
+
+energyEmpt = new PIXI.Graphics();
+energyEmpt.beginFill(0x2E2E2E);
+energyEmpt.drawPolygon([
+    -0, -30,
+    20, -30,
+    5, -5,
+    15, -5,
+    -10, 30,
+    0, 5,
+    -10, 5
+]);
+energyEmpt.drawCircle(-100, -100, 10);
+energyEmpt.drawCircle(100, -100, 10);
+energyEmpt.drawCircle(-100, 5000, 10);
+energyEmpt.drawCircle(100, 5000, 10);
+energyEmpt.endFill();
+energyEmpt.x = 640;
+energyEmpt.y = 54;
+app.stage.addChild(energyEmpt);
+
+energyIcon = new PIXI.Graphics();
+energyIcon.beginFill(0xFFFF00);
+energyIcon.drawPolygon([
+    -0, -30,
+    20, -30,
+    5, -5,
+    15, -5,
+    -10, 30,
+    0, 5,
+    -10, 5
+]);
+energyIcon.drawCircle(-100, -100, 10);
+energyIcon.drawCircle(100, -100, 10);
+energyIcon.drawCircle(-100, 5000, 10);
+energyIcon.drawCircle(100, 5000, 10);
+energyIcon.endFill();
+energyIcon.x = 640;
+energyIcon.y = 54;
+energyIcon.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:8, bloomScale:1, blur: 1, quality: 8})];
+app.stage.addChild(energyIcon);
+
+
+energyMask = new PIXI.Graphics();
+energyMask.beginFill(0x8bc5ff, 0.4);
+energyMask.drawRect(640 - 50, 54 + 50, 100, 100);
+energyMask.endFill();
+energyMask.x = 640;
+energyMask.y = 54;
+
+energyIcon.mask = energyMask;
+
+energyText = new PIXI.Text('',{fontFamily : "mainFont", fontSize: 32, fill : 0xFFFF00, align : 'center'});
+energyText.x = 690;
+energyText.y = 54-16;
+energyText.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:8, bloomScale:1, blur: 1, quality: 8})];
+app.stage.addChild(energyText);
+
+function updateEnergy() {
+    //level is between 0-1
+    level = 1 - (energyUsed/maxEnergy);
+    energyMask.clear();
+    energyMask.beginFill(0x8bc5ff, 0.4);
+    energyMask.drawRect(640 - 50, 54 + 30 - 60*level, 100, 100);
+    energyMask.endFill();
+    energyMask.x = 640;
+    energyMask.y = 54;
+    energyIcon.mask = energyMask;
+
+    energyText.text = energyUsed + "/" + maxEnergy;
+}

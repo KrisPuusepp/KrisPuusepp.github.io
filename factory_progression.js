@@ -13,3 +13,19 @@ function invProgressCheck(iv) {
         }
     }
 }
+
+naturalMax = []; //max naturally spawned resources
+for(var i = 0; i < 5; i++) {
+    naturalMax[i] = 256;
+}
+natural = []; //currently spawned natural resources
+for(var i = 0; i < 5; i++) {
+    natural[i] = 0;
+}
+function spawnCheck() {
+    for(var i = 0; i < 1; i++) {
+        if(natural[i] < naturalMax[i]) {
+            spawnCluster(Math.max(Math.round(Math.random()*tiles.length)-5, 0), Math.max(Math.round(Math.random()*tiles[0].length)-5, 0), i);
+        }
+    }
+}

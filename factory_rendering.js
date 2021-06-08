@@ -30,11 +30,11 @@ function changeCursor(input) {
     }
 }
 
-tex = new PIXI.Text('',{fontFamily : 'mainFont', fontSize: 32, fill : 0xFFFFFF, align : 'center'});
-tex.x = 10;
-tex.y = 10;
-app.stage.addChild(tex);
+texRend = new PIXI.Text('',{fontFamily : "mainFont", fontSize: 32, fill : 0xFFFFFF, align : 'center'});
+texRend.x = 256;
+texRend.y = 10;
+app.stage.addChild(texRend);
 
 function debugText(text) {
-    tex.text = text;
+    texRend.text = text;
 }
