@@ -49,6 +49,7 @@
 
             function tile(ix, iy) {
                 this.front = undefined;
+                this.reserved = false;
 
                 this.back = new PIXI.Graphics();
 
@@ -167,19 +168,19 @@
 
             function spawnCluster(ix, iy, type) {
                 if(ix+5 > tiles.length || iy+5 > tiles[0].length) {
-                    console.log(tiles.length);
-                    console.log(tiles[0].length);
                     debugText("spawnCluster error");
                     return 0;
                 }
                 for(var i = 0; i < 5; i++) {
                     for(var y = 0; y < 5; y++) {
-                        if(tiles[ix+i][iy+y].front == undefined) {
+                        if(tiles[ix+i][iy+y].front == undefined && tiles[ix+i][iy+y].reserved == false) {
+                            tiles[ix+i][iy+y].reserved = true;
                             if(Math.random() < 0.5) {
                                 let x1 = ix+i;
                                 let y1 = iy+y;
                                 setTimeout(() => {
                                     spawnResource(x1, y1, 0, true);
+                                    tiles[x1][y1].reserved = false;
                                 }, Math.round(Math.random()*1000));
                                 natural[type]++;
                             }
@@ -201,9 +202,6 @@
             function gameLoop(delta) {
                 for(var i = 0; i < tiles.length; i++) {
                     for(var y = 0; y < tiles[i].length; y++) {
-                        //if(tiles[i][y].front == undefined) {
-                        //    tiles[i][y].front = new resource_red(i, y);
-                        //}
                         if(tiles[i][y].front != undefined) {
                             tiles[i][y].front.update();
                             if(Math.random() < 0.05)
