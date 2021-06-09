@@ -174,8 +174,8 @@
                 for(var i = 0; i < 5; i++) {
                     for(var y = 0; y < 5; y++) {
                         if(tiles[ix+i][iy+y].front == undefined && tiles[ix+i][iy+y].reserved == false) {
-                            tiles[ix+i][iy+y].reserved = true;
                             if(Math.random() < 0.5) {
+                                tiles[ix+i][iy+y].reserved = true;
                                 let x1 = ix+i;
                                 let y1 = iy+y;
                                 setTimeout(() => {
