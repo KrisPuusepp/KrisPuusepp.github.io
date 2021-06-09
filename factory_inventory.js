@@ -158,6 +158,11 @@ inv = new inventory();
 maxEnergy = 15;
 energyUsed = 0;
 
+energyGroup = new PIXI.Container(); //Mostly only used for fading it in. see progression.js
+energyGroup.alpha = 0;
+energyGroup.x = 512;
+app.stage.addChild(energyGroup);
+
 energyEmpt = new PIXI.Graphics();
 energyEmpt.beginFill(0x2E2E2E);
 energyEmpt.drawPolygon([
@@ -176,7 +181,8 @@ energyEmpt.drawCircle(100, 5000, 10);
 energyEmpt.endFill();
 energyEmpt.x = 640;
 energyEmpt.y = 54;
-app.stage.addChild(energyEmpt);
+energyEmpt.alpha = 0;
+energyGroup.addChild(energyEmpt);
 
 energyIcon = new PIXI.Graphics();
 energyIcon.beginFill(0xFFFF00);
@@ -197,7 +203,7 @@ energyIcon.endFill();
 energyIcon.x = 640;
 energyIcon.y = 54;
 energyIcon.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:8, bloomScale:1, blur: 1, quality: 8})];
-app.stage.addChild(energyIcon);
+energyGroup.addChild(energyIcon);
 
 
 energyMask = new PIXI.Graphics();
@@ -205,15 +211,13 @@ energyMask.beginFill(0x8bc5ff, 0.4);
 energyMask.drawRect(640 - 50, 54 + 50, 100, 100);
 energyMask.endFill();
 energyMask.x = 640;
-energyMask.y = 54;
-
-energyIcon.mask = energyMask;
+energyMask.y = 54; //btw the mask is set in progression.js so it doesnt interfere with it moving into place
 
 energyText = new PIXI.Text('',{fontFamily : "mainFont", fontSize: 32, fill : 0xFFFF00, align : 'center'});
 energyText.x = 690;
 energyText.y = 54-16;
 energyText.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:8, bloomScale:1, blur: 1, quality: 8})];
-app.stage.addChild(energyText);
+energyGroup.addChild(energyText);
 
 function updateEnergy() {
     //level is between 0-1
@@ -224,7 +228,6 @@ function updateEnergy() {
     energyMask.endFill();
     energyMask.x = 640;
     energyMask.y = 54;
-    energyIcon.mask = energyMask;
 
     energyText.text = energyUsed + "/" + maxEnergy;
 }

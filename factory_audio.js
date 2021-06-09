@@ -1,4 +1,4 @@
-muted = false;
+muted = true;
 
 currentKliks = 0;
 currentEnds = 0;

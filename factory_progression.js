@@ -1,4 +1,5 @@
 faded = [false, false, false, false, false];
+energyFaded = false;
 
 function invProgressCheck(iv) {
     for(var i = 0; i < iv.Resources.length; i++) {
@@ -10,6 +11,16 @@ function invProgressCheck(iv) {
                 iv.invGroup.children[i].alpha = 1;
                 faded[i] = true;
             }
+        }
+    }
+    if(!energyFaded && iv.Resources[0] > 20) {
+        energyGroup.alpha = lerp(energyGroup.alpha, 0.1, 0.01);
+        energyGroup.x = lerp(energyGroup.x, 0, 0.01);
+        if(energyGroup.x < 1) {
+            energyGroup.alpha = 1;
+            energyGroup.x = 0;
+            energyIcon.mask = energyMask;
+            energyFaded = true;
         }
     }
 }
