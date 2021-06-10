@@ -146,7 +146,7 @@ class inventory {
             this.invGroup.children[i].text = this.Resources[i];
         }
         
-        invProgressCheck(this);
+        ProgressCheck(this);
     }
 }
 
@@ -181,7 +181,6 @@ energyEmpt.drawCircle(100, 5000, 10);
 energyEmpt.endFill();
 energyEmpt.x = 640;
 energyEmpt.y = 54;
-energyEmpt.alpha = 0;
 energyGroup.addChild(energyEmpt);
 
 energyIcon = new PIXI.Graphics();

@@ -1,7 +1,7 @@
 faded = [false, false, false, false, false];
 energyFaded = false;
 
-function invProgressCheck(iv) {
+function ProgressCheck(iv) {
     for(var i = 0; i < iv.Resources.length; i++) {
         if(!faded[i] && iv.Resources[i]>0) {
             iv.invGroup.children[i].alpha = lerp(iv.invGroup.children[i].alpha, 1, 0.01);

@@ -38,3 +38,14 @@ app.stage.addChild(texRend);
 function debugText(text) {
     texRend.text = text;
 }
+
+
+app.loader
+    .add("Resources/sprites/droneMK1.png")
+    .load(() => {
+        for(var i = 0; i < 128; i++) {
+            setTimeout(() => {
+                addEntity(0);
+            }, Math.round(Math.random()*1000));
+        }
+    })
