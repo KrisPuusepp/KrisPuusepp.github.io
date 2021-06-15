@@ -42,10 +42,12 @@ function debugText(text) {
 
 app.loader
     .add("Resources/sprites/droneMK1.png")
+    .add("Resources/sprites/droneMK2.png")
+    .add("Resources/sprites/droneMK3.png")
     .load(() => {
-        for(var i = 0; i < 128; i++) {
+        for(var i = 0; i < 32; i++) {
             setTimeout(() => {
                 addEntity(0);
-            }, Math.round(Math.random()*1000));
+            }, Math.round(1000)*Math.random());
         }
     })

@@ -35,8 +35,12 @@ for(var i = 0; i < 5; i++) {
 }
 function spawnCheck() {
     for(var i = 0; i < 1; i++) {
-        if(natural[i] < naturalMax[i]) {
-            spawnCluster(Math.max(Math.round(Math.random()*tiles.length)-5, 0), Math.max(Math.round(Math.random()*tiles[0].length)-5, 0), i);
+        for(var j = 0; j < 10; j++) {
+            if(natural[i] < naturalMax[i]) {
+                spawnCluster(Math.max(Math.round(Math.random()*tiles.length)-5, 0), Math.max(Math.round(Math.random()*tiles[0].length)-5, 0), i);
+            } else {
+                j = 10;
+            }
         }
     }
 }

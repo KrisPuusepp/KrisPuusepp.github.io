@@ -51,6 +51,7 @@
 
             function tile(ix, iy) {
                 this.front = undefined;
+                this.frontType = -1;
                 this.reserved = false;
 
                 this.entity = undefined;
@@ -114,6 +115,7 @@
                 };
                 this.collect = function() {
                     inv.addResource(0, this.poly.x + tileGroup.x, this.poly.y + tileGroup.y);
+                    tiles[this.x][this.y].frontType = -1;
                     this.poly.destroy();
                     changeCursor(0);
 
@@ -165,6 +167,7 @@
                         default:
                             console.log("Spawning error @-@");
                     }
+                    tiles[x][y].frontType = type;
                 } else {
                     console.log("error spawning resource, already occupied");
                 }

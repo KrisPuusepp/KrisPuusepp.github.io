@@ -115,12 +115,6 @@ class inventory {
             for(var y = 0; y < this.ResourceGraphics[i].length; y++) {
                 this.obj = this.ResourceGraphics[i][y];
                 if(this.obj.delOnReach == true) {
-                    //console.log(this.ResourceTargets[i].length + " - " + this.ResourceGraphics[i].length);
-                    //console.log(this.ResourceTargets[i][y]);
-                    //console.log(y);
-                    //console.log(this.ResourceGraphics[i]);
-                    //console.log(this.ResourceTargets[i]);
-                    
                     this.dist = Math.sqrt(Math.pow(this.obj.posX - this.obj.targetX, 2) + Math.pow(this.obj.posY - this.obj.targetY, 2));
                     if(this.dist < 0.25) {
                         this.obj.del = true;
