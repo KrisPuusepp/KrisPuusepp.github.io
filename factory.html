@@ -41,6 +41,7 @@
         </script>
 
         <script src="factory_rendering.js"></script>
+        <script src="factory_util.js"></script>
         <script src="factory_audio.js"></script>
         <script src="factory_inventory.js"></script>
         <script src="factory_progression.js"></script>
@@ -48,7 +49,9 @@
         <script src="factory_crafting.js"></script>
 
         <script type="text/javascript">
-            frame = 0;
+            var frame = 0;
+
+            var buildingSelected = false;
 
             function tile(ix, iy) {
                 this.front = undefined;
@@ -100,12 +103,14 @@
                         delete tiles[this.x][this.y].front;
                     } else {
                         randomKlik();
-                        if(Math.random() > 0.5) {
+                        for(var i = 0; i < amount; i++) {
+                            if(Math.random() > 0.5) {
                             this.poly.moveTo(((Math.random()*tileSize))-tileSize/2, -tileSize/2);
                             this.poly.lineTo(((Math.random()*tileSize))-tileSize/2, tileSize/2);
-                        } else {
-                            this.poly.moveTo(-tileSize/2, ((Math.random()*tileSize))-tileSize/2);
-                            this.poly.lineTo(tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                            } else {
+                                this.poly.moveTo(-tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                                this.poly.lineTo(tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                            }
                         }
                         this.targetScale = 0.8;
                         setTimeout(() => {
@@ -124,6 +129,13 @@
                         natural[0]--;
                     }
                 }
+                this.del = function() { //delete without collecting
+                    tiles[this.x][this.y].frontType = -1;
+                    this.poly.destroy();
+                    if(this.natural) {
+                        natural[0]--;
+                    }
+                }
 
                 this.poly.interactive = true;
                 this.poly.on("mouseover", (event) => {
@@ -134,7 +146,9 @@
                     changeCursor(0);
                 });
                 this.poly.on("click", (event) => {
-                    this.damage(1);
+                    if(!buildingSelected) {
+                        this.damage(1);
+                    }
                 });
             }
 

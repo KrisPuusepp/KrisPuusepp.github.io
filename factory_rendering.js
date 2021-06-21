@@ -30,6 +30,8 @@ function changeCursor(input) {
     }
 }
 
+var input = new PIXI.InteractionManager(app.renderer);
+
 texRend = new PIXI.Text('',{fontFamily : "mainFont", fontSize: 32, fill : 0xFFFFFF, align : 'center'});
 texRend.x = 256;
 texRend.y = 10;
@@ -44,10 +46,33 @@ app.loader
     .add("Resources/sprites/droneMK1.png")
     .add("Resources/sprites/droneMK2.png")
     .add("Resources/sprites/droneMK3.png")
+    .add("Resources/sprites/spawnerMK1.png")
     .load(() => {
+        for(var i = 0; i < 3; i++) {
+            setTimeout(() => {
+                var rand = 5;
+                addEntity(rand);
+                setTimeout(() => {
+                    //delEntity(rand);
+                }, Math.round(10000));
+            }, Math.round(1000*Math.random()));
+        }
         for(var i = 0; i < 32; i++) {
             setTimeout(() => {
-                addEntity(0);
-            }, Math.round(1000)*Math.random());
+                var rand = 0;
+                addEntity(rand);
+                setTimeout(() => {
+                    //delEntity(rand);
+                }, Math.round(10000));
+            }, Math.round(1000*Math.random()));
+        }
+        for(var i = 0; i < 6; i++) {
+            setTimeout(() => {
+                var rand = 1;
+                addEntity(rand);
+                setTimeout(() => {
+                    //delEntity(rand);
+                }, Math.round(10000));
+            }, Math.round(1000*Math.random()));
         }
     })

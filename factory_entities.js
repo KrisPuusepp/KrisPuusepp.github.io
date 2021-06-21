@@ -1,10 +1,15 @@
 //entities, i.e. drones and buildings. Stuff you can craft.
 
-entities = [];
+entityGroup = new PIXI.Container(); // Only used so the zIndex works
+entityGroup.sortableChildren = true;
+app.stage.addChild(entityGroup);
 
-class droneMK1 {
-    x = 0;
-    y = 0;
+entities = [];
+for(var i = 0; i < 10; i++) {
+    entities[i] = [];
+}
+
+class droneMK1 { //slow breaker
     energyCost = 5;
 
     sprit;
@@ -13,16 +18,17 @@ class droneMK1 {
     cooldown = 1000;
     lastAction = 0;
 
-    targetX = 0;
-    targetY = 0;
-
     tileX = -1;
     tileY = -1;
 
-    lookingFor = [0];
+    lookingFor = [0, 1];
+
+    //for anim
+    targetX = 0;
+    targetY = 0;
 
     constructor(x, y) {
-        app.stage.addChild(this.pol);
+        entityGroup.addChild(this.pol);
         this.sprit = new PIXI.Sprite(app.loader.resources["Resources/sprites/droneMK1.png"].texture);
         this.sprit.scale.x = 0.1;
         this.sprit.scale.y = 0.1;
@@ -43,7 +49,7 @@ class droneMK1 {
             this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
 
             if(this.tileX == -1) {
-                var resul = find(this.tileX, this.tileY, this.lookingFor, 5);
+                var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 5);
                 if(resul.x != -1) {
                     this.tileX = resul.x;
                     this.tileY = resul.y;
@@ -55,7 +61,7 @@ class droneMK1 {
                 if(this.lookingFor.includes(tiles[this.tileX][this.tileY].frontType)) {
                     tiles[this.tileX][this.tileY].front.damage(1);
                 } else {
-                    var resul = find(this.tileX, this.tileY, this.lookingFor, 5);
+                    var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 5);
                     if(resul.x != -1) {
                         tiles[this.tileX][this.tileY].entity = undefined;
                         this.tileX = resul.x;
@@ -80,165 +86,287 @@ class droneMK1 {
     del() {
         tiles[this.tileX][this.tileY].entity = undefined;
         energyUsed -= this.energyCost;
+        updateEnergy();
         this.sprit.destroy();
         this.pol.destroy();
     }
 }
 
-function find(tileX, tileY, type, findLength) {
-    if(!(tileX == -1 || tileY == -1)) {
-        var shuffledFound = false;
-        var findShuffled = [];
-        var index = 0;
-        var OtileX; //output vars
-        var OtileY; //output vars
-        for(var li = 0; li < findLength; li++) {
-            for(var ly = 0; ly < findLength; ly++) {
-                findShuffled[index] = {x: li, y: ly};
-                index++;
-            }
-        }
-        var midPoint = Math.floor((findLength-1)/2);
-        shuffle(findShuffled);
-        for(var i = 0; i < findShuffled.length; i++) {
-            if(findShuffled[i].x+tileX-midPoint >= 0 && findShuffled[i].y+tileY-midPoint >= 0 && findShuffled[i].x+tileX-midPoint < tiles.length && findShuffled[i].y+tileY-midPoint < tiles[0].length && shuffledFound == false) {
-                if(tiles[findShuffled[i].x+tileX-midPoint][findShuffled[i].y+tileY-midPoint].entity == undefined && tiles[findShuffled[i].x+tileX-midPoint][findShuffled[i].y+tileY-midPoint].front != undefined) {
-                    OtileX = findShuffled[i].x+tileX-midPoint;
-                    OtileY = findShuffled[i].y+tileY-midPoint;
-                    shuffledFound = true;
-                }
-            }
-        }
-        if(!shuffledFound) {
-            var found = false;
-            var max = 100 - entities.length*0.5;
-            while(!found) {
-                var randomX = Math.round(Math.random()*(tiles.length-1));
-                var randomY = Math.round(Math.random()*(tiles[0].length-1));
-                if(tiles[randomX][randomY].entity == undefined && tiles[randomX][randomY].front != undefined) {
-                    found = true;
-                } else {
-                    max--;
-                }
-    
-                if(max < 1) {
-                    //give up after trying too much
-                    OtileX = tileX; 
-                    OtileY = tileY;
-                    found = true;
-                }
-            }
-            OtileX = randomX;
-            OtileY = randomY;
-        }
-    }
-    else {
-        var found = false;
-        var max = 100 - entities.length*0.5;
-        while(!found) {
-            var randomX = Math.round(Math.random()*(tiles.length-1));
-            var randomY = Math.round(Math.random()*(tiles[0].length-1));
-            if(tiles[randomX][randomY].entity == undefined && tiles[randomX][randomY].front != undefined) {
-                found = true;
-            } else {
-                max--;
-            }
+class droneMK2 {
+    energyCost = 20;
 
-            if(max < 1) {
-                //give up after trying too much
-                found = true;
+    sprit;
+    pol = new PIXI.Container();
+
+    cooldown = 2500;
+    lastAction = 0;
+
+    tileX = -1;
+    tileY = -1;
+
+    lookingFor = [0, 1];
+
+    //for anim
+    targetX = 0;
+    targetY = 0;
+
+    constructor(x, y) {
+        entityGroup.addChild(this.pol);
+        this.sprit = new PIXI.Sprite(app.loader.resources["Resources/sprites/droneMK2.png"].texture);
+        this.sprit.scale.x = 0.15;
+        this.sprit.scale.y = 0.15;
+        this.sprit.x = -this.sprit.texture.width*0.15/2;
+        this.sprit.y = -this.sprit.texture.height*0.15;
+        this.pol.addChild(this.sprit);
+
+        energyUsed += this.energyCost;
+        updateEnergy();
+
+        var d = new Date();
+        this.lastAction = d.getTime();
+    }
+    
+    update() {
+        var d = new Date();
+        if(this.lastAction + this.cooldown < d.getTime()) {
+            this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
+
+            if(this.tileX == -1) {
+                var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                if(resul.x != -1) {
+                    this.tileX = resul.x;
+                    this.tileY = resul.y;
+                    this.targetX = this.tileX*tileSize+tileGroup.x;
+                    this.targetY = this.tileY*tileSize+tileGroup.y;
+                    tiles[this.tileX][this.tileY].entity = this;
+                }
+            } else {
+                var damaged = false;
+                for(var i = 0; i < 5; i++) {
+                    for(var j = 0; j < 5; j++) {
+                        var x = this.tileX-2+i;
+                        var y = this.tileY-2+j;
+                        if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length && this.lookingFor.includes(tiles[x][y].frontType)) {
+                            damaged = true;
+                            tiles[x][y].front.damage(1);
+                        }
+                    }
+                }
+                if(!damaged) {
+                    var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                    if(resul.x != -1) {
+                        tiles[this.tileX][this.tileY].entity = undefined;
+                        this.tileX = resul.x;
+                        this.tileY = resul.y;
+                        this.targetX = this.tileX*tileSize+tileGroup.x;
+                        this.targetY = this.tileY*tileSize+tileGroup.y;
+                        tiles[this.tileX][this.tileY].entity = this;
+                    }
+                }
             }
         }
-        OtileX = randomX;
-        OtileY = randomY;
+
+        if(Math.abs(this.lastAction - d.getTime()) > this.cooldown) {
+            this.pol.x = this.targetX;
+            this.pol.y = this.targetY;
+        } else {
+            this.pol.x = lerp(this.pol.x, this.targetX, 0.05);
+            this.pol.y = lerp(this.pol.y, this.targetY, 0.05);
+        }
     }
-    return {
-        x: OtileX,
-        y: OtileY,
-    };
+
+    del() {
+        tiles[this.tileX][this.tileY].entity = undefined;
+        energyUsed -= this.energyCost;
+        updateEnergy();
+        this.sprit.destroy();
+        this.pol.destroy();
+    }
 }
 
-function find(tileX, tileY, type, findLength) {
-    if(tileX == -1) {
-        var max = 100 - entities.length*0.5;
-        while(true) {
-            var randomX = Math.round(Math.random()*(tiles.length-1));
-            var randomY = Math.round(Math.random()*(tiles[0].length-1));
-            if(tiles[randomX][randomY].entity == undefined && type.includes(tiles[randomX][randomY].frontType)) {
-                return {
-                    x: randomX,
-                    y: randomY,
-                };
-            } else {
-                max--;
-            }
+class spawnerMK1 {
+    energyCost = 20;
 
-            if(max < 1) {
-                return {
-                    x: -1,
-                    y: -1,
-                };
+    sprit;
+    pol = new PIXI.Container();
+
+    cooldown = 2500;
+    lastAction = 0;
+
+    tileX = -1;
+    tileY = -1;
+
+    lookingFor = [0, 1];
+
+    //for anim
+    targetX = 0;
+    targetY = 0;
+
+    isSelected = false;
+    mouseOn = false;
+
+    constructor(x, y) {
+        entityGroup.addChild(this.pol);
+        this.sprit = new PIXI.Sprite(app.loader.resources["Resources/sprites/spawnerMK1.png"].texture);
+        this.sprit.scale.x = 0.205;
+        this.sprit.scale.y = 0.205;
+        this.sprit.x = -this.sprit.texture.width*0.205/2;
+        this.sprit.y = -this.sprit.texture.height*0.205/2;
+        this.pol.addChild(this.sprit);
+
+        energyUsed += this.energyCost;
+        updateEnergy();
+
+        var d = new Date();
+        this.lastAction = d.getTime();
+
+        this.pol.interactive = true;
+        this.pol.on("mouseover", (event) => {
+            if(buildingSelected == false) {
+                this.mouseOn = true;
+                changeCursor(1);
             }
-        }
-    } else {
-        var findShuffled = [];
-        var index = 0;
-        for(var li = 0; li < findLength; li++) {
-            for(var ly = 0; ly < findLength; ly++) {
-                findShuffled[index] = {x: li, y: ly};
-                index++;
+        });
+        this.pol.on("mouseout", (event) => {
+            if(buildingSelected == false) {
+                this.mouseOn = false;
+                changeCursor(0);
             }
+        });
+        this.pol.on("click", (event) => {
+            if(buildingSelected == false) {
+                this.pol.zIndex = 1;
+                buildingSelected = true;
+                this.isSelected = true;
+                gridUtil.clearEntities(this.tileX, this.tileY, 3);
+            } else if(this.isSelected) {
+                this.pol.zIndex = 0;
+                if(this.tileX != -1) {
+                    buildingSelected = false;
+                    this.isSelected = false;
+                    gridUtil.clearResources(this.tileX, this.tileY, 3);
+                    gridUtil.setEntities(this.tileX, this.tileY, 3, this);
+                } else {
+                    buildingSelected = false;
+                    this.isSelected = false;
+                    var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                    if(resul.x != -1 && gridUtil.isEmptyEntity(resul.x, resul.y, 3)) {
+                        this.tileX = resul.x;
+                        this.tileY = resul.y;
+                        this.targetX = this.tileX*tileSize+tileGroup.x;
+                        this.targetY = this.tileY*tileSize+tileGroup.y;
+                        gridUtil.clearResources(this.tileX, this.tileY, 3);
+                        gridUtil.setEntities(this.tileX, this.tileY, 3, this);
+                    }
+                }
+            }
+        });
+    }
+    
+    update() {
+        var d = new Date();
+        if(this.mouseOn || this.isSelected) {
+            this.pol.filters = [new PIXI.filters.BloomFilter({})];
+        } else if (this.pol.filters != null) {
+            this.pol.filters = [];
         }
-        var midPoint = Math.floor((findLength-1)/2);
-        shuffle(findShuffled);
-        for(var i = 0; i < findShuffled.length; i++) {
-            var x = findShuffled[i].x+tileX-midPoint;
-            var y = findShuffled[i].y+tileY-midPoint;
-            if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length) {
-                if(tiles[x][y].entity == undefined && type.includes(tiles[x][y].frontType)) {
-                    return {
-                        x: x,
-                        y: y,
-                    };
+        if(this.lastAction + this.cooldown < d.getTime()) {
+            this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
+
+            if(this.tileX == -1) {
+                var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                if(resul.x != -1 && gridUtil.isEmptyEntity(resul.x, resul.y, 3)) {
+                    this.tileX = resul.x;
+                    this.tileY = resul.y;
+                    this.targetX = this.tileX*tileSize+tileGroup.x;
+                    this.targetY = this.tileY*tileSize+tileGroup.y;
+                    gridUtil.clearResources(this.tileX, this.tileY, 3);
+                    gridUtil.setEntities(this.tileX, this.tileY, 3, this);
+                }
+            } else if(!this.isSelected) {
+                var damaged = false;
+                for(var i = 0; i < 11; i++) {
+                    for(var j = 0; j < 11; j++) {
+                        var x = this.tileX-5+i;
+                        var y = this.tileY-5+j;
+                        if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length && this.lookingFor.includes(tiles[x][y].frontType)) {
+                            damaged = true;
+                            tiles[x][y].front.damage(2);
+                        }
+                    }
                 }
             }
         }
 
-        //if return still hasnt been called then just check lots of spots randomly
-        var max = 100 - entities.length*0.5;
-        while(true) {
-            var randomX = Math.round(Math.random()*(tiles.length-1));
-            var randomY = Math.round(Math.random()*(tiles[0].length-1));
-            if(tiles[randomX][randomY].entity == undefined && type.includes(tiles[randomX][randomY].frontType)) {
-                return {
-                    x: randomX,
-                    y: randomY,
-                };
-            } else {
-                max--;
-            }
-
-            if(max < 1) {
-                return {
-                    x: -1,
-                    y: -1,
-                };
+        if(this.isSelected) {
+            var mousePosition = input.mouse.global;
+            if(mousePosition.x != null) {
+                //clamp the values to the grid
+                var cx = Math.round((mousePosition.x - tileGroup.x) / tileSize);
+                var cy = Math.round((mousePosition.y - tileGroup.y) / tileSize);
+                cx = Math.min(Math.max((cx), 0), tiles.length);
+                cy = Math.min(Math.max((cy), 0), tiles[0].length);
+                if(gridUtil.isEmptyEntity(cx, cy, 3)) {
+                    this.tileX = cx;
+                    this.tileY = cy;
+                    this.targetX = cx*tileSize+tileGroup.x;
+                    this.targetY = cy*tileSize+tileGroup.y;
+                } else {
+                    this.pol.filters = [new PIXI.filters.ColorOverlayFilter(0x000000)];
+                    this.tileX = -1;
+                    this.targetX = cx*tileSize+tileGroup.x;
+                    this.targetY = cy*tileSize+tileGroup.y;
+                }
             }
         }
+        
+        this.pol.x = lerp(this.pol.x, this.targetX, 0.75);
+        this.pol.y = lerp(this.pol.y, this.targetY, 0.75);
+    }
+
+    del() {
+        tiles[this.tileX][this.tileY].entity = undefined;
+        energyUsed -= this.energyCost;
+        updateEnergy();
+        this.sprit.destroy();
+        this.pol.destroy();
     }
 }
 
 function addEntity(id) {
     switch(id) {
         case 0:
-            entities.push(new droneMK1());
+            entities[id].push(new droneMK1());
+            break;
+        case 1:
+            entities[id].push(new droneMK2());
+            break;
+        case 2:
+            entities[id].push(new droneMK3());
+            break;
+        case 3:
+            entities[id].push(new droneMK4());
+            break;
+        case 4:
+            entities[id].push(new droneMK5());
+            break;
+
+        case 5:
+            entities[id].push(new spawnerMK1());
             break;
     }
 }
 
+function delEntity(id) {
+    var ent = entities[id].pop();
+    ent.del();
+}
+
 function updateEntities() {
     for(var i = 0; i < entities.length; i++) {
-        entities[i].update();
+        for(var j = 0; j < entities[i].length; j++) {
+            entities[i][j].update();
+        }
     }
 }
 
