@@ -50,15 +50,6 @@ app.loader
     .load(() => {
         for(var i = 0; i < 3; i++) {
             setTimeout(() => {
-                var rand = 5;
-                addEntity(rand);
-                setTimeout(() => {
-                    //delEntity(rand);
-                }, Math.round(10000));
-            }, Math.round(1000*Math.random()));
-        }
-        for(var i = 0; i < 32; i++) {
-            setTimeout(() => {
                 var rand = 0;
                 addEntity(rand);
                 setTimeout(() => {
@@ -66,9 +57,18 @@ app.loader
                 }, Math.round(10000));
             }, Math.round(1000*Math.random()));
         }
-        for(var i = 0; i < 6; i++) {
+        for(var i = 0; i < 3; i++) {
             setTimeout(() => {
                 var rand = 1;
+                addEntity(rand);
+                setTimeout(() => {
+                    //delEntity(rand);
+                }, Math.round(10000));
+            }, Math.round(1000*Math.random()));
+        }
+        for(var i = 0; i < 3; i++) {
+            setTimeout(() => {
+                var rand = 5;
                 addEntity(rand);
                 setTimeout(() => {
                     //delEntity(rand);

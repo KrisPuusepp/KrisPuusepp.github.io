@@ -38,6 +38,14 @@
                 return dist;
             }
 
+            function componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+            function rgbToHex(r, g, b) {
+                return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+            }
+
         </script>
 
         <script src="factory_rendering.js"></script>
@@ -47,11 +55,20 @@
         <script src="factory_progression.js"></script>
         <script src="factory_entities.js"></script>
         <script src="factory_crafting.js"></script>
+        <script src="factory_animation.js"></script>
 
         <script type="text/javascript">
             var frame = 0;
 
             var buildingSelected = false;
+            var selectedBuilding = undefined;
+
+            document.addEventListener('keydown', function(event) {
+                if(event.keyCode == 46) { //Delete
+                    if(buildingSelected)
+                        selectedBuilding.del();
+                }
+            });
 
             function tile(ix, iy) {
                 this.front = undefined;
@@ -70,13 +87,13 @@
             }
 
             function resource_red(ix, iy, naturality) {
-                this.poly = new PIXI.Graphics();
-                this.poly.beginFill(0xFF0000);
-                this.poly.drawRect(Math.round(-tileSize/2.1), Math.round(-tileSize/2.1), Math.round(tileSize*0.95), Math.round(tileSize*0.95));
-                this.poly.endFill();
-                this.poly.position = {x: tileSize * ix, y: tileSize * iy};
-                this.poly.hitArea = new PIXI.Circle(0, 0, tileSize/2);
-                tileGroup.addChild(this.poly);
+                this.pol = new PIXI.Graphics();
+                this.pol.beginFill(0xFF0000);
+                this.pol.drawRect(Math.round(-tileSize/2.1), Math.round(-tileSize/2.1), Math.round(tileSize*0.95), Math.round(tileSize*0.95));
+                this.pol.endFill();
+                this.pol.position = {x: tileSize * ix, y: tileSize * iy};
+                this.pol.hitArea = new PIXI.Circle(0, 0, tileSize/2);
+                tileGroup.addChild(this.pol);
 
                 this.x = ix;
                 this.y = iy;
@@ -87,13 +104,13 @@
 
                 this.hp = 4;
 
-                this.poly.lineStyle(1, 0x2E2E2E);
-                this.poly.rotation = this.hp * Math.PI/2;
-                this.poly.scale = {x: 0, y: 0};
+                this.pol.lineStyle(1, 0x2E2E2E);
+                this.pol.rotation = this.hp * Math.PI/2;
+                this.pol.scale = {x: 0, y: 0};
 
                 this.update = function() {
-                    this.poly.scale = {x: lerp(this.poly.scale.x, this.targetScale, 0.1), y: lerp(this.poly.scale.y, this.targetScale, 0.1)};
-                    this.poly.rotation = lerp(this.poly.rotation, this.hp * Math.PI/2, 0.5);
+                    this.pol.scale = {x: lerp(this.pol.scale.x, this.targetScale, 0.1), y: lerp(this.pol.scale.y, this.targetScale, 0.1)};
+                    this.pol.rotation = lerp(this.pol.rotation, this.hp * Math.PI/2, 0.5);
                 };
                 this.damage = function(amount) {
                     this.hp -= amount;
@@ -105,11 +122,11 @@
                         randomKlik();
                         for(var i = 0; i < amount; i++) {
                             if(Math.random() > 0.5) {
-                            this.poly.moveTo(((Math.random()*tileSize))-tileSize/2, -tileSize/2);
-                            this.poly.lineTo(((Math.random()*tileSize))-tileSize/2, tileSize/2);
+                            this.pol.moveTo(((Math.random()*tileSize))-tileSize/2, -tileSize/2);
+                            this.pol.lineTo(((Math.random()*tileSize))-tileSize/2, tileSize/2);
                             } else {
-                                this.poly.moveTo(-tileSize/2, ((Math.random()*tileSize))-tileSize/2);
-                                this.poly.lineTo(tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                                this.pol.moveTo(-tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                                this.pol.lineTo(tileSize/2, ((Math.random()*tileSize))-tileSize/2);
                             }
                         }
                         this.targetScale = 0.8;
@@ -120,9 +137,9 @@
                     }
                 };
                 this.collect = function() {
-                    inv.addResource(0, this.poly.x + tileGroup.x, this.poly.y + tileGroup.y);
+                    inv.addResource(0, this.pol.x + tileGroup.x, this.pol.y + tileGroup.y);
                     tiles[this.x][this.y].frontType = -1;
-                    this.poly.destroy();
+                    this.pol.destroy();
                     changeCursor(0);
 
                     if(this.natural) {
@@ -131,21 +148,21 @@
                 }
                 this.del = function() { //delete without collecting
                     tiles[this.x][this.y].frontType = -1;
-                    this.poly.destroy();
+                    this.pol.destroy();
                     if(this.natural) {
                         natural[0]--;
                     }
                 }
 
-                this.poly.interactive = true;
-                this.poly.on("mouseover", (event) => {
+                this.pol.interactive = true;
+                this.pol.on("mouseover", (event) => {
                     this.damage(1);
                     changeCursor(1);
                 });
-                this.poly.on("mouseout", (event) => {
+                this.pol.on("mouseout", (event) => {
                     changeCursor(0);
                 });
-                this.poly.on("click", (event) => {
+                this.pol.on("click", (event) => {
                     if(!buildingSelected) {
                         this.damage(1);
                     }
@@ -232,6 +249,7 @@
                 }
                 spawnCheck();
                 inv.animUpdate();
+                anim.animUpdate();
 
                 frame++;
             }

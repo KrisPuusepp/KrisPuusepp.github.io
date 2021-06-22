@@ -5,15 +5,13 @@ entityGroup.sortableChildren = true;
 app.stage.addChild(entityGroup);
 
 entities = [];
-for(var i = 0; i < 10; i++) {
-    entities[i] = [];
-}
 
 class droneMK1 { //slow breaker
     energyCost = 5;
 
     sprit;
     pol = new PIXI.Container();
+    objIndex = 0;
 
     cooldown = 1000;
     lastAction = 0;
@@ -26,6 +24,8 @@ class droneMK1 { //slow breaker
     //for anim
     targetX = 0;
     targetY = 0;
+
+    mouseOn = false;
 
     constructor(x, y) {
         entityGroup.addChild(this.pol);
@@ -41,6 +41,21 @@ class droneMK1 { //slow breaker
 
         var d = new Date();
         this.lastAction = d.getTime();
+
+        this.sprit.interactive = true;
+        this.sprit.on("mouseover", (event) => {
+            if(buildingSelected == false) {
+                this.mouseOn = true;
+                changeCursor(1);
+            }
+        });
+        this.sprit.on("mouseout", (event) => {
+            this.mouseOn = false;
+            changeCursor(0);
+        });
+        this.sprit.on("click", (event) => {
+            this.del();
+        });
     }
     
     update() {
@@ -59,7 +74,9 @@ class droneMK1 { //slow breaker
                 }
             } else {
                 if(this.lookingFor.includes(tiles[this.tileX][this.tileY].frontType)) {
-                    tiles[this.tileX][this.tileY].front.damage(1);
+                    var tile = tiles[this.tileX][this.tileY].front;
+                    anim.laser(this.pol.x, this.pol.y-10, tile.pol.x+tileGroup.x, tile.pol.y+tileGroup.y+4, 150, 0, 25);
+                    tile.damage(1);
                 } else {
                     var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 5);
                     if(resul.x != -1) {
@@ -89,16 +106,18 @@ class droneMK1 { //slow breaker
         updateEnergy();
         this.sprit.destroy();
         this.pol.destroy();
+        entities[this.objIndex] = null;
     }
 }
 
-class droneMK2 {
+class droneMK2 { //area of effect breaker
     energyCost = 20;
 
     sprit;
     pol = new PIXI.Container();
+    objIndex = 0;
 
-    cooldown = 2500;
+    cooldown = 2000;
     lastAction = 0;
 
     tileX = -1;
@@ -109,6 +128,8 @@ class droneMK2 {
     //for anim
     targetX = 0;
     targetY = 0;
+
+    mouseOn = false;
 
     constructor(x, y) {
         entityGroup.addChild(this.pol);
@@ -124,14 +145,29 @@ class droneMK2 {
 
         var d = new Date();
         this.lastAction = d.getTime();
+
+        this.sprit.interactive = true;
+        this.sprit.on("mouseover", (event) => {
+            if(buildingSelected == false) {
+                this.mouseOn = true;
+                changeCursor(1);
+            }
+        });
+        this.sprit.on("mouseout", (event) => {
+            this.mouseOn = false;
+            changeCursor(0);
+        });
+        this.sprit.on("click", (event) => {
+            this.del();
+        });
     }
     
     update() {
         var d = new Date();
         if(this.lastAction + this.cooldown < d.getTime()) {
-            this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
 
             if(this.tileX == -1) {
+                this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
                 var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
                 if(resul.x != -1) {
                     this.tileX = resul.x;
@@ -142,17 +178,26 @@ class droneMK2 {
                 }
             } else {
                 var damaged = false;
+                var damagedAmount = 0;
                 for(var i = 0; i < 5; i++) {
                     for(var j = 0; j < 5; j++) {
                         var x = this.tileX-2+i;
                         var y = this.tileY-2+j;
-                        if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length && this.lookingFor.includes(tiles[x][y].frontType)) {
+                        if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length && this.lookingFor.includes(tiles[x][y].frontType) && damagedAmount < 2) {
                             damaged = true;
-                            tiles[x][y].front.damage(1);
+                            damagedAmount++;
+                            var tile = tiles[x][y].front;
+                            if(damagedAmount == 1) {
+                                anim.laser(this.pol.x-18, this.pol.y-12, tile.pol.x+tileGroup.x, tile.pol.y+tileGroup.y, 150, 0, 25);
+                            } else {
+                                anim.laser(this.pol.x+18, this.pol.y-12, tile.pol.x+tileGroup.x, tile.pol.y+tileGroup.y, 150, 0, 25);
+                            }
+                            tile.damage(1);
                         }
                     }
                 }
                 if(!damaged) {
+                    this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
                     var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
                     if(resul.x != -1) {
                         tiles[this.tileX][this.tileY].entity = undefined;
@@ -162,6 +207,8 @@ class droneMK2 {
                         this.targetY = this.tileY*tileSize+tileGroup.y;
                         tiles[this.tileX][this.tileY].entity = this;
                     }
+                } else {
+                    this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown/30);
                 }
             }
         }
@@ -181,14 +228,17 @@ class droneMK2 {
         updateEnergy();
         this.sprit.destroy();
         this.pol.destroy();
+        entities[this.objIndex] = null;
     }
 }
 
-class spawnerMK1 {
+class buildingMK1 {
     energyCost = 20;
 
+    area;
     sprit;
     pol = new PIXI.Container();
+    objIndex = 0;
 
     cooldown = 2500;
     lastAction = 0;
@@ -201,6 +251,7 @@ class spawnerMK1 {
     //for anim
     targetX = 0;
     targetY = 0;
+    targetAlpha = 0.01;
 
     isSelected = false;
     mouseOn = false;
@@ -214,40 +265,51 @@ class spawnerMK1 {
         this.sprit.y = -this.sprit.texture.height*0.205/2;
         this.pol.addChild(this.sprit);
 
+        this.area = new PIXI.Graphics();
+        this.area.beginFill(0xFF0000);
+        this.area.drawRect(0, 0, tileSize*11, tileSize*11);
+        this.area.position = {x: -tileSize*5.5, y: -tileSize*5.5};
+        this.area.endFill();
+        this.area.alpha = 0.025;
+        this.pol.addChild(this.area);
+
         energyUsed += this.energyCost;
         updateEnergy();
 
         var d = new Date();
         this.lastAction = d.getTime();
 
-        this.pol.interactive = true;
-        this.pol.on("mouseover", (event) => {
+        this.sprit.interactive = true;
+        this.sprit.on("mouseover", (event) => {
             if(buildingSelected == false) {
                 this.mouseOn = true;
                 changeCursor(1);
             }
         });
-        this.pol.on("mouseout", (event) => {
+        this.sprit.on("mouseout", (event) => {
             if(buildingSelected == false) {
                 this.mouseOn = false;
                 changeCursor(0);
             }
         });
-        this.pol.on("click", (event) => {
+        this.sprit.on("click", (event) => {
             if(buildingSelected == false) {
                 this.pol.zIndex = 1;
                 buildingSelected = true;
+                selectedBuilding = this;
                 this.isSelected = true;
                 gridUtil.clearEntities(this.tileX, this.tileY, 3);
             } else if(this.isSelected) {
                 this.pol.zIndex = 0;
                 if(this.tileX != -1) {
                     buildingSelected = false;
+                    selectedBuilding = undefined;
                     this.isSelected = false;
                     gridUtil.clearResources(this.tileX, this.tileY, 3);
                     gridUtil.setEntities(this.tileX, this.tileY, 3, this);
                 } else {
                     buildingSelected = false;
+                    selectedBuilding = undefined;
                     this.isSelected = false;
                     var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
                     if(resul.x != -1 && gridUtil.isEmptyEntity(resul.x, resul.y, 3)) {
@@ -267,8 +329,11 @@ class spawnerMK1 {
         var d = new Date();
         if(this.mouseOn || this.isSelected) {
             this.pol.filters = [new PIXI.filters.BloomFilter({})];
-        } else if (this.pol.filters != null) {
+            this.targetAlpha = 0.05;
+        } else if (this.pol.filters && this.pol.filters.length != 0) {
             this.pol.filters = [];
+            this.targetAlpha = 0.025;
+            console.log(this.pol.filters);
         }
         if(this.lastAction + this.cooldown < d.getTime()) {
             this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
@@ -284,17 +349,20 @@ class spawnerMK1 {
                     gridUtil.setEntities(this.tileX, this.tileY, 3, this);
                 }
             } else if(!this.isSelected) {
-                var damaged = false;
                 for(var i = 0; i < 11; i++) {
                     for(var j = 0; j < 11; j++) {
                         var x = this.tileX-5+i;
                         var y = this.tileY-5+j;
                         if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length && this.lookingFor.includes(tiles[x][y].frontType)) {
-                            damaged = true;
-                            tiles[x][y].front.damage(2);
+                            tiles[x][y].front.damage(10);
                         }
                     }
                 }
+                this.targetAlpha = 0.15;
+                setTimeout(() => {
+                    if(this)
+                        this.targetAlpha = 0.025;
+                }, 200);
             }
         }
 
@@ -322,51 +390,64 @@ class spawnerMK1 {
         
         this.pol.x = lerp(this.pol.x, this.targetX, 0.75);
         this.pol.y = lerp(this.pol.y, this.targetY, 0.75);
+        this.area.alpha = lerp(this.area.alpha, this.targetAlpha, 0.1);
     }
 
     del() {
-        tiles[this.tileX][this.tileY].entity = undefined;
+        if(selectedBuilding == this) {
+            buildingSelected = false;
+            selectedBuilding = undefined;
+        }
+
+        gridUtil.clearEntities(this.tileX, this.tileY, 3);
         energyUsed -= this.energyCost;
         updateEnergy();
         this.sprit.destroy();
         this.pol.destroy();
+        entities[this.objIndex] = null;
     }
 }
 
 function addEntity(id) {
     switch(id) {
         case 0:
-            entities[id].push(new droneMK1());
+            var newObjIndex = entities.push(new droneMK1());
+            var newObj = entities[newObjIndex-1];
+            newObj.objIndex = newObjIndex-1;
             break;
         case 1:
-            entities[id].push(new droneMK2());
+            var newObjIndex = entities.push(new droneMK2());
+            var newObj = entities[newObjIndex-1];
+            newObj.objIndex = newObjIndex-1;
             break;
         case 2:
-            entities[id].push(new droneMK3());
+            var newObjIndex = entities.push(new droneMK3());
+            var newObj = entities[newObjIndex-1];
+            newObj.objIndex = newObjIndex-1;
             break;
         case 3:
-            entities[id].push(new droneMK4());
+            var newObjIndex = entities.push(new droneMK4());
+            var newObj = entities[newObjIndex-1];
+            newObj.objIndex = newObjIndex-1;
             break;
         case 4:
-            entities[id].push(new droneMK5());
+            var newObjIndex = entities.push(new droneMK5());
+            var newObj = entities[newObjIndex-1];
+            newObj.objIndex = newObjIndex-1;
             break;
 
         case 5:
-            entities[id].push(new spawnerMK1());
+            var newObjIndex = entities.push(new buildingMK1());
+            var newObj = entities[newObjIndex-1];
+            newObj.objIndex = newObjIndex-1;
             break;
     }
 }
 
-function delEntity(id) {
-    var ent = entities[id].pop();
-    ent.del();
-}
-
 function updateEntities() {
     for(var i = 0; i < entities.length; i++) {
-        for(var j = 0; j < entities[i].length; j++) {
-            entities[i][j].update();
-        }
+        if(entities[i] != null)
+            entities[i].update();
     }
 }
 
