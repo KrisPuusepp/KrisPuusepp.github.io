@@ -268,7 +268,130 @@ class droneMK2 { //area of effect breaker
     }
 }
 
-class buildingMK1 {
+class droneMK3 { //red n yellow spawner
+    energyCost = 5;
+
+    sprit;
+    pol = new PIXI.Container();
+    objIndex = 0;
+
+    cooldown = 500;
+    lastAction = 0;
+
+    tileX = -1;
+    tileY = -1;
+
+    //lookingFor = [0, 1];
+
+    //for anim
+    targetX = 0;
+    targetY = 0;
+
+    mouseOn = false;
+
+    constructor(x, y) {
+        entityGroup.addChild(this.pol);
+        this.sprit = new PIXI.Sprite(app.loader.resources["Resources/sprites/droneMK3.png"].texture);
+        this.sprit.scale.x = 0.15;
+        this.sprit.scale.y = 0.15;
+        this.sprit.x = -this.sprit.texture.width*0.15/2;
+        this.sprit.y = -this.sprit.texture.height*0.15;
+        this.pol.addChild(this.sprit);
+
+        energyUsed += this.energyCost;
+        updateEnergy();
+
+        var d = new Date();
+        this.lastAction = d.getTime();
+
+        this.sprit.interactive = true;
+        this.sprit.on("mouseover", (event) => {
+            if(buildingSelected == false && this.objIndex >= 0) {
+                this.mouseOn = true;
+                changeCursor(1);
+            }
+        });
+        this.sprit.on("mouseout", (event) => {
+            if(this.objIndex >= 0) {
+                this.mouseOn = false;
+                changeCursor(0);
+            }
+        });
+        this.sprit.on("click", (event) => {
+            if(this.objIndex >= 0) {
+                this.del();
+            }
+        });
+    }
+    
+    update() {
+        var d = new Date();
+        if(this.mouseOn) {
+            this.pol.filters = [new PIXI.filters.BloomFilter({})];
+        } else if (this.pol.filters && this.pol.filters.length != 0) {
+            this.pol.filters = [];
+        }
+        if(this.lastAction + this.cooldown < d.getTime()) {
+            this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
+
+            if(this.tileX == -1) {
+                var resul = gridUtil.findEmpty(this.tileX, this.tileY, 3);
+                if(resul.x != -1) {
+                    this.tileX = resul.x;
+                    this.tileY = resul.y;
+                    this.targetX = this.tileX*tileSize+tileGroup.x;
+                    this.targetY = this.tileY*tileSize+tileGroup.y;
+                    tiles[this.tileX][this.tileY].entity = this;
+                }
+            } else {
+                if(tiles[this.tileX][this.tileY].front == undefined) {
+                    spawnResource(this.tileX, this.tileY, 0, false);
+                    var tile = tiles[this.tileX][this.tileY].front;
+                    anim.laser(this.pol.x+20, this.pol.y-5, tile.pol.x+tileGroup.x, tile.pol.y+tileGroup.y+4, 150, 0, 25);
+                    anim.laser(this.pol.x-20, this.pol.y-5, tile.pol.x+tileGroup.x, tile.pol.y+tileGroup.y+4, 150, 0, 25);
+                } else {
+                    var resul = gridUtil.findEmpty(this.tileX, this.tileY, 3);
+                    if(resul.x != -1) {
+                        tiles[this.tileX][this.tileY].entity = undefined;
+                        this.tileX = resul.x;
+                        this.tileY = resul.y;
+                        this.targetX = this.tileX*tileSize+tileGroup.x;
+                        this.targetY = this.tileY*tileSize+tileGroup.y;
+                        tiles[this.tileX][this.tileY].entity = this;
+                    }
+                }
+            }
+        }
+
+        if(Math.abs(this.lastAction - d.getTime()) > this.cooldown) {
+            this.pol.x = this.targetX;
+            this.pol.y = this.targetY;
+        } else {
+            this.pol.x = lerp(this.pol.x, this.targetX, 0.25);
+            this.pol.y = lerp(this.pol.y, this.targetY, 0.25);
+        }
+    }
+
+    del() {
+        tiles[this.tileX][this.tileY].entity = undefined;
+        energyUsed -= this.energyCost;
+        updateEnergy();
+        for(var i = 0; i < 10; i++) {
+            let time = i;
+            setTimeout(() => {
+                this.pol.alpha = 1-(time/10);
+            }, 100*time);
+        }
+        setTimeout(() => {
+            this.sprit.destroy();
+            this.pol.destroy();
+        }, 100*11);
+        entities[this.objIndex] = null;
+        this.objIndex = -1;
+    }
+}
+
+class buildingMK1 { //powerful breaker
     energyCost = 20;
 
     area;

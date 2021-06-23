@@ -48,7 +48,7 @@ app.loader
     .add("Resources/sprites/droneMK3.png")
     .add("Resources/sprites/spawnerMK1.png")
     .load(() => {
-        for(var i = 0; i < 12; i++) {
+        for(var i = 0; i < 16; i++) {
             setTimeout(() => {
                 var rand = 0;
                 addEntity(rand);
@@ -57,7 +57,7 @@ app.loader
                 }, Math.round(10000));
             }, Math.round(1000*Math.random()));
         }
-        for(var i = 0; i < 3; i++) {
+        for(var i = 0; i < 6; i++) {
             setTimeout(() => {
                 var rand = 1;
                 addEntity(rand);
@@ -66,7 +66,16 @@ app.loader
                 }, Math.round(10000));
             }, Math.round(1000*Math.random()));
         }
-        for(var i = 0; i < 2; i++) {
+        for(var i = 0; i < 10; i++) {
+            setTimeout(() => {
+                var rand = 2;
+                addEntity(rand);
+                setTimeout(() => {
+                    //delEntity(rand);
+                }, Math.round(10000));
+            }, Math.round(1000*Math.random()));
+        }
+        for(var i = 0; i < 3; i++) {
             setTimeout(() => {
                 var rand = 5;
                 addEntity(rand);

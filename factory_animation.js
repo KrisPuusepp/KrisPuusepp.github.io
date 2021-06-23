@@ -24,7 +24,7 @@ class anim {
     static animUpdate() {
         for(var i = 0; i < animObjects.length; i++) {
             var obj = animObjects[i];
-            obj.pol.alpha = lerp(obj.pol.alpha, obj.targetAlpha, 0.2);
+            obj.pol.alpha = lerp(obj.pol.alpha, obj.targetAlpha, 0.05);
             obj.pol.x = lerp(obj.pol.x, obj.targetX, 0.1);
             obj.pol.y = lerp(obj.pol.y, obj.targetY, 0.1);
             if(Math.abs(obj.pol.alpha - obj.targetAlpha) < 0.1 && Math.abs(obj.pol.x - obj.targetX) < 0.1 && Math.abs(obj.pol.y - obj.targetY) < 0.1) {
