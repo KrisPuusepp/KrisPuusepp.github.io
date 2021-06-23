@@ -44,22 +44,31 @@ class droneMK1 { //slow breaker
 
         this.sprit.interactive = true;
         this.sprit.on("mouseover", (event) => {
-            if(buildingSelected == false) {
+            if(buildingSelected == false && this.objIndex >= 0) {
                 this.mouseOn = true;
                 changeCursor(1);
             }
         });
         this.sprit.on("mouseout", (event) => {
-            this.mouseOn = false;
-            changeCursor(0);
+            if(this.objIndex >= 0) {
+                this.mouseOn = false;
+                changeCursor(0);
+            }
         });
         this.sprit.on("click", (event) => {
-            this.del();
+            if(this.objIndex >= 0) {
+                this.del();
+            }
         });
     }
     
     update() {
         var d = new Date();
+        if(this.mouseOn) {
+            this.pol.filters = [new PIXI.filters.BloomFilter({})];
+        } else if (this.pol.filters && this.pol.filters.length != 0) {
+            this.pol.filters = [];
+        }
         if(this.lastAction + this.cooldown < d.getTime()) {
             this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
 
@@ -104,9 +113,18 @@ class droneMK1 { //slow breaker
         tiles[this.tileX][this.tileY].entity = undefined;
         energyUsed -= this.energyCost;
         updateEnergy();
-        this.sprit.destroy();
-        this.pol.destroy();
+        for(var i = 0; i < 10; i++) {
+            let time = i;
+            setTimeout(() => {
+                this.pol.alpha = 1-(time/10);
+            }, 100*time);
+        }
+        setTimeout(() => {
+            this.sprit.destroy();
+            this.pol.destroy();
+        }, 100*11);
         entities[this.objIndex] = null;
+        this.objIndex = -1;
     }
 }
 
@@ -148,27 +166,36 @@ class droneMK2 { //area of effect breaker
 
         this.sprit.interactive = true;
         this.sprit.on("mouseover", (event) => {
-            if(buildingSelected == false) {
+            if(buildingSelected == false && this.objIndex >= 0) {
                 this.mouseOn = true;
                 changeCursor(1);
             }
         });
         this.sprit.on("mouseout", (event) => {
-            this.mouseOn = false;
-            changeCursor(0);
+            if(this.objIndex >= 0) {
+                this.mouseOn = false;
+                changeCursor(0);
+            }
         });
         this.sprit.on("click", (event) => {
-            this.del();
+            if(this.objIndex >= 0) {
+                this.del();
+            }
         });
     }
     
     update() {
         var d = new Date();
+        if(this.mouseOn) {
+            this.pol.filters = [new PIXI.filters.BloomFilter({})];
+        } else if (this.pol.filters && this.pol.filters.length != 0) {
+            this.pol.filters = [];
+        }
         if(this.lastAction + this.cooldown < d.getTime()) {
 
             if(this.tileX == -1) {
                 this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
-                var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 14);
                 if(resul.x != -1) {
                     this.tileX = resul.x;
                     this.tileY = resul.y;
@@ -179,10 +206,10 @@ class droneMK2 { //area of effect breaker
             } else {
                 var damaged = false;
                 var damagedAmount = 0;
-                for(var i = 0; i < 5; i++) {
-                    for(var j = 0; j < 5; j++) {
-                        var x = this.tileX-2+i;
-                        var y = this.tileY-2+j;
+                for(var i = 0; i < 7; i++) {
+                    for(var j = 0; j < 7; j++) {
+                        var x = this.tileX-4+i;
+                        var y = this.tileY-4+j;
                         if(x >= 0 && y >= 0 && x < tiles.length && y < tiles[0].length && this.lookingFor.includes(tiles[x][y].frontType) && damagedAmount < 2) {
                             damaged = true;
                             damagedAmount++;
@@ -198,7 +225,7 @@ class droneMK2 { //area of effect breaker
                 }
                 if(!damaged) {
                     this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
-                    var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                    var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 14);
                     if(resul.x != -1) {
                         tiles[this.tileX][this.tileY].entity = undefined;
                         this.tileX = resul.x;
@@ -226,9 +253,18 @@ class droneMK2 { //area of effect breaker
         tiles[this.tileX][this.tileY].entity = undefined;
         energyUsed -= this.energyCost;
         updateEnergy();
-        this.sprit.destroy();
-        this.pol.destroy();
+        for(var i = 0; i < 10; i++) {
+            let time = i;
+            setTimeout(() => {
+                this.pol.alpha = 1-(time/10);
+            }, 100*time);
+        }
+        setTimeout(() => {
+            this.sprit.destroy();
+            this.pol.destroy();
+        }, 100*11);
         entities[this.objIndex] = null;
+        this.objIndex = -1;
     }
 }
 
@@ -281,44 +317,46 @@ class buildingMK1 {
 
         this.sprit.interactive = true;
         this.sprit.on("mouseover", (event) => {
-            if(buildingSelected == false) {
+            if(buildingSelected == false && this.objIndex >= 0) {
                 this.mouseOn = true;
                 changeCursor(1);
             }
         });
         this.sprit.on("mouseout", (event) => {
-            if(buildingSelected == false) {
+            if(buildingSelected == false && this.objIndex >= 0) {
                 this.mouseOn = false;
                 changeCursor(0);
             }
         });
         this.sprit.on("click", (event) => {
-            if(buildingSelected == false) {
-                this.pol.zIndex = 1;
-                buildingSelected = true;
-                selectedBuilding = this;
-                this.isSelected = true;
-                gridUtil.clearEntities(this.tileX, this.tileY, 3);
-            } else if(this.isSelected) {
-                this.pol.zIndex = 0;
-                if(this.tileX != -1) {
-                    buildingSelected = false;
-                    selectedBuilding = undefined;
-                    this.isSelected = false;
-                    gridUtil.clearResources(this.tileX, this.tileY, 3);
-                    gridUtil.setEntities(this.tileX, this.tileY, 3, this);
-                } else {
-                    buildingSelected = false;
-                    selectedBuilding = undefined;
-                    this.isSelected = false;
-                    var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
-                    if(resul.x != -1 && gridUtil.isEmptyEntity(resul.x, resul.y, 3)) {
-                        this.tileX = resul.x;
-                        this.tileY = resul.y;
-                        this.targetX = this.tileX*tileSize+tileGroup.x;
-                        this.targetY = this.tileY*tileSize+tileGroup.y;
+            if(this.objIndex >= 0) {
+                if(buildingSelected == false) {
+                    this.pol.zIndex = 1;
+                    buildingSelected = true;
+                    selectedBuilding = this;
+                    this.isSelected = true;
+                    gridUtil.clearEntities(this.tileX, this.tileY, 3);
+                } else if(this.isSelected) {
+                    this.pol.zIndex = 0;
+                    if(this.tileX != -1) {
+                        buildingSelected = false;
+                        selectedBuilding = undefined;
+                        this.isSelected = false;
                         gridUtil.clearResources(this.tileX, this.tileY, 3);
                         gridUtil.setEntities(this.tileX, this.tileY, 3, this);
+                    } else {
+                        buildingSelected = false;
+                        selectedBuilding = undefined;
+                        this.isSelected = false;
+                        var resul = gridUtil.findResource(this.tileX, this.tileY, this.lookingFor, 10);
+                        if(resul.x != -1 && gridUtil.isEmptyEntity(resul.x, resul.y, 3)) {
+                            this.tileX = resul.x;
+                            this.tileY = resul.y;
+                            this.targetX = this.tileX*tileSize+tileGroup.x;
+                            this.targetY = this.tileY*tileSize+tileGroup.y;
+                            gridUtil.clearResources(this.tileX, this.tileY, 3);
+                            gridUtil.setEntities(this.tileX, this.tileY, 3, this);
+                        }
                     }
                 }
             }
@@ -333,7 +371,6 @@ class buildingMK1 {
         } else if (this.pol.filters && this.pol.filters.length != 0) {
             this.pol.filters = [];
             this.targetAlpha = 0.025;
-            console.log(this.pol.filters);
         }
         if(this.lastAction + this.cooldown < d.getTime()) {
             this.lastAction += Math.min(Math.abs(this.lastAction - d.getTime()), this.cooldown);
@@ -402,9 +439,18 @@ class buildingMK1 {
         gridUtil.clearEntities(this.tileX, this.tileY, 3);
         energyUsed -= this.energyCost;
         updateEnergy();
-        this.sprit.destroy();
-        this.pol.destroy();
+        for(var i = 0; i < 10; i++) {
+            let time = i;
+            setTimeout(() => {
+                this.pol.alpha = 1-(time/10);
+            }, 100*time);
+        }
+        setTimeout(() => {
+            this.sprit.destroy();
+            this.pol.destroy();
+        }, 100*11);
         entities[this.objIndex] = null;
+        this.objIndex = -1;
     }
 }
 
