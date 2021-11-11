@@ -1,0 +1,215 @@
+<html>
+<head>
+    <style>* {padding: 0; margin: 0}</style>
+    <title>Color sim</title>
+    <meta charset="utf-8">
+    <style>
+        h1 {text-align: center;}
+        p {text-align: center;}
+        div {text-align: center;}
+    </style>
+</head>
+<script src="pixi/pixi.min.js"></script>
+<script src="pixi/pixi.min.js.map"></script>
+<script src="pixi/pixi-filters.js"></script>
+<script src="pixi/pixi-filters.js.map"></script>
+<body bgcolor="black">
+    <script>
+        function lerp(value1, value2, amount) {
+            amount = amount < 0 ? 0 : amount;
+            amount = amount > 1 ? 1 : amount;
+            return value1 + (value2 - value1) * amount;
+        }
+    </script>
+    
+    <script type="text/javascript">
+        //util
+        function componentToHex(c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+        function rgbToHex(r, g, b) {
+            return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+        
+        //setup
+        let type = "WebGL"
+        PIXI.utils.sayHello(type)
+        
+        //Create a Pixi Application
+        stageWidth = 1536;
+        stageHeight = 754;
+        
+        let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x000000});
+        
+        //Add the canvas that Pixi automatically created for you to the HTML document
+        document.body.appendChild(app.view);
+        
+        //resize to window
+        app.renderer.view.style.position = "absolute";
+        app.renderer.view.style.display = "block";
+        app.renderer.autoResize = true;
+        app.renderer.resize(window.innerWidth, window.innerHeight);
+        
+        var frame = 0;
+        
+        var rectangles = [];
+        var trail = true;
+        var trails = [];
+        var targets = [];
+        var velocities = [];
+        var offsets = [];
+        var speeds = [];
+        var mult = 40;
+        
+        //debug text
+        let text = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 128, fill : 0xFFFFFF, align : 'center'});
+        text.scale = {x: 0.25, y: 0.25};
+        app.stage.addChild(text);
+        function writeMessage(str) {
+            text.text = str;
+        }
+        
+        function dist(pos1, pos2) {
+            var dist = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+            return dist;
+        }
+        
+        var input = new PIXI.InteractionManager(app.renderer);
+        var mouseHeld = false;
+        var mouseButtonHeld = false;
+        
+        function setup() {
+            var blom = new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:1, bloomScale:3, blur: 4, quality: 8});
+            app.stage.filters = [blom];
+            
+            input.on("mousedown", mouseinteraction);
+            
+            for(var i = 0; i < mult; ++i) {
+                for(var y = 0; y < mult; y++) {
+                    rectangles[(i * mult) + y] = new PIXI.Graphics();
+                    rectangles[(i * mult) + y].beginFill(0xFFFFFF);
+                    rectangles[(i * mult) + y].drawCircle(-1, -1, 2);
+                    rectangles[(i * mult) + y].endFill();
+                    rectangles[(i * mult) + y] = app.renderer.generateTexture(rectangles[(i * mult) + y]);
+                    rectangles[(i * mult) + y] = PIXI.Sprite.from(rectangles[(i * mult) + y]);
+                    rectangles[(i * mult) + y].position = {x: 8 * (i + 1) + stageWidth / 2 - 200, y: 8 * (y + 1) + stageHeight / 2 - 200};
+                    rectangles[(i * mult) + y].position.x -= 4;
+                    rectangles[(i * mult) + y].position.y -= 4;
+                    rectangles[(i * mult) + y].scale = {x: 0.5, y: 0.5};
+                    //app.stage.addChild(rectangles[(i * mult) + y]);
+                    
+                    offsets[(i * mult) + y] = {x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10}
+                    if(Math.random() > 0.75) {
+                        offsets[(i * mult) + y].x += (Math.random() - 0.5) * 25;
+                        offsets[(i * mult) + y].y += (Math.random() - 0.5) * 25;
+                    }
+                    speeds[(i * mult) + y] = Math.max(Math.random() * 2, 0.5);
+                    targets[(i * mult) + y] = {x: 0, y: 0}
+                    velocities[(i * mult) + y] = {x: 0, y: 0}
+                    if(trail) {
+                        trails[(i * mult) + y] = new PIXI.Graphics();
+                        app.stage.addChild(trails[(i * mult) + y]);
+                    }
+                }
+            }
+            
+            //Start the game loop by adding the `gameLoop` function to
+            //Pixi's `ticker` and providing it with a `delta` argument.
+            app.ticker.add(delta => gameLoop(delta));
+        }
+        
+        function gameLoop(delta) {
+            //console.log(input.mouse.global);
+            for(var i = 0; i < mult; i++) {
+                for(var y = 0; y < mult; y++) {
+                    index = (i * mult) + y;
+                    rec = rectangles[index]
+                    //pos
+                    if(input.mouse.global.x > 0 && input.mouse.global.y > 0) {
+                        targetPos = targets[index];
+                        targetPos = Object.assign(targetPos, input.mouse.global)
+                        targetAdd = {}
+                        var d = new Date();
+                        var n = d.getTime();
+                        
+                        if(!mouseHeld) {
+                            targetAdd.x = Math.sin((n / 1000 * (speeds[index] * 2)) + index - 0.2) * 200;
+                            targetAdd.y = Math.sin((n / 1000 * (speeds[index] * 2)) + index + 0.8) * 150;
+                            
+                            targetAdd.x += offsets[index].x * 10;
+                            targetAdd.y += offsets[index].y * 10;
+                        } else {
+                            targetAdd.x = (i - mult/2) * 20;
+                            targetAdd.y = (y - mult/2) * 20;
+                            
+                            targetAdd.x += offsets[index].x * 4 * Math.sin(n / 200);
+                            targetAdd.y += offsets[index].y * 4 * Math.cos(n / 200);
+                            
+                            targetAdd.x = targetAdd.x * Math.cos(frame/100) - targetAdd.y * Math.sin(frame/100);
+                            targetAdd.y = targetAdd.y * Math.cos(frame/100) - targetAdd.x * Math.sin(frame/100);
+                        }
+                        
+                        targetPos.x += targetAdd.x;
+                        targetPos.y += targetAdd.y;
+                        
+                        vel = velocities[index];
+                        
+                        
+                        //TODO:
+                        // - Convert renderer to particle renderer
+                        // - some sort of explosion on click
+                        
+                        
+                        //boost velocity
+                        vel.x = lerp(vel.x, targetPos.x - rec.x, Math.min(1 / (dist(rec, targetPos) * 2 * ((mouseButtonHeld * -0.9)+1))));
+                        vel.y = lerp(vel.y, targetPos.y - rec.y, Math.min(1 / (dist(rec, targetPos) * 2 * ((mouseButtonHeld * -0.9)+1))));   
+                        
+                        //dampen velocity
+                        x2 = Math.pow(vel.x, 2);
+                        y2 = Math.pow(vel.y, 2);
+                        mag = Math.sqrt(x2 + y2);
+                        if(vel.x != 0 && vel.y != 0) {
+                            vel.x /= mag;
+                            vel.y /= mag;
+                            vel.x *= mag / 1.02;
+                            vel.y *= mag / 1.02;
+                        }
+                        
+                        
+                        rec.position.x += vel.x;
+                        rec.position.y += vel.y;
+                        
+                        //trails
+                        if(trail) {
+                            trails[index].clear();
+                            // Math.abs(Math.max(100, Math.min(Math.round(mag * 10), 255)) - 0)
+                            r = Math.abs(Math.max(155, Math.min(Math.round(mag * 10), 255)) - 0);
+                            g = Math.abs(Math.max(0, Math.min(Math.round(mag * 5), 153)) - 0);
+                            b = 0;
+                            trails[index].lineStyle(2, rgbToHex(r, g, b))
+                            xl = Math.max(Math.abs(rec.x - vel.x), 4) * Math.sign(rec.x - vel.x);
+                            yl = Math.max(Math.abs(rec.y - vel.y), 4) * Math.sign(rec.y - vel.y);
+                            trails[index].moveTo(xl, yl);
+                            trails[index].lineTo(rec.x, rec.y);
+                        }
+                    }
+                }
+            }
+            
+            writeMessage(mouseHeld + ", " + mouseButtonHeld);
+            
+            frame++;
+        }
+        
+        function mouseinteraction() {
+            if(input.mouse.button == 0)
+            mouseHeld = !mouseHeld;
+            else if(input.mouse.button == 1)
+            mouseButtonHeld = !mouseButtonHeld;
+        }
+        
+        setup()
+    </script>
+</body>
+</html>

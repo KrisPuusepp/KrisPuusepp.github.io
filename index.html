@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>asjad</title>
+        <link rel="icon" href="Resources/jan3s.png">
+        <style>
+        .whiteimg {
+            border: 5px solid #fff;
+            background-color: #ddd;
+            border-radius: 10px;
+            padding: 5px;
+            width: 150px;
+        }
+        .blackimg {
+            border: 5px solid #222;
+            background-color: #b30000;
+            border-radius: 15px;
+            padding: 5px;
+            width: 150px;
+        }
+        p, a {
+            color: #fff;
+        }
+        </style>
+    </head>
+
+    <div id="wavediv1" style="position: fixed; margin-left: 40px; z-index:0">
+
+    </div>
+
+    <div id="wavediv2" style="position: fixed; margin-left: 40px; z-index:0">
+
+    </div>
+
+    <body style="background-color: #000;">
+        <br> 
+    	<div style="text-align:center; color:black; font-size:28px; font-weight:bold; font-family:arial; position:static; z-index:2">
+            <p>asjad</p>
+            <a href="https://peegeldumissimulatsioon.netlify.app/">Valguse peegeldumise simulatsioon</a>
+            <p style="font-size:12px">Kooli loovtöö. Töötab ainult arvutis.</p>
+            <a href="https://peegeldumissimulatsioon.netlify.app/"><image style="width: 450px;" class="whiteimg" src="./Resources/valgussim.PNG"></a>
+            <br>      <br>
+            <a href="https://krispuusepp.github.io/colorsim.html">Värviline simulatsioon</a>
+            <p style="font-size:12px">Töötab ainult arvutis.</p>
+            <a href="https://krispuusepp.github.io/colorsim.html"><image style="width: 450px;" class="blackimg" src="./Resources/varvsim.PNG"></a>
+            <br>            <br>            <br>            <br>            <br>            <br>
+            <br>            <br>            <br>            <br>            <br>            <br>
+            <br>            <br>            <br>            <br>            <br>            <br>
+            <div style="font-size:22px">
+                <a>väiksemad, ebahuvitavamad asjad</a>
+                <p style="font-size:12px">Enamus isegi ei tööta :|</p>
+                <a href="https://krispuusepp.github.io/konvatest.html">lennuk</a>
+                <br>
+                <a href="https://krispuusepp.github.io/interesting.html">ruudud</a>
+                <br>
+                <a href="https://krispuusepp.github.io/pixitest.html">täpid</a>  
+            </div>
+            <br>            <br>            <br>            <br>            <br>            <br>
+            <br>            <br>            <br>            <br>            <br>            <br>
+            <br>            <br>            <br>            <br>            <br>            <br>
+            <p style="font-size: 4px;">mjes</p>
+
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+            <!-- top secret -->
+            <p style="font-size: 4px;">you have found top secret corner :O</p>
+            <a style="font-size: 4px;" href="https://krispuusepp.github.io/factory.html">factory</a>
+
+    	</div>
+
+        <script>
+            var wavediv1 = document.getElementById("wavediv1");
+            var wavediv2 = document.getElementById("wavediv2");
+
+            var body = document.scrollingElement;
+
+            var waves = []
+            var frame = 0;
+
+            var len = innerHeight / 18 - 1;
+
+            wavediv2.style.marginLeft = (innerWidth - 200) + "px";
+
+            for(var i = 0; i < len; i++) {
+                var para = document.createElement("p");
+                var node = document.createTextNode("Jänes");
+                para.appendChild(node);
+                para.style.fontFamily = "arial";
+                para.style.margin = "0px";
+                para.style.marginLeft = "0px";
+                wavediv1.appendChild(para);
+
+                waves.push(para);
+            }
+            console.log(len);
+            console.log(waves.length);
+            
+            for(var i = 0; i < len; i++) {
+                var para = document.createElement("p");
+                var node = document.createTextNode("Jänes");
+                para.appendChild(node);
+                para.style.fontFamily = "arial";
+                para.style.margin = "0px";
+                para.style.marginLeft = "0px";
+                wavediv2.appendChild(para);
+
+                waves.push(para);
+            }
+            console.log(len);
+            console.log(waves.length);
+
+            function Wave() {
+                for(var i = 0; i < waves.length; i++) {
+                   waves[i].style.marginLeft = (Math.round((Math.sin(frame / 30 + i / 3 + body.scrollTop / 180) + 1) * 30)) + "px";
+                }
+                frame++;
+                self.setTimeout("Wave()", 1000 / 30);
+            }
+            Wave();
+        </script>
+
+    </body>
+</html>

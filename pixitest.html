@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <style>* {padding: 0; margin: 0}</style>
+        <title>pixitest</title>
+        <meta charset="utf-8">
+        <style>
+            h1 {text-align: center;}
+            p {text-align: center;}
+            div {text-align: center;}
+        </style>
+    </head>
+    <script src="pixi/pixi.min.js"></script>
+    <body>
+        <script type="text/javascript">
+            //setup
+            let type = "WebGL"
+            if(!PIXI.utils.isWebGLSupported()){
+              type = "canvas"
+            }
+            PIXI.utils.sayHello(type)
+
+            //Create a Pixi Application
+            stageWidth = 1536;
+            stageHeight = 754;
+
+            let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: false, backgroundColor: 0xFFFFFF});
+
+            //Add the canvas that Pixi automatically created for you to the HTML document
+            document.body.appendChild(app.view);
+
+            //resize to window
+            app.renderer.view.style.position = "absolute";
+            app.renderer.view.style.display = "block";
+            app.renderer.autoResize = true;
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+
+            var rectangles = [];
+            var lastPos = [];
+            var mult = 5;
+
+            function setup() {
+                for(var i = 0; i < mult; i++) {
+                    for(var y = 0; y < mult; y++) {
+                        lastPos[(i * mult) + y] = {};
+                    }
+                }
+
+                for(var i = 0; i < mult; i++) {
+                    for(var y = 0; y < mult; y++) {
+                        rectangles[(i * mult) + y] = new PIXI.Graphics();
+                        rectangles[(i * mult) + y].beginFill(0xFF0000);
+                        rectangles[(i * mult) + y].drawRect(-4, -4, 8, 8);
+                        rectangles[(i * mult) + y].endFill();
+                        rectangles[(i * mult) + y].position = {x: 8 * (i + 1), y: 8 * (y + 1)};
+                        rectangles[(i * mult) + y].position.x -= 4;
+                        rectangles[(i * mult) + y].position.y -= 4;
+                        lastPos[(i * mult) + y] = Object.assign(lastPos[(i * mult) + y], rectangles[(i * mult) + y].position);
+                        rectangles[(i * mult) + y].scale = {x: 0.5, y: 0.5};
+                        app.stage.addChild(rectangles[(i * mult) + y]);
+                    }
+                }
+
+                //Start the game loop by adding the `gameLoop` function to
+                //Pixi's `ticker` and providing it with a `delta` argument.
+                app.ticker.add(delta => gameLoop(delta));
+            }
+
+            var input = new PIXI.InteractionManager(app.renderer);
+            function gameLoop(delta) {
+                //console.log(input.mouse.global);
+                for(var i = 0; i < mult; i++) {
+                    for(var y = 0; y < mult; y++) {
+                        if(i == 0 && y == 0) {
+                            rectangles[(i * mult) + y].position = input.mouse.global;
+                        } else {
+                            rectangles[(i * mult) + y].position.x = lastPos[((i * mult) + y - 1)]._x;
+                            rectangles[(i * mult) + y].position.y = lastPos[((i * mult) + y - 1)]._y;
+                        }
+                    }
+                }
+                for(var i = 0; i < mult; i++) {
+                    for(var y = 0; y < mult; y++) {
+                        lastPos[(i * mult) + y] = Object.assign(lastPos[(i * mult) + y], rectangles[(i * mult) + y].position);
+                    }
+                } 
+            }
+
+            setup()
+        </script>
+    </body>
+</html>

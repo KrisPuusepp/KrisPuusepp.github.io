@@ -1,0 +1,260 @@
+<html>
+    <head>
+        <style>* {padding: 0; margin: 0}</style>
+        <title>Factory</title>
+        <link rel="icon" href="Resources/factoryIcon.png">
+        <meta charset="utf-8">
+        <style>
+            h1 {text-align: center;}
+            p {text-align: center;}
+            div {text-align: center;}
+
+            @font-face {
+              font-family: "mainFont";
+              src: url("Resources/fonts/Xolonium-Bold.ttf");
+            }
+
+            body {
+              overflow: hidden; /* Hide scrollbars */
+            }
+        </style>
+    </head>
+    
+    <script src="pixi/pixi.min.js"></script>
+    <script src="pixi/pixi.min.js.map"></script>
+    <script src="pixi/pixi-filters.js"></script>
+    <script src="pixi/pixi-filters.js.map"></script>
+
+    <body style="background-color: black;">
+        <script>
+            function lerp(value1, value2, amount) {
+                amount = amount < 0 ? 0 : amount;
+                amount = amount > 1 ? 1 : amount;
+                return value1 + (value2 - value1) * amount;
+            }
+
+            function dist(pos1, pos2) {
+                var dist = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+                return dist;
+            }
+
+            function componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+            function rgbToHex(r, g, b) {
+                return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+            }
+
+        </script>
+
+        <script src="factory_rendering.js"></script>
+        <script src="factory_util.js"></script>
+        <script src="factory_audio.js"></script>
+        <script src="factory_inventory.js"></script>
+        <script src="factory_progression.js"></script>
+        <script src="factory_entities.js"></script>
+        <script src="factory_crafting.js"></script>
+        <script src="factory_animation.js"></script>
+
+        <script type="text/javascript">
+            var frame = 0;
+
+            var selectedEntity = false;
+            var selecting = undefined;
+
+            document.addEventListener('keydown', function(event) {
+                if(event.keyCode == 46) { //Delete
+                    if(selectedEntity)
+                        selecting.del();
+                }
+            });
+
+            function tile(ix, iy) {
+                this.front = undefined;
+                this.frontType = -1;
+                this.reserved = false;
+
+                this.entity = undefined;
+
+                this.back = new PIXI.Graphics();
+
+                this.back.beginFill(0x2E2E2E);
+                this.back.drawRect(Math.round(-tileSize/2.1), Math.round(-tileSize/2.1), Math.round(tileSize*0.95), Math.round(tileSize*0.95));
+                this.back.endFill();
+                this.back.position = {x: tileSize * ix, y: tileSize * iy};
+                tileGroup.addChild(this.back);
+            }
+
+            function resource_red(ix, iy, naturality) {
+                this.pol = new PIXI.Graphics();
+                this.pol.beginFill(0xFF0000);
+                this.pol.drawRect(Math.round(-tileSize/2.1), Math.round(-tileSize/2.1), Math.round(tileSize*0.95), Math.round(tileSize*0.95));
+                this.pol.endFill();
+                this.pol.position = {x: tileSize * ix, y: tileSize * iy};
+                this.pol.hitArea = new PIXI.Circle(0, 0, tileSize/2);
+                tileGroup.addChild(this.pol);
+
+                this.x = ix;
+                this.y = iy;
+                this.natural = naturality;
+                this.spawnFrame = frame;
+
+                this.targetScale = 1;
+
+                this.hp = 4;
+
+                this.pol.lineStyle(1, 0x2E2E2E);
+                this.pol.rotation = this.hp * Math.PI/2;
+                this.pol.scale = {x: 0, y: 0};
+
+                this.update = function() {
+                    this.pol.scale = {x: lerp(this.pol.scale.x, this.targetScale, 0.1), y: lerp(this.pol.scale.y, this.targetScale, 0.1)};
+                    this.pol.rotation = lerp(this.pol.rotation, this.hp * Math.PI/2, 0.5);
+                };
+                this.damage = function(amount) {
+                    this.hp -= amount;
+                    if(this.hp <= 0) {
+                        randomEnd();
+                        this.collect();
+                        delete tiles[this.x][this.y].front;
+                    } else {
+                        randomKlik();
+                        for(var i = 0; i < amount; i++) {
+                            if(Math.random() > 0.5) {
+                            this.pol.moveTo(((Math.random()*tileSize))-tileSize/2, -tileSize/2);
+                            this.pol.lineTo(((Math.random()*tileSize))-tileSize/2, tileSize/2);
+                            } else {
+                                this.pol.moveTo(-tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                                this.pol.lineTo(tileSize/2, ((Math.random()*tileSize))-tileSize/2);
+                            }
+                        }
+                        this.targetScale = 0.8;
+                        setTimeout(() => {
+                            if(this)
+                                this.targetScale = 1;
+                        }, 100);
+                    }
+                };
+                this.collect = function() {
+                    inv.addResource(0, this.pol.x + tileGroup.x, this.pol.y + tileGroup.y);
+                    tiles[this.x][this.y].frontType = -1;
+                    this.pol.destroy();
+                    changeCursor(0);
+
+                    if(this.natural) {
+                        natural[0]--;
+                    }
+                }
+                this.del = function() { //delete without collecting
+                    tiles[this.x][this.y].frontType = -1;
+                    this.pol.destroy();
+                    if(this.natural) {
+                        natural[0]--;
+                    }
+                }
+
+                this.pol.interactive = true;
+                this.pol.on("mouseover", (event) => {
+                    this.damage(1);
+                    changeCursor(1);
+                });
+                this.pol.on("mouseout", (event) => {
+                    changeCursor(0);
+                });
+                this.pol.on("click", (event) => {
+                    if(!selectedEntity) {
+                        this.damage(1);
+                    }
+                });
+            }
+
+            var tiles = [];
+            for(var i = 0; i < 64; i++) {
+                empt = []
+                for(var y = 0; y < 36; y++) {
+                    empt.push(new tile(i, y));
+                }
+                tiles.push(empt);
+            }
+
+            function spawnResource(x, y, type, natural) {
+                if(tiles[x][y].front == undefined) {
+                    switch(type) {
+                        case 0:
+                            tiles[x][y].front = new resource_red(x, y, natural);
+                            break;
+                        case 1:
+                            tiles[x][y].front = new resource_red(x, y, natural);
+                            break;
+                        case 2:
+                            tiles[x][y].front = new resource_red(x, y, natural);
+                            break;
+                        case 3:
+                            tiles[x][y].front = new resource_red(x, y, natural);
+                            break;
+                        case 4:
+                            tiles[x][y].front = new resource_red(x, y, natural);
+                            break;
+                        default:
+                            console.log("Spawning error @-@");
+                    }
+                    tiles[x][y].frontType = type;
+                } else {
+                    console.log("error spawning resource, already occupied");
+                }
+            }
+
+            function spawnCluster(ix, iy, type) {
+                if(ix+5 > tiles.length || iy+5 > tiles[0].length) {
+                    debugText("spawnCluster error");
+                    return 0;
+                }
+                for(var i = 0; i < 5; i++) {
+                    for(var y = 0; y < 5; y++) {
+                        if(tiles[ix+i][iy+y].front == undefined && tiles[ix+i][iy+y].reserved == false && tiles[ix+i][iy+y].entity == undefined) {
+                            if(Math.random() < 0.5) {
+                                tiles[ix+i][iy+y].reserved = true;
+                                let x1 = ix+i;
+                                let y1 = iy+y;
+                                setTimeout(() => {
+                                    spawnResource(x1, y1, 0, true);
+                                    tiles[x1][y1].reserved = false;
+                                }, Math.round(Math.random()*1000));
+                                natural[type]++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            function setup() {
+                
+                tileGroup.position = {x: stageWidth - 65*tileSize, y: (stageHeight - 36*tileSize) / 2};
+
+                //Start the game loop by adding the `gameLoop` function to
+                //Pixi's `ticker` and providing it with a `delta` argument.
+                app.ticker.add(delta => gameLoop(delta));
+            }
+
+            var input = new PIXI.InteractionManager(app.renderer);
+            function gameLoop(delta) {
+                updateEntities();
+                for(var i = 0; i < tiles.length; i++) {
+                    for(var y = 0; y < tiles[i].length; y++) {
+                        if(tiles[i][y].front != undefined) {
+                            tiles[i][y].front.update();
+                        }
+                    }
+                }
+                spawnCheck();
+                inv.animUpdate();
+                anim.animUpdate();
+
+                frame++;
+            }
+
+            setup()
+        </script>
+    </body>
+</html>
