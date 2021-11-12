@@ -4,6 +4,37 @@
         <title>asjad</title>
         <link rel="icon" href="Resources/jan3s.png">
         <style>
+        ::-webkit-scrollbar {
+            width: 0;  /* Remove scrollbar space */
+            background: transparent;  /* Optional: just make scrollbar invisible */
+        }
+
+        button {
+            padding: 4px 8px;
+
+            transition-duration: 0.2s;
+            background-color: white;
+            color: black;
+            border: black;
+            border-radius: 10px;
+            height: 24px;
+        }
+
+        button:hover {
+            background-color: #4CAF50; /* Green */
+            background-color: red;
+            color: black;
+            border: red; /* Green */
+            border-radius: 2px;
+            font-size: 16px;
+            height: auto;
+        }
+
+        img {
+            position: relative;
+            display: inline-block;
+        }
+
         .whiteimg {
             border: 5px solid #fff;
             background-color: #ddd;
@@ -20,110 +51,417 @@
         }
         p, a {
             color: #fff;
+            font-weight: bold;
+        }
+
+        .about p {
+            margin: 0px;
+            padding: 0px;
+            font-weight: normal;
+            font-size: 22px;
+        }
+
+        .mainbox {
+            margin-top: 55px;
+            margin-bottom: 55px;
+        }
+
+        .square,
+        .circle {
+            pointer-events: none;
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin: 0px;
+            background-color: red;
+            font-size: 14px;
+            display: inline-block;
+        }
+        .circle {
+          border-radius: 50%;
         }
         </style>
     </head>
 
-    <div id="wavediv1" style="position: fixed; margin-left: 40px; z-index:0">
-
-    </div>
-
-    <div id="wavediv2" style="position: fixed; margin-left: 40px; z-index:0">
-
-    </div>
-
-    <body style="background-color: #000;">
-        <br> 
+    <body style="background-color: #000; position: relative; margin: 0px; padding: 0px;">
+        <br>
     	<div style="text-align:center; color:black; font-size:28px; font-weight:bold; font-family:arial; position:static; z-index:2">
-            <p>asjad</p>
-            <a href="https://peegeldumissimulatsioon.netlify.app/">Valguse peegeldumise simulatsioon</a>
-            <p style="font-size:12px">Kooli loovtöö. Töötab ainult arvutis.</p>
-            <a href="https://peegeldumissimulatsioon.netlify.app/"><image style="width: 450px;" class="whiteimg" src="./Resources/valgussim.PNG"></a>
-            <br>      <br>
-            <a href="https://krispuusepp.github.io/colorsim.html">Värviline simulatsioon</a>
-            <p style="font-size:12px">Töötab ainult arvutis.</p>
-            <a href="https://krispuusepp.github.io/colorsim.html"><image style="width: 450px;" class="blackimg" src="./Resources/varvsim.PNG"></a>
-            <br>            <br>            <br>            <br>            <br>            <br>
-            <br>            <br>            <br>            <br>            <br>            <br>
-            <br>            <br>            <br>            <br>            <br>            <br>
-            <div style="font-size:22px">
-                <a>väiksemad, ebahuvitavamad asjad</a>
-                <p style="font-size:12px">Enamus isegi ei tööta :|</p>
-                <a href="https://krispuusepp.github.io/konvatest.html">lennuk</a>
+            <p style="margin: 75px;">asjad</p>            
+            <div class="about">
+                <p>Igasugused erinevad projektid, tehtud erinevate JavaScript raamistikkudega.</p>
                 <br>
-                <a href="https://krispuusepp.github.io/interesting.html">ruudud</a>
-                <br>
-                <a href="https://krispuusepp.github.io/pixitest.html">täpid</a>  
+                <p>Kõik projektid on tehtud arvutis ja arvuti jaoks.</p>
+                <p>Need ei tööta telefonis.</p>
             </div>
-            <br>            <br>            <br>            <br>            <br>            <br>
-            <br>            <br>            <br>            <br>            <br>            <br>
-            <br>            <br>            <br>            <br>            <br>            <br>
-            <p style="font-size: 4px;">mjes</p>
 
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <button id="shake" style="position: absolute; left: 100px; top: 10px;" onclick="shake()">earthquake</button>
 
-            <!-- top secret -->
-            <p style="font-size: 4px;">you have found top secret corner :O</p>
-            <a style="font-size: 4px;" href="https://krispuusepp.github.io/factory.html">factory</a>
+            <div class="mainbox">
+                <a href="https://peegeldumissimulatsioon.netlify.app/">Valguse peegeldumise simulatsioon</a>
+                <p style="font-size:12px"></p>
+                <a href="https://peegeldumissimulatsioon.netlify.app/"><image style="width: 450px;" class="whiteimg" src="./Resources/valgussim.PNG"></a>
+            </div>
+            <div>
+                <a href="/colorsim.html">Värviline simulatsioon</a>
+                <p style="font-size:12px"></p>
+                <a href="/colorsim.html"><image style="width: 450px;" class="blackimg" src="./Resources/varvsim.PNG"></a>
+            </div>
 
+            <div style="font-size:22px; margin-top: 300px; margin-bottom: 300px;">
+                <p style="margin: 5px;">Pooleli jäetud / lõpetamata tööd</p>
+                <a style="font-size: 16px;" href="/factory/factory.html">factory.html</a>
+            </div>
     	</div>
 
+        <script src="/Resources/libs/anime.min.js"></script>
+        <script src="/Resources/libs/seedrandom.min.js"></script>
+        <script src="/Resources/libs/letterize.min.js"></script>
         <script>
-            var wavediv1 = document.getElementById("wavediv1");
-            var wavediv2 = document.getElementById("wavediv2");
-
-            var body = document.scrollingElement;
-
-            var waves = []
-            var frame = 0;
-
-            var len = innerHeight / 18 - 1;
-
-            wavediv2.style.marginLeft = (innerWidth - 200) + "px";
-
-            for(var i = 0; i < len; i++) {
-                var para = document.createElement("p");
-                var node = document.createTextNode("Jänes");
-                para.appendChild(node);
-                para.style.fontFamily = "arial";
-                para.style.margin = "0px";
-                para.style.marginLeft = "0px";
-                wavediv1.appendChild(para);
-
-                waves.push(para);
-            }
-            console.log(len);
-            console.log(waves.length);
+            function HSLToHex(h,s,l) {
+              s /= 100;
+              l /= 100;
             
-            for(var i = 0; i < len; i++) {
-                var para = document.createElement("p");
-                var node = document.createTextNode("Jänes");
-                para.appendChild(node);
-                para.style.fontFamily = "arial";
-                para.style.margin = "0px";
-                para.style.marginLeft = "0px";
-                wavediv2.appendChild(para);
-
-                waves.push(para);
+              let c = (1 - Math.abs(2 * l - 1)) * s,
+                  x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+                  m = l - c/2,
+                  r = 0,
+                  g = 0, 
+                  b = 0; 
+            
+              if (0 <= h && h < 60) {
+                r = c; g = x; b = 0;
+              } else if (60 <= h && h < 120) {
+                r = x; g = c; b = 0;
+              } else if (120 <= h && h < 180) {
+                r = 0; g = c; b = x;
+              } else if (180 <= h && h < 240) {
+                r = 0; g = x; b = c;
+              } else if (240 <= h && h < 300) {
+                r = x; g = 0; b = c;
+              } else if (300 <= h && h < 360) {
+                r = c; g = 0; b = x;
+              }
+              // Having obtained RGB, convert channels to hex
+              r = Math.round((r + m) * 255).toString(16);
+              g = Math.round((g + m) * 255).toString(16);
+              b = Math.round((b + m) * 255).toString(16);
+          
+              // Prepend 0s, if necessary
+              if (r.length == 1)
+                r = "0" + r;
+              if (g.length == 1)
+                g = "0" + g;
+              if (b.length == 1)
+                b = "0" + b;
+          
+              return "#" + r + g + b;
             }
-            console.log(len);
-            console.log(waves.length);
 
-            function Wave() {
-                for(var i = 0; i < waves.length; i++) {
-                   waves[i].style.marginLeft = (Math.round((Math.sin(frame / 30 + i / 3 + body.scrollTop / 180) + 1) * 30)) + "px";
+            function RGBToHSL(rgb){
+                let sep = rgb.indexOf(",") > -1 ? "," : " ";
+                rgb = rgb.substr(4).split(")")[0].split(sep);
+
+                for (let R in rgb) {
+                  let r = rgb[R];
+                  if (r.indexOf("%") > -1) 
+                    rgb[R] = Math.round(r.substr(0,r.length - 1) / 100 * 255);
                 }
-                frame++;
-                self.setTimeout("Wave()", 1000 / 30);
+            
+                // Make r, g, and b fractions of 1
+                let r = rgb[0] / 255,
+                    g = rgb[1] / 255,
+                    b = rgb[2] / 255;
+                var max = Math.max(r, g, b), min = Math.min(r, g, b);
+                var h, s, l = (max + min) / 2;
+
+                if(max == min){
+                    h = s = 0; // achromatic
+                }else{
+                    var d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch(max){
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+            
+                return {H: h, S:s, L:l};
             }
-            Wave();
+        </script>
+        <script>
+            var RNG = new Math.seedrandom(Math.random());
+            
+            var body = document.body,
+                html = document.documentElement;
+            var height = Math.max( body.clientHeight, body.scrollHeight, body.offsetHeight,
+                                   html.clientHeight, html.scrollHeight, html.offsetHeight );
+            var width =  Math.max( body.clientWidth, body.scrollWidth, body.offsetWidth, 
+                                   html.clientWidth, html.scrollWidth, html.offsetWidth );
+
+            var wave1 = {
+                direction: 50,
+                anchorX: 0,
+                dots: [],
+                setupDots: function() {
+                    var anchor = document.createElement('div');
+                    anchor.id = "anchor";
+                    anchor.style = "position: absolute; left: " + (this.anchorX) + "px; top: 0px;";
+                    anchor.style.width = "fit-content";
+                    anchor.style.height = "fit-content";
+                    document.body.append(anchor);
+                    for (let i = 0; i < height/20; i++) {
+                        let child = document.createElement('div');
+                        child.className = "circle";
+                        child.style.backgroundColor = HSLToHex(/*Math.round(RNG()*360)*/ ((i)/(64)%1)*360, 100, 50);
+                        child.style.display = "block";
+                        anchor.append(child);
+
+                        this.dots.push(child);
+                    
+                    }
+                },
+                update: function() {
+                    for (let i = 0; i < this.dots.length; i++) {
+                        let child = this.dots[i];
+                        child.style.backgroundColor = HSLToHex(/*Math.round(RNG()*360)*/ ((i+performance.now()/100)/(64)%1)*360, 100, 50);
+                        anime({
+                            targets: child,
+                            left: Math.sin(performance.now()/1000 + i/3)*(this.direction/2) + (this.direction/2),
+                            duration: 10,
+                            easing: 'linear',
+                        });
+                    }
+                },
+            };
+            var wave2 = Object.assign({}, wave1);
+            wave2.direction = -50;
+            wave2.anchorX = width-20;
+            wave2.dots = [];
+
+            var ltr = null;
+            var imgs = document.querySelectorAll("img");
+            var rotations = {};
+            var imgrotations = {};
+            for (let i = 0; i < imgs.length; i++) {
+                imgrotations[i] = {rot: 0};
+            }
+
+            var y = 0;
+            function tick() {
+                y = 0;
+                if(ltr != null && Object.keys(rotations).length > 0) {
+                    ltr.listAll.forEach((el) => {
+                        var stl = el.getAttribute("style");
+                        if (stl.indexOf('-webkit-transform') === -1) {
+                            stl += " -webkit-transform: rotate(" + Math.round(rotations[y].rot) + "deg);";
+                        } else {
+                            var orig = stl.split('-webkit-transform: rotate(');
+                            stl = orig[0].trim() + " -webkit-transform: rotate(" + Math.round(rotations[y].rot) + orig[1].substring(orig[1].indexOf('deg)'));
+                        }
+                        el.setAttribute("style", stl);
+                        y++;
+                    });
+                    y = 0;
+                    imgs.forEach((el) => {
+                        var stl = el.getAttribute("style");
+                        if (stl.indexOf('-webkit-transform') === -1) {
+                            stl += " -webkit-transform: rotate(" + Math.round(imgrotations[y].rot) + "deg);";
+                        } else {
+                            var orig = stl.split('-webkit-transform: rotate(');
+                            stl = orig[0].trim() + " -webkit-transform: rotate(" + Math.round(imgrotations[y].rot) + orig[1].substring(orig[1].indexOf('deg)'));
+                        }
+                        el.setAttribute("style", stl);
+                        y++;
+                    });
+                }
+
+                if(!isShaking) {
+                    wave1.update();
+                    wave2.update();
+                }
+                requestAnimationFrame(tick);
+            }
+
+            wave1.setupDots();
+            wave2.setupDots();
+            requestAnimationFrame(tick);
+
+            //function getOffset(el) {
+            //    const rect = el.getBoundingClientRect();
+            //    return {
+            //        left: rect.left + window.scrollX,
+            //        top: rect.top + window.scrollY
+            //    };
+            //}
+
+            var isShaking = false;
+            function shake() {
+                if(!isShaking) {
+                    isShaking = true;
+                    y = 0;
+                    if(ltr == null) {
+                        ltr = new Letterize({targets: "p, a, span", wrapper: "div"});
+                        ltr.listAll.forEach((el) => {
+                            el.style.position = "relative";
+                            el.style.display = "inline-block";
+                        });
+                    }
+                    anime({
+                        targets: "#shake",
+                        top: "-100px",
+                        duration: 500,
+                        easing: 'easeInOutQuart',
+                    });
+                    anime({
+                        targets: wave1.dots,
+                        translateX: 500,
+                        translateY: 0,
+                        left: 0,
+                        duration: 2000,
+                        easing: 'easeOutSine',
+                        background: "rgb(100, 0, 0)",
+                    });
+                    anime({
+                        targets: wave2.dots,
+                        translateX: -500,
+                        translateY: 0,
+                        left: 0,
+                        duration: 2000,
+                        easing: 'easeOutSine',
+                        background: "rgb(100, 0, 0)",
+                    });
+                    setTimeout(() => {
+                        anime({
+                            targets: wave1.dots,
+                            translateX: 0,
+                            duration: 3000,
+                            easing: 'easeInQuart',
+                            background: "rgb(255, 0, 0)",
+                            complete: function(anim) {
+                                anime({
+                                    targets: wave1.dots,
+                                    translateX: function() {
+                                      return anime.random(-50, 50);
+                                    },
+                                    translateY: function() {
+                                      return anime.random(-50, 50);
+                                    },
+                                    duration: 1000,
+                                    easing: 'easeOutQuart',
+                                });
+                            }
+                        });
+                        anime({
+                            targets: wave2.dots,
+                            translateX: -0.001,
+                            duration: 3000,
+                            easing: 'easeInQuart',
+                            background: "rgb(255, 0, 0)",
+                            complete: function(anim) {
+                                anime({
+                                    targets: wave2.dots,
+                                    translateX: function() {
+                                      return anime.random(-50, 50);
+                                    },
+                                    translateY: function() {
+                                      return anime.random(-50, 50);
+                                    },
+                                    duration: 1000,
+                                    easing: 'easeOutQuart',
+                                });
+                            },
+                        });
+                    }, 2000);
+                    setTimeout(() => {
+                        y = 0;
+
+                        ltr.listAll.forEach((el) => {
+                            if(rotations[y] == null)
+                                rotations[y] = {rot: 0};
+                            if(Number.isNaN(Math.round(parseInt(el.style.top.substring(0, el.style.top.indexOf("px")))))) {
+                                anime({
+                                    targets: el,
+                                    top:  Math.round((RNG()*50)*Math.sign(RNG()-0.5)),
+                                    left: Math.round((RNG()*50)*Math.sign(RNG()-0.5)),
+                                    duration: /*Math.round(RNG()*500 + 500)*/ Math.round(RNG()*2500)+500,
+                                    easing: 'easeOutQuad',
+                                });
+                            } else {
+                                anime({
+                                    targets: el,
+                                    top:  Math.round((RNG()*150)*Math.sign(RNG()-0.5) + parseInt(el.style.top.substring(0, el.style.top.indexOf("px")))),
+                                    left: Math.round((RNG()*150)*Math.sign(RNG()-0.5) + parseInt(el.style.left.substring(0, el.style.left.indexOf("px")))),
+                                    duration: /*Math.round(RNG()*500 + 500)*/ Math.round(RNG()*2500)+500,
+                                    easing: 'easeOutQuart',
+                                });
+                            }
+                            anime({
+                                targets: rotations[y],
+                                rot: (RNG()*360)*Math.sign(RNG()-0.5),
+                                duration: Math.round(RNG()*2500)+500,
+                                easing: 'easeOutQuart',
+                            });
+                            y++;
+                        });
+                        y = 0;
+                        imgs.forEach((el) => {
+                            if(Number.isNaN(Math.round(parseInt(el.style.top.substring(0, el.style.top.indexOf("px")))))) {
+                                anime({
+                                    targets: el,
+                                    top:  Math.round((RNG()*50)*Math.sign(RNG()-0.5)),
+                                    left: Math.round((RNG()*50)*Math.sign(RNG()-0.5)),
+                                    duration: /*Math.round(RNG()*500 + 500)*/ Math.round(RNG()*2500)+500,
+                                    easing: 'easeOutQuad',
+                                });
+                            } else {
+                                anime({
+                                    targets: el,
+                                    top:  Math.round((RNG()*150)*Math.sign(RNG()-0.5) + parseInt(el.style.top.substring(0, el.style.top.indexOf("px")))),
+                                    left: Math.round((RNG()*150)*Math.sign(RNG()-0.5) + parseInt(el.style.left.substring(0, el.style.left.indexOf("px")))),
+                                    duration: /*Math.round(RNG()*500 + 500)*/ Math.round(RNG()*2500)+500,
+                                    easing: 'easeOutQuart',
+                                });
+                            }
+                            anime({
+                                targets: imgrotations[y],
+                                rot: (RNG()*30)*Math.sign(RNG()-0.5),
+                                duration: Math.round(RNG()*2500)+1000,
+                                easing: 'easeOutQuart',
+                            });
+                            y++;
+                        });
+
+                        var btn = document.querySelector("#shake");
+                        var stl = btn.getAttribute("style");
+                        if (stl.indexOf('-webkit-transform') === -1) {
+                            stl += " -webkit-transform: rotate(" + (RNG()*360)*Math.sign(RNG()-0.5) + "deg);";
+                        } else {
+                            var orig = stl.split('-webkit-transform: rotate(');
+                            stl = orig[0].trim() + " -webkit-transform: rotate(" + (RNG()*30)*Math.sign(RNG()-0.5) + orig[1].substring(orig[1].indexOf('deg)'));
+                        }
+                        btn.setAttribute("style", stl);
+
+                        document.body.style.left = Math.round((RNG()*175+25) * Math.sign(RNG()-0.5)) + "px";
+                        document.body.style.top = Math.round((RNG()*50+10) * Math.sign(RNG()-0.5)) + "px";
+                        anime({
+                            targets: document.body,
+                            left: 0,
+                            top: 0,
+                            duration: 1000,
+                            easing: 'easeOutBounce',
+                        });
+                        anime({
+                            targets: "#shake",
+                            top: "10px",
+                            duration: 500,
+                            easing: 'easeOutQuad',
+                        });
+                        isShaking = false;
+                    }, 5000);
+                }
+            }
         </script>
 
     </body>
