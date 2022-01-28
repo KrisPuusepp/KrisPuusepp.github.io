@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>asjad</title>
+        <title>stuff</title>
         <link rel="icon" href="Resources/jan3s.png">
         <style>
         ::-webkit-scrollbar {
@@ -43,8 +43,8 @@
             width: 150px;
         }
         .blackimg {
-            border: 5px solid #222;
-            background-color: #b30000;
+            border: 5px solid rgb(15, 15, 15);
+            background-color: #1b1b1b;
             border-radius: 15px;
             padding: 5px;
             width: 150px;
@@ -64,6 +64,10 @@
         .mainbox {
             margin-top: 55px;
             margin-bottom: 55px;
+            margin-left: 15px;
+            margin-right: 15px;
+            display: inline-block;
+            vertical-align: top;
         }
 
         .square,
@@ -86,36 +90,53 @@
     <body style="background-color: #000; position: relative; margin: 0px; padding: 0px;">
         <br>
     	<div style="text-align:center; color:black; font-size:28px; font-weight:bold; font-family:arial; position:static; z-index:2">
-            <p style="margin: 75px;">asjad</p>            
+            <p style="margin: 75px;">stuff</p>            
             <div class="about">
+                <p>All kinds of different projects made with lots of JavaScript frameworks.</p>
+                <br>
+                <p>All projects are made for PCs.</p>
+                <p>They don't work on mobile.</p>
+                <p>Press F11 to go fullscreen.</p>
+                <br>
+                <p>//</p>
+                <br>
                 <p>Igasugused erinevad projektid, tehtud erinevate JavaScript raamistikkudega.</p>
                 <br>
                 <p>Kõik projektid on tehtud arvutis ja arvuti jaoks.</p>
                 <p>Need ei tööta telefonis.</p>
+                <p>Vajutage F11 et ekraan suuremaks teha.</p>
+                <br>
             </div>
 
             <button id="shake" style="position: absolute; left: 100px; top: 10px;" onclick="shake()">earthquake</button>
 
-            <div class="mainbox">
-                <a href="https://peegeldumissimulatsioon.netlify.app/">Valguse peegeldumise simulatsioon</a>
-                <p style="font-size:12px">Kooli loovtöö</p>
-                <a href="https://peegeldumissimulatsioon.netlify.app/"><image style="width: 450px;" class="whiteimg" src="./Resources/valgussim.PNG"></a>
-            </div>
-            <div>
-                <a href="/colorsim.html">Värviline simulatsioon</a>
-                <p style="font-size:12px">Esimene projekt PixiJS raamistikuga</p>
-                <a href="/colorsim.html"><image style="width: 450px;" class="blackimg" src="./Resources/varvsim.PNG"></a>
-            </div>
-
-            <div style="font-size:22px; margin-top: 300px; margin-bottom: 300px;">
-                <p style="margin: 5px;">Pooleli jäetud / lõpetamata tööd</p>
-                <a style="font-size: 16px;" href="/factory/factory.html">factory.html</a>
+            <div style="width: 60%; margin-left: 20%; margin-right: 20%;">
+                <div class="mainbox">
+                    <a href="https://peegeldumissimulatsioon.netlify.app/">Light reflection simulation<br><span>//</span><br>Valguse peegeldumise simulatsioon</a>
+                    <p style="font-size:14px">Creative project for school // Kooli loovtöö</p>
+                    <a href="https://peegeldumissimulatsioon.netlify.app/"><image style="width: 450px;" class="whiteimg" src="./Resources/valgussim.PNG"></a>
+                </div>
+                <div class="mainbox">
+                    <a href="colorsim.html">Particle simulation</a>
+                    <p style="font-size:14px">First project with the PixiJS framework.<br>Left and middle mouse button to change properties.</p>
+                    <a href="colorsim.html"><image style="width: 450px;" class="blackimg" src="./Resources/varvsim.PNG"></a>
+                </div>
+                <div class="mainbox">
+                    <a href="cellularmuseum.html">Pixel/Square simulations</a>
+                    <p style="font-size:14px">simulations that use squares</p>
+                    <a href="cellularmuseum.html"><image style="width: 450px;" class="blackimg" src="./Resources/cellular/cel1.png"></a>
+                </div>
+    
+                <div style="font-size:22px; margin-top: 300px; margin-bottom: 300px; display: inline-block;">
+                    <p style="margin: 5px;">Unfinished projects</p>
+                    <a style="font-size: 16px;" href="factory/factory.html">factory.html</a>
+                </div>
             </div>
     	</div>
 
-        <script src="/Resources/libs/anime.min.js"></script>
-        <script src="/Resources/libs/seedrandom.min.js"></script>
-        <script src="/Resources/libs/letterize.min.js"></script>
+        <script src="Resources/libs/anime.min.js"></script>
+        <script src="Resources/libs/seedrandom.min.js"></script>
+        <script src="Resources/libs/letterize.min.js"></script>
         <script>
             function HSLToHex(h,s,l) {
               s /= 100;
@@ -199,7 +220,6 @@
                                    html.clientHeight, html.scrollHeight, html.offsetHeight );
             var width =  Math.max( body.clientWidth, body.scrollWidth, body.offsetWidth, 
                                    html.clientWidth, html.scrollWidth, html.offsetWidth );
-
             var wave1 = {
                 direction: 50,
                 anchorX: 0,

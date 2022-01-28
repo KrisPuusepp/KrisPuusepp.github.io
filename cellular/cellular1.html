@@ -1,0 +1,191 @@
+<html>
+<head>
+    <style>* {padding: 0; margin: 0}</style>
+    <title>Color sim</title>
+    <meta charset="utf-8">
+    <style>
+        h1 {text-align: center;}
+        p {text-align: center;}
+        div {text-align: center;}
+        ::-webkit-scrollbar {
+            width: 0;  /* Remove scrollbar space */
+            background: transparent;  /* Optional: just make scrollbar invisible */
+        }
+    </style>
+</head>
+<script src="../Resources/pixi/pixi.min.js"></script>
+<script src="../Resources/pixi/pixi.min.js.map"></script>
+<script src="../Resources/pixi/pixi-filters.js"></script>
+<script src="../Resources/pixi/pixi-filters.js.map"></script>
+<script src="../Resources/libs/anime.min.js"></script>
+<script src="../Resources/libs/jquery-3.6.0.min.js"></script>
+<script src="../Resources/libs/seedrandom.min.js"></script>
+
+<body bgcolor="black">
+    <script>
+        function lerp(value1, value2, amount) {
+            amount = amount < 0 ? 0 : amount;
+            amount = amount > 1 ? 1 : amount;
+            return value1 + (value2 - value1) * amount;
+        }
+        function componentToHex(c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+        function rgbToHex(r, g, b) {
+            return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+        function HSLToHex(h,s,l) {
+          h = Math.min(Math.round(h*1.411764705882353), 359);
+          s /= 255;
+          l /= 255;
+        
+          let c = (1 - Math.abs(2 * l - 1)) * s,
+              x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+              m = l - c/2,
+              r = 0,
+              g = 0, 
+              b = 0; 
+        
+          if (0 <= h && h < 60) {
+            r = c; g = x; b = 0;
+          } else if (60 <= h && h < 120) {
+            r = x; g = c; b = 0;
+          } else if (120 <= h && h < 180) {
+            r = 0; g = c; b = x;
+          } else if (180 <= h && h < 240) {
+            r = 0; g = x; b = c;
+          } else if (240 <= h && h < 300) {
+            r = x; g = 0; b = c;
+          } else if (300 <= h && h < 360) {
+            r = c; g = 0; b = x;
+          }
+          // Having obtained RGB, convert channels to hex
+          r = Math.round((r + m) * 255).toString(16);
+          g = Math.round((g + m) * 255).toString(16);
+          b = Math.round((b + m) * 255).toString(16);
+        
+          // Prepend 0s, if necessary
+          if (r.length == 1)
+            r = "0" + r;
+          if (g.length == 1)
+            g = "0" + g;
+          if (b.length == 1)
+            b = "0" + b;
+        
+          return "0x" + r + g + b;
+        }
+    </script>
+    
+    <script type="text/javascript">
+        var RNG = new Math.seedrandom(Math.random());
+        
+        //setup
+        let type = "WebGL"
+        PIXI.utils.sayHello(type)
+        
+        //Create a Pixi Application
+        stageWidth = 1920;
+        stageHeight = 1080;
+        var sizeMultiplier = 1;
+        
+        let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x000000});
+        
+        //Add the canvas that Pixi automatically created for you to the HTML document
+        document.body.appendChild(app.view);
+        
+        //resize to window
+        app.renderer.view.style.position = "absolute";
+        app.renderer.view.style.display = "block";
+        
+        var frame = 0;
+
+        var world = new PIXI.Container();
+        var cellContainer = new PIXI.ParticleContainer(20736, {tint: true, vertices: true}, 69, false);
+        world.addChild(cellContainer);
+        app.stage.addChild(world);
+
+        function resizeWorld() {
+            sizeMultiplier = window.innerWidth / stageWidth;
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+            world.scale = {x: sizeMultiplier, y: sizeMultiplier};
+        }       
+
+        window.onresize = resizeWorld;
+        resizeWorld();
+        
+        //debug text
+        let text = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 128, fill : 0xFFFFFF, align : 'center'});
+        text.scale = {x: 0.25, y: 0.25};
+        world.addChild(text);
+        function writeMessage(str) {
+            text.text = str;
+        }
+        
+        function dist(pos1, pos2) {
+            var dist = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+            return dist;
+        }
+        
+        var input = new PIXI.InteractionManager(app.renderer);
+        
+
+
+
+        var cellsX = 16 * 12;
+        var cellsY = 9 * 12;
+        var cells = [];
+        var cellGraphics = [];
+
+        function setup() {
+            //var blom = new PIXI.filters.AdvancedBloomFilter({threshold: 0, brightness:1, bloomScale:3, blur: 4, quality: 8});
+            //app.stage.filters = [blom];
+            
+            var cellSize = stageWidth/cellsX;
+            for(var x = 0; x < cellsX; x++) {
+                cells[x] = [];
+                cellGraphics[x] = [];
+                for(var y = 0; y < cellsY; y++) {
+                    cells[x][y] = {H: 255, S: 255, V: 255/2};
+                    cellGraphics[x][y] = new PIXI.Sprite(loader.resources["../Resources/sprites/particle.png"].texture);
+                    var rec = cellGraphics[x][y];
+                    rec.position = {x: x*cellSize, y: y*cellSize};
+                    rec.scale = {x: cellSize, y: cellSize};
+                    //rec.anchor = {x: 0.5, y: 0.5};
+                    cellContainer.addChild(rec);
+                }
+            }
+            
+            //Start the game loop by adding the `gameLoop` function to
+            //Pixi's `ticker` and providing it with a `delta` argument.
+            app.ticker.add(delta => gameLoop(delta));
+        }
+        
+        function gameLoop(delta) {
+            //console.log(input.mouse.global);
+            
+            for(var x = 0; x < cellsX; x++) {
+                for(var y = 0; y < cellsY; y++) {
+                    var c = cells[x][y];
+                    c.H = (frame + x + y) % 255;
+                }
+            }
+
+            for(var x = 0; x < cellsX; x++) {
+                for(var y = 0; y < cellsY; y++) {
+                    var c = cells[x][y];
+                    cellGraphics[x][y].tint = HSLToHex(c.H, c.S, c.V);
+                }
+            }
+
+            frame++;
+        }
+        
+        
+        const loader = PIXI.Loader.shared;
+        loader
+            .add("../Resources/sprites/particle.png")
+            .load(setup);
+    </script>
+</body>
+</html>

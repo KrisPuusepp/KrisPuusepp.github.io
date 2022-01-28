@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>asjad</title>
+        <link rel="icon" href="Resources/jan3s.png">
+        <style>
+        ::-webkit-scrollbar {
+            width: 0;  /* Remove scrollbar space */
+            background: transparent;  /* Optional: just make scrollbar invisible */
+        }
+
+        button {
+            padding: 4px 8px;
+
+            transition-duration: 0.2s;
+            background-color: white;
+            color: black;
+            border: black;
+            border-radius: 10px;
+            height: 24px;
+        }
+
+        button:hover {
+            background-color: #4CAF50; /* Green */
+            background-color: red;
+            color: black;
+            border: red; /* Green */
+            border-radius: 2px;
+            font-size: 16px;
+            height: auto;
+        }
+
+        img {
+            position: relative;
+            display: inline-block;
+        }
+
+        .whiteimg {
+            border: 5px solid #fff;
+            background-color: #ddd;
+            border-radius: 10px;
+            padding: 5px;
+            width: 150px;
+        }
+        .blackimg {
+            border: 5px solid rgb(15, 15, 15);
+            background-color: #1b1b1b;
+            border-radius: 15px;
+            padding: 5px;
+            width: 150px;
+        }
+        p, a {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .about p {
+            margin: 0px;
+            padding: 0px;
+            font-weight: normal;
+            font-size: 22px;
+        }
+
+        .mainbox {
+            margin-top: 55px;
+            margin-bottom: 55px;
+        }
+
+        .square,
+        .circle {
+            pointer-events: none;
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin: 0px;
+            background-color: red;
+            font-size: 14px;
+            display: inline-block;
+        }
+        .circle {
+          border-radius: 50%
+        }
+        </style>
+    </head>k
+
+    <body style="background-color: #000; position: relative; margin: 0px; padding: 0px;">
+        <br>
+    	<div style="text-align:center; color:black; font-size:28px; font-weight:bold; font-family:arial; position:static; z-index:2">
+            <p style="margin: 10px;">Pixel/Square simulations</p>            
+
+            <div class="mainbox">
+                <a href="cellular/cellular2.html">Spiral</a>
+                <p style="font-size:14px">Move mouse</p>
+                <a href="cellular/cellular2.html"><image style="width: 200px;" class="blackimg" src="./Resources/cellular/cel1.png"></a>
+            </div>
+    	</div>
+
+        <div id="grid" style="align-content: center; margin: 0 auto; margin-bottom: 100px; margin-top: 100px; font-size: 0px"></div>
+
+        <script src="Resources/libs/anime.min.js"></script>
+        <script src="Resources/libs/jquery-3.6.0.min.js"></script>
+        <script src="Resources/libs/seedrandom.min.js"></script>
+        <!--<script src="/Resources/libs/letterize.min.js"></script>  -->
+        <script>
+            function HSLToHex(h,s,l) {
+              s /= 100;
+              l /= 100;
+            
+              let c = (1 - Math.abs(2 * l - 1)) * s,
+                  x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+                  m = l - c/2,
+                  r = 0,
+                  g = 0, 
+                  b = 0; 
+            
+              if (0 <= h && h < 60) {
+                r = c; g = x; b = 0;
+              } else if (60 <= h && h < 120) {
+                r = x; g = c; b = 0;
+              } else if (120 <= h && h < 180) {
+                r = 0; g = c; b = x;
+              } else if (180 <= h && h < 240) {
+                r = 0; g = x; b = c;
+              } else if (240 <= h && h < 300) {
+                r = x; g = 0; b = c;
+              } else if (300 <= h && h < 360) {
+                r = c; g = 0; b = x;
+              }
+              // Having obtained RGB, convert channels to hex
+              r = Math.round((r + m) * 255).toString(16);
+              g = Math.round((g + m) * 255).toString(16);
+              b = Math.round((b + m) * 255).toString(16);
+          
+              // Prepend 0s, if necessary
+              if (r.length == 1)
+                r = "0" + r;
+              if (g.length == 1)
+                g = "0" + g;
+              if (b.length == 1)
+                b = "0" + b;
+          
+              return "#" + r + g + b;
+            }
+
+            function RGBToHSL(rgb){
+                let sep = rgb.indexOf(",") > -1 ? "," : " ";
+                rgb = rgb.substr(4).split(")")[0].split(sep);
+
+                for (let R in rgb) {
+                  let r = rgb[R];
+                  if (r.indexOf("%") > -1) 
+                    rgb[R] = Math.round(r.substr(0,r.length - 1) / 100 * 255);
+                }
+            
+                // Make r, g, and b fractions of 1
+                let r = rgb[0] / 255,
+                    g = rgb[1] / 255,
+                    b = rgb[2] / 255;
+                var max = Math.max(r, g, b), min = Math.min(r, g, b);
+                var h, s, l = (max + min) / 2;
+
+                if(max == min){
+                    h = s = 0; // achromatic
+                }else{
+                    var d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch(max){
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+            
+                return {H: h, S:s, L:l};
+            }
+        </script>
+        <script>
+            var RNG = new Math.seedrandom(Math.random());
+            
+            var body = document.body,
+                html = document.documentElement;
+            var height = Math.max( body.clientHeight, body.scrollHeight, body.offsetHeight,
+                                   html.clientHeight, html.scrollHeight, html.offsetHeight );
+            var width =  Math.max( body.clientWidth, body.scrollWidth, body.offsetWidth, 
+                                   html.clientWidth, html.scrollWidth, html.offsetWidth );
+
+            var squares = [];
+            var hsvs = [];
+            var gridX = 64;
+            var gridY = 12;
+            var gridDiv = $("#grid");
+            for (let y = 0; y < gridY; y++) {
+                for (let x = 0; x < gridX; x++) {
+                    var hsv = x*3 + y*3;
+                    hsvs.push(hsv);
+                    var child = $('<div></div>');
+                    child.addClass("square");
+                    child.css({
+                        "background-color": HSLToHex(hsv, 100, 50),
+                        "display": "inline-block",
+                        "position": "relative",
+                        //"left": x*20 + "px",
+                        //"top":  y*20 + "px",
+                    });
+                    gridDiv.append(child);
+                    squares.push(child);
+                }
+            }
+            gridDiv.css({
+                "width": 20*gridX + "px",
+                "height": 20*gridY + "px",
+            });
+            
+            function tick() {
+                for (let y = 0; y < gridY; y++) {
+                    for (let x = 0; x < gridX; x++) {
+                        var index = y*gridX+x;
+                        var child = squares[index];
+                        hsvs[index]++;
+                        child.css("background-color", HSLToHex(hsvs[index] % 360, 100, 50));
+                    }
+                }
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+            anime({
+                targets: '.square',
+                translateX: anime.stagger(10, {grid: [gridX, gridY], from: 'center', axis: 'x'}),
+                translateY: anime.stagger(10, {grid: [gridX, gridY], from: 'center', axis: 'y'}),
+                rotateZ: anime.stagger([0, 420], {grid: [gridX, gridY], from: 'center', axis: 'x'}),
+                delay: anime.stagger(200, {grid: [gridX, gridY], from: 'center'}),
+                easing: 'easeInOutQuad'
+            });
+        </script>
+
+    </body>
+</html>
