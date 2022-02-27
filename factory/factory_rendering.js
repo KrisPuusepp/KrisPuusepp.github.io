@@ -9,6 +9,8 @@ stageWidth = 1920;
 stageHeight = 1080;
 console.log("Detected Width: " + innerWidth + ", Detected Height: " + innerHeight);
 let app = new PIXI.Application({width: stageWidth, height: stageHeight, antialias: true, backgroundColor: 0x1E1E1E});
+var world = new PIXI.Container();
+app.stage.addChild(world);
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
 //resize to window
@@ -17,7 +19,7 @@ app.renderer.view.style.display = "block";
 app.renderer.autoResize = true;
 tileSize = stageWidth/64/1.3;
 tileGroup = new PIXI.Container();
-app.stage.addChild(tileGroup);
+world.addChild(tileGroup);
 var docBody = document.getElementsByTagName("body")[0];
 function changeCursor(input) {
     switch(input) {
@@ -35,7 +37,7 @@ var input = new PIXI.InteractionManager(app.renderer);
 texRend = new PIXI.Text('',{fontFamily : "mainFont", fontSize: 32, fill : 0xFFFFFF, align : 'center'});
 texRend.x = 256;
 texRend.y = 10;
-app.stage.addChild(texRend);
+world.addChild(texRend);
 
 function debugText(text) {
     texRend.text = text;
@@ -85,3 +87,14 @@ app.loader
             }, Math.round(1000*Math.random()));
         }
     })
+
+function resizeWorld() {
+    sizeMultiplier = window.innerWidth / stageWidth;
+    sizeMultiplier /= 1.1;
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+    world.scale = {x: sizeMultiplier, y: sizeMultiplier};
+    //cornerDot1.x = window.innerWidth + 10;
+    //cornerDot1.y = window.innerHeight + 10;
+}       
+window.onresize = resizeWorld;
+resizeWorld();

@@ -2,7 +2,7 @@
 
 entityGroup = new PIXI.Container(); // Only used so the zIndex works
 entityGroup.sortableChildren = true;
-app.stage.addChild(entityGroup);
+world.addChild(entityGroup);
 
 entities = [];
 
@@ -530,7 +530,9 @@ class buildingMK1 { //powerful breaker
         }
 
         if(this.isSelected) {
-            var mousePosition = input.mouse.global;
+            var mousePosition = Object.assign({}, input.mouse.global);
+            mousePosition.x /= world.scale.x;
+            mousePosition.y /= world.scale.y;
             if(mousePosition.x != null) {
                 //clamp the values to the grid
                 var cx = Math.round((mousePosition.x - tileGroup.x) / tileSize);

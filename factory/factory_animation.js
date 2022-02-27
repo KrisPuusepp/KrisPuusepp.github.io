@@ -18,7 +18,7 @@ class anim {
         obj.pol.moveTo(x1, y1);
         obj.pol.lineTo(x2, y2);
         obj.targetAlpha = 0.1;
-        app.stage.addChild(obj.pol);
+        world.addChild(obj.pol);
     }
 
     static animUpdate() {

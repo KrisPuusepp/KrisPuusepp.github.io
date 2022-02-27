@@ -66,7 +66,7 @@ class inventory {
         this.invGroup = new PIXI.Container();
         this.invGroup.x = this.x;
         this.invGroup.y = this.y;
-        app.stage.addChild(this.invGroup);
+        world.addChild(this.invGroup);
 
         for(var i = 0; i < 5; i++) {
             this.tex = new PIXI.Text('ERROR',{fontFamily : 'mainFont', fontSize: 32, fill : 0xFFFFFF, align : 'center'});
@@ -155,7 +155,7 @@ energyUsed = 0;
 energyGroup = new PIXI.Container(); //Mostly only used for fading it in. see progression.js
 energyGroup.alpha = 0;
 energyGroup.x = 512;
-app.stage.addChild(energyGroup);
+world.addChild(energyGroup);
 
 energyEmpt = new PIXI.Graphics();
 energyEmpt.beginFill(0x2E2E2E);
